@@ -4,8 +4,8 @@ import java.util.function.Supplier;
 public final class LazyFactory {
     public static <T> Lazy<T> createLazyMono(Supplier<T> sup) {
         return new Lazy<T>() {
-            boolean isReady = false;
-            T value = null;
+            private boolean isReady = false;
+            private T value = null;
 
             @Override
             public final T get() {
@@ -22,8 +22,8 @@ public final class LazyFactory {
 
     public static <T> Lazy<T> createLazyConcurrent(Supplier<T> sup) {
         return new Lazy<T>() {
-            boolean isReady = false;
-            T value = null;
+            private boolean isReady = false;
+            private T value = null;
 
             @Override
             public final synchronized T get() {
