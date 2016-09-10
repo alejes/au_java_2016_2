@@ -40,7 +40,7 @@ public final class LazyFactory {
 
     public static <T> Lazy<T> createLazyLockFree(Supplier<T> sup) {
         return new Lazy<T>() {
-            private AtomicReference<Holder<T>> holderReference = new AtomicReference<>();
+            private final AtomicReference<Holder<T>> holderReference = new AtomicReference<>();
 
             @Override
             public T get() {
