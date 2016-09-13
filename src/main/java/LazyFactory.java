@@ -1,4 +1,5 @@
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.function.Supplier;
 
 public final class LazyFactory {
@@ -22,18 +23,20 @@ public final class LazyFactory {
 
     public static <T> Lazy<T> createLazyConcurrent(Supplier<T> sup) {
         return new Lazy<T>() {
-            private boolean isReady = false;
+            private volatile boolean isReady = false;
             private T value = null;
 
             @Override
-            public final synchronized T get() {
-                if (isReady) {
-                    return value;
-                } else {
-                    value = sup.get();
-                    isReady = true;
-                    return value;
+            public final T get() {
+                if (!isReady) {
+                    synchronized (this) {
+                        if (!isReady) {
+                            value = sup.get();
+                            isReady = true;
+                        }
+                    }
                 }
+                return value;
             }
         };
     }
@@ -60,3 +63,5 @@ public final class LazyFactory {
         };
     }
 }
+
+
