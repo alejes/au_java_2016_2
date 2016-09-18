@@ -8,10 +8,25 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public interface DBDriver {
+    class CommitResult {
+        int branchId;
+        int commitId;
+
+        public CommitResult(int branchId, int commitId) {
+            this.branchId = branchId;
+            this.commitId = commitId;
+        }
+    }
+
     void connect() throws ClassNotFoundException, SQLException;
 
     void initTables() throws SQLException;
 
     void addBranch(String branchName) throws SQLException;
 
+    void switchBranch(String branchName) throws SQLException;
+
+    void deleteBranch(String branchName) throws SQLException;
+
+    CommitResult commit(String message) throws SQLException;
 }

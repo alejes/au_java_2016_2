@@ -28,17 +28,59 @@ public class SQLLite implements DBDriver {
 
     @Override
     public void addBranch(String branchName) throws SQLException {
-        PreparedStatement preparedStatement = conn.prepareStatement("SELECT COUNT(*) FROM 'branches' WHERE ('branches'.'name' = ?)");
-        preparedStatement.setString(1, branchName);
-        ResultSet result = preparedStatement.executeQuery();
+        PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) FROM 'branches' WHERE ('branches'.'name' = ?)");
+        stmt.setString(1, branchName);
+        ResultSet result = stmt.executeQuery();
         if (result.getInt(1) > 0) {
             throw new VCSException("Branch already exists");
         }
-        preparedStatement = conn.prepareStatement("INSERT INTO 'branches' VALUES(NULL, ?)");
-        preparedStatement.setString(1, branchName);
-        preparedStatement.executeUpdate();
+        stmt = conn.prepareStatement("INSERT INTO 'branches' VALUES(NULL, ?)");
+        stmt.setString(1, branchName);
+        stmt.executeUpdate();
+    }
 
+    @Override
+    public void switchBranch(String branchName) throws SQLException {
         Statement stmt = conn.createStatement();
         stmt.executeUpdate("UPDATE 'settings' SET value='?' WHERE ('name' = 'current_branch');");
+    }
+
+    @Override
+    public void deleteBranch(String branchName) throws SQLException {
+        if (getCurrentBranch().equals(branchName)) {
+            throw new VCSException("You cannot delete current branch");
+        }
+        PreparedStatement preparedStatement = conn.prepareStatement("DELETE FROM 'settings' WHERE ('name' = ?);");
+        preparedStatement.setString(1, branchName);
+        preparedStatement.executeUpdate();
+    }
+
+    @Override
+    public CommitResult commit(String message) throws SQLException {
+        String branchName = getCurrentBranch();
+        int branchId = getBranchId(branchName);
+
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO `commits` VALUES(NULL, ?, ?, CURRENT_TIMESTAMP)");
+        stmt.setInt(1, branchId);
+        stmt.setString(2, message);
+        stmt.executeUpdate();
+
+        ResultSet result = stmt.getGeneratedKeys();
+        int insert_id = result.getInt(1);
+
+        return new CommitResult(branchId, insert_id);
+    }
+
+    private String getCurrentBranch() throws SQLException {
+        Statement stmt = conn.createStatement();
+        ResultSet result = stmt.executeQuery("SELECT `value` FROM  `settings` WHERE ('name' = 'current_branch');");
+        return result.getString(1);
+    }
+
+    private int getBranchId(String branchName) throws SQLException {
+        PreparedStatement preparedStatement = conn.prepareStatement("SELECT `id` FROM `branches` WHERE ('name' = ?);");
+        preparedStatement.setString(1, branchName);
+        ResultSet result = preparedStatement.executeQuery();
+        return result.getInt(1);
     }
 }
