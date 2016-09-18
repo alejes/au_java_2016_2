@@ -1,0 +1,17 @@
+group 'com.stepanov.spbau'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.5
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'commons-cli', name: 'commons-cli', version: '1.3.1'
+    compile group: 'commons-io', name: 'commons-io', version: '2.5'
+    compile 'org.xerial:sqlite-jdbc:3.8.9.1'
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
