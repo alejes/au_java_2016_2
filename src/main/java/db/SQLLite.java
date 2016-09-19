@@ -28,7 +28,7 @@ public class SQLLite implements DBDriver {
 
     @Override
     public void addBranch(String branchName) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) FROM 'branches' WHERE ('branches'.'name' = ?)");
+        PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) FROM 'branches' WHERE (`branches`.`name` = ?)");
         stmt.setString(1, branchName);
         ResultSet result = stmt.executeQuery();
         if (result.getInt(1) > 0) {
@@ -41,8 +41,9 @@ public class SQLLite implements DBDriver {
 
     @Override
     public void switchBranch(String branchName) throws SQLException {
-        Statement stmt = conn.createStatement();
-        stmt.executeUpdate("UPDATE 'settings' SET value='?' WHERE ('name' = 'current_branch');");
+        PreparedStatement stmt = conn.prepareStatement("UPDATE `settings` SET `value`=? WHERE (`settings`.`name` = 'current_branch');");
+        stmt.setString(1, branchName);
+        stmt.executeUpdate();
     }
 
     @Override
@@ -50,7 +51,7 @@ public class SQLLite implements DBDriver {
         if (getCurrentBranch().equals(branchName)) {
             throw new VCSException("You cannot delete current branch");
         }
-        PreparedStatement preparedStatement = conn.prepareStatement("DELETE FROM 'settings' WHERE ('name' = ?);");
+        PreparedStatement preparedStatement = conn.prepareStatement("DELETE FROM `settings` WHERE (`settings`.`name` = ?);");
         preparedStatement.setString(1, branchName);
         preparedStatement.executeUpdate();
     }
@@ -71,14 +72,36 @@ public class SQLLite implements DBDriver {
         return new CommitResult(branchId, insert_id);
     }
 
+    @Override
+    public String log() throws SQLException {
+        String branchName = getCurrentBranch();
+        int branchId = getBranchId(branchName);
+        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM `commits` WHERE (`commits`.`branch`=?)");
+        stmt.setInt(1, branchId);
+
+        ResultSet result = stmt.executeQuery();
+        StringBuilder answer = new StringBuilder();
+        while (result.next()) {
+            int commitId = result.getInt(1);
+            String message = result.getString(3);
+            Timestamp time = result.getTimestamp(4);
+            answer.append(commitId + ": " + time.toString() + "\n");
+            answer.append(message);
+            answer.append("\n=====\n");
+        }
+        result.close();
+
+        return answer.toString();
+    }
+
     private String getCurrentBranch() throws SQLException {
         Statement stmt = conn.createStatement();
-        ResultSet result = stmt.executeQuery("SELECT `value` FROM  `settings` WHERE ('name' = 'current_branch');");
+        ResultSet result = stmt.executeQuery("SELECT `value` FROM  `settings` WHERE ('settings'.'name' = 'current_branch');");
         return result.getString(1);
     }
 
     private int getBranchId(String branchName) throws SQLException {
-        PreparedStatement preparedStatement = conn.prepareStatement("SELECT `id` FROM `branches` WHERE ('name' = ?);");
+        PreparedStatement preparedStatement = conn.prepareStatement("SELECT `id` FROM `branches` WHERE (`branches`.`name` = ?);");
         preparedStatement.setString(1, branchName);
         ResultSet result = preparedStatement.executeQuery();
         return result.getInt(1);
