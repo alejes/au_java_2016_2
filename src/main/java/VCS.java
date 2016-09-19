@@ -55,9 +55,13 @@ public class VCS {
             if (create) {
                 db.addBranch(branchName);
             } else {
+
                 DBDriver.CommitResult commitData = db.getLastCommit(branchName);
+                if (commitData == null){
+                    commitData = db.getCommitById(branchName);
+                }
                 String commitDirectory = "./.vcs/" + commitData.branchId + "/" + commitData.commitId;
-                System.out.println(commitDirectory);
+
                 File vcs = new File(commitDirectory);
                 File currentDirectory = new File(".");
                 for (File file : currentDirectory.listFiles(filter)) {

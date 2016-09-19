@@ -1,6 +1,5 @@
 package db;
 
-
 import exceptions.VCSException;
 
 import java.sql.*;
@@ -40,10 +39,26 @@ public class SQLLite implements DBDriver {
     }
 
     @Override
+    public CommitResult getCommitById(String commit) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("SELECT `id`, `branch` FROM  `commits` WHERE ('commits'.'id' = ?);");
+        stmt.setString(1, commit);
+        ResultSet result = stmt.executeQuery();
+        int commitId = result.getInt(1);
+        int branchId = result.getInt(2);
+        return new CommitResult(branchId, commitId);
+    }
+
+    @Override
     public CommitResult getLastCommit(String branch) throws SQLException {
-        int branchId = getBranchId(branch);
+        Integer branchId = getBranchId(branch);
+        if (branchId == null) {
+            return null;
+        }
         Statement stmt = conn.createStatement();
         ResultSet result = stmt.executeQuery("SELECT `id` FROM  `commits` WHERE ('commits'.'branch' = '" + branchId + "') ORDER by `commits`.`id` DESC;");
+        if (result.isClosed()) {
+            return null;
+        }
         int last_commit_id = result.getInt(1);
         return new CommitResult(branchId, last_commit_id);
     }
@@ -84,7 +99,10 @@ public class SQLLite implements DBDriver {
     @Override
     public String log() throws SQLException {
         String branchName = getCurrentBranch();
-        int branchId = getBranchId(branchName);
+        Integer branchId = getBranchId(branchName);
+        if (branchId == null) {
+            throw new VCSException("Illegal State: wrong current branch name");
+        }
         PreparedStatement stmt = conn.prepareStatement("SELECT * FROM `commits` WHERE (`commits`.`branch`=?) ORDER BY `commits`.`id` DESC LIMIT 7");
         stmt.setInt(1, branchId);
 
@@ -109,10 +127,14 @@ public class SQLLite implements DBDriver {
         return result.getString(1);
     }
 
-    private int getBranchId(String branchName) throws SQLException {
+    private Integer getBranchId(String branchName) throws SQLException {
         PreparedStatement preparedStatement = conn.prepareStatement("SELECT `id` FROM `branches` WHERE (`branches`.`name` = ?);");
         preparedStatement.setString(1, branchName);
         ResultSet result = preparedStatement.executeQuery();
-        return result.getInt(1);
+        if (result.isClosed()) {
+            return null;
+        } else {
+            return result.getInt(1);
+        }
     }
 }
