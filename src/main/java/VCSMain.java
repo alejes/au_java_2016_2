@@ -55,7 +55,11 @@ public class VCSMain {
 
                 case "commit":
                     Utils.checkArgumentsLength(args, 2, "you must specify commit message");
+                    vcs.commit(args[1]);
+                    break;
 
+                case "log":
+                    vcs.log();
                     break;
 
                 default:

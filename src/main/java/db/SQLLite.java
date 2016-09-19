@@ -40,6 +40,15 @@ public class SQLLite implements DBDriver {
     }
 
     @Override
+    public CommitResult getLastCommit(String branch) throws SQLException {
+        int branchId = getBranchId(branch);
+        Statement stmt = conn.createStatement();
+        ResultSet result = stmt.executeQuery("SELECT `id` FROM  `commits` WHERE ('commits'.'branch' = '" + branchId + "') ORDER by `commits`.`id` DESC;");
+        int last_commit_id = result.getInt(1);
+        return new CommitResult(branchId, last_commit_id);
+    }
+
+    @Override
     public void switchBranch(String branchName) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("UPDATE `settings` SET `value`=? WHERE (`settings`.`name` = 'current_branch');");
         stmt.setString(1, branchName);
@@ -76,7 +85,7 @@ public class SQLLite implements DBDriver {
     public String log() throws SQLException {
         String branchName = getCurrentBranch();
         int branchId = getBranchId(branchName);
-        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM `commits` WHERE (`commits`.`branch`=?)");
+        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM `commits` WHERE (`commits`.`branch`=?) ORDER BY `commits`.`id` DESC LIMIT 7");
         stmt.setInt(1, branchId);
 
         ResultSet result = stmt.executeQuery();
@@ -84,8 +93,8 @@ public class SQLLite implements DBDriver {
         while (result.next()) {
             int commitId = result.getInt(1);
             String message = result.getString(3);
-            Timestamp time = result.getTimestamp(4);
-            answer.append(commitId + ": " + time.toString() + "\n");
+            String time = result.getString(4);
+            answer.append(commitId + ": " + time + "\n");
             answer.append(message);
             answer.append("\n=====\n");
         }

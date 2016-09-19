@@ -9,8 +9,8 @@ import java.sql.Statement;
 
 public interface DBDriver {
     class CommitResult {
-        int branchId;
-        int commitId;
+        public int branchId;
+        public int commitId;
 
         public CommitResult(int branchId, int commitId) {
             this.branchId = branchId;
@@ -29,4 +29,8 @@ public interface DBDriver {
     void deleteBranch(String branchName) throws SQLException;
 
     CommitResult commit(String message) throws SQLException;
+
+    String log() throws SQLException;
+
+    CommitResult getLastCommit(String branch) throws SQLException;
 }
