@@ -121,7 +121,8 @@ public class SQLLite implements DBDriver {
         return answer.toString();
     }
 
-    private String getCurrentBranch() throws SQLException {
+    @Override
+    public String getCurrentBranch() throws SQLException {
         Statement stmt = conn.createStatement();
         ResultSet result = stmt.executeQuery("SELECT `value` FROM  `settings` WHERE ('settings'.'name' = 'current_branch');");
         return result.getString(1);

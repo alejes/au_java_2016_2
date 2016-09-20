@@ -32,7 +32,7 @@ public class VCSMain {
                             vcs.checkout(args[2], false);
                             break;
                         case 4:
-                            vcs.checkout(args[2], true);
+                            vcs.checkout(args[3], true);
                             break;
                         default:
                             throw new VCSException("Unexpected count of arguments");
@@ -54,12 +54,17 @@ public class VCSMain {
                     break;
 
                 case "commit":
-                    Utils.checkArgumentsLength(args, 2, "you must specify commit message");
-                    vcs.commit(args[1]);
+                    Utils.checkArgumentsLength(args, 3, "you must specify commit message");
+                    vcs.commit(args[2]);
                     break;
 
                 case "log":
                     vcs.log();
+                    break;
+
+                case "merge":
+                    Utils.checkArgumentsLength(args, 3, "you must specify source merge branch");
+                    vcs.merge(args[2]);
                     break;
 
                 default:

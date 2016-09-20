@@ -35,4 +35,6 @@ public interface DBDriver {
     CommitResult getLastCommit(String branch) throws SQLException;
 
     CommitResult getCommitById(String commitId) throws SQLException;
+
+    String getCurrentBranch() throws SQLException;
 }
