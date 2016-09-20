@@ -1,12 +1,4 @@
-import db.DBDriver;
-import db.SQLLite;
 import exceptions.VCSException;
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
-
 
 public class VCSMain {
     public static void main(String[] args) {
@@ -14,9 +6,6 @@ public class VCSMain {
             System.out.println("Help");
             return;
         }
-        //Options options = new Options();
-        //options.addOption("h", "help", false, "show help.");
-        //options.addOption("v", "var", true, "Here you can set parameter .");
         VCS vcs = new VCS();
         try {
             switch (args[1]) {

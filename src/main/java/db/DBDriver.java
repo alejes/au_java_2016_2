@@ -1,23 +1,9 @@
 package db;
 
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public interface DBDriver {
-    class CommitResult {
-        public int branchId;
-        public int commitId;
-
-        public CommitResult(int branchId, int commitId) {
-            this.branchId = branchId;
-            this.commitId = commitId;
-        }
-    }
-
     void connect() throws ClassNotFoundException, SQLException;
 
     void initTables() throws SQLException;
@@ -37,4 +23,14 @@ public interface DBDriver {
     CommitResult getCommitById(String commitId) throws SQLException;
 
     String getCurrentBranch() throws SQLException;
+
+    class CommitResult {
+        public int branchId;
+        public int commitId;
+
+        public CommitResult(int branchId, int commitId) {
+            this.branchId = branchId;
+            this.commitId = commitId;
+        }
+    }
 }

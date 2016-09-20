@@ -6,7 +6,6 @@ import java.sql.*;
 
 public class SQLLite implements DBDriver {
     Connection conn;
-    ResultSet resSet;
 
     @Override
     public void connect() throws ClassNotFoundException, SQLException {
