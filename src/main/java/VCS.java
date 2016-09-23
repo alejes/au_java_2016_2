@@ -17,14 +17,8 @@ import static java.lang.Integer.min;
 
 public class VCS {
 
-    private DBDriver db;
-
-    public enum MODIFY_ACTION {
-        CREATE,
-        DELETE
-    }
-
     private static FileFilter filter = pathname -> !pathname.getAbsoluteFile().toString().endsWith("\\.vcs");
+    private DBDriver db;
 
     public VCS() {
         db = new SQLLite();
@@ -55,6 +49,7 @@ public class VCS {
         }
     }
 
+    @SuppressWarnings("all")
     public void checkout(String branchName, boolean create) {
         try {
             db.connect();
@@ -107,6 +102,64 @@ public class VCS {
             System.out.println("SQL exception:" + e.getMessage());
         } catch (IOException e) {
             System.out.println("Cannot switch files during checkout:");
+        }
+    }
+
+    public void branch(String branchName, MODIFY_ACTION action) {
+        try {
+            db.connect();
+            switch (action) {
+                case CREATE:
+                    db.addBranch(branchName);
+                    break;
+                case DELETE:
+                    db.deleteBranch(branchName);
+                    break;
+            }
+        } catch (ClassNotFoundException e) {
+            System.out.printf("Cannot find SQLite");
+        } catch (VCSException e) {
+            System.out.printf("VCS exception: " + e.getMessage());
+        } catch (SQLException e) {
+            System.out.println("SQL exception:" + e.getMessage());
+        }
+    }
+
+    public void commit(String message) {
+        try {
+            db.connect();
+            DBDriver.CommitResult commitData = db.commit(message);
+
+            String commitDirectory = "./.vcs/" + commitData.branchId + "/" + commitData.commitId;
+            File vcs = new File(commitDirectory);
+            if (!vcs.mkdirs()) {
+                throw new VCSException("Cannot initialize branch directory");
+            }
+            FileUtils.copyDirectory(new File("."), vcs, filter);
+        } catch (ClassNotFoundException e) {
+            System.out.printf("Cannot find SQLite");
+        } catch (VCSException e) {
+            System.out.printf("VCS exception: " + e.getMessage());
+        } catch (SQLException e) {
+            System.out.println("SQL exception:" + e.getMessage());
+        } catch (IOException e) {
+            System.out.printf("Cannot copy commit files");
+        }
+    }
+
+    public void log() {
+        try {
+            db.connect();
+            String currentBranch = db.getCurrentBranch();
+            System.out.println("On branch " + currentBranch + ":");
+            String log = db.log();
+            System.out.printf(log);
+        } catch (ClassNotFoundException e) {
+            System.out.printf("Cannot find SQLite");
+        } catch (VCSException e) {
+            System.out.printf("VCS exception: " + e.getMessage());
+        } catch (SQLException e) {
+            System.out.println("SQL exception:" + e.getMessage());
         }
     }
 
@@ -167,62 +220,8 @@ public class VCS {
         Files.write(target.toPath(), resultLines.toString().getBytes());
     }
 
-
-    public void branch(String branchName, MODIFY_ACTION action) {
-        try {
-            db.connect();
-            switch (action) {
-                case CREATE:
-                    db.addBranch(branchName);
-                    break;
-                case DELETE:
-                    db.deleteBranch(branchName);
-                    break;
-            }
-        } catch (ClassNotFoundException e) {
-            System.out.printf("Cannot find SQLite");
-        } catch (VCSException e) {
-            System.out.printf("VCS exception: " + e.getMessage());
-        } catch (SQLException e) {
-            System.out.println("SQL exception:" + e.getMessage());
-        }
-    }
-
-    public void commit(String message) {
-        try {
-            db.connect();
-            DBDriver.CommitResult commitData = db.commit(message);
-
-            String commitDirectory = "./.vcs/" + commitData.branchId + "/" + commitData.commitId;
-            File vcs = new File(commitDirectory);
-            if (!vcs.mkdirs()) {
-                throw new VCSException("Cannot initialize branch directory");
-            }
-            FileUtils.copyDirectory(new File("."), vcs, filter);
-        } catch (ClassNotFoundException e) {
-            System.out.printf("Cannot find SQLite");
-        } catch (VCSException e) {
-            System.out.printf("VCS exception: " + e.getMessage());
-        } catch (SQLException e) {
-            System.out.println("SQL exception:" + e.getMessage());
-        } catch (IOException e) {
-            System.out.printf("Cannot copy commit files");
-        }
-    }
-
-    public void log() {
-        try {
-            db.connect();
-            String currentBranch = db.getCurrentBranch();
-            System.out.println("On branch " + currentBranch + ":");
-            String log = db.log();
-            System.out.printf(log);
-        } catch (ClassNotFoundException e) {
-            System.out.printf("Cannot find SQLite");
-        } catch (VCSException e) {
-            System.out.printf("VCS exception: " + e.getMessage());
-        } catch (SQLException e) {
-            System.out.println("SQL exception:" + e.getMessage());
-        }
+    public enum MODIFY_ACTION {
+        CREATE,
+        DELETE
     }
 }
