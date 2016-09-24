@@ -27,3 +27,7 @@ jar {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
+
+clean.doFirst {
+    delete "${rootDir}/tests/workdir"
+}
