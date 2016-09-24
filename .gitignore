@@ -34,3 +34,4 @@ proguard/
 .gradle/
 build/
 bin/
+tests/workdir

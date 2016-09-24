@@ -198,23 +198,23 @@ public class VCS {
             }
             if (startPointer < pointer) {
                 for (int i = startPointer; i < pointer; ++i) {
-                    resultLines.append("-" + targetLines.get(i) + "\n");
+                    resultLines.append("+" + targetLines.get(i) + "\n");
                 }
                 for (int i = startPointer; i < pointer; ++i) {
-                    resultLines.append("+" + sourceLines.get(i) + "\n");
+                    resultLines.append("-" + sourceLines.get(i) + "\n");
                 }
             }
-            if (pointer < targetLines.size()) {
+            if (pointer < lastLine) {
                 resultLines.append(targetLines.get(pointer) + "\n");
             }
         }
 
         for (int pointer = lastLine; pointer < targetLines.size(); ++pointer) {
-            resultLines.append('-' + targetLines.get(pointer) + '\n');
+            resultLines.append('+' + targetLines.get(pointer) + '\n');
         }
 
         for (int pointer = lastLine; pointer < sourceLines.size(); ++pointer) {
-            resultLines.append('+' + sourceLines.get(pointer) + '\n');
+            resultLines.append('-' + sourceLines.get(pointer) + '\n');
         }
         resultLines.deleteCharAt(resultLines.length() - 1);
         Files.write(target.toPath(), resultLines.toString().getBytes());
