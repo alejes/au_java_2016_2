@@ -4,7 +4,7 @@ package db;
 import java.sql.SQLException;
 
 public interface DBDriver {
-    void connect() throws ClassNotFoundException, SQLException;
+    void connect() throws ClassNotFoundException;
 
     void initTables() throws SQLException;
 

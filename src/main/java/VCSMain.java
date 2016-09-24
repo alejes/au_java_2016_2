@@ -3,7 +3,7 @@ import exceptions.VCSException;
 public class VCSMain {
     public static void main(String[] args) {
         if (args.length <= 1) {
-            System.out.println("Help");
+            System.out.println("Start with creating your own repository by command:\nvcs init");
             return;
         }
         VCS vcs = new VCS();
@@ -57,7 +57,7 @@ public class VCSMain {
                     break;
 
                 default:
-                    System.out.printf("help");
+                    System.out.println("Start with creating your own repository by command:\nvcs init");
             }
         } catch (VCSException e) {
             System.out.printf("VCS exception: " + e.getMessage());
