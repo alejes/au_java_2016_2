@@ -8,11 +8,14 @@ public class SQLLite implements DBDriver {
     Connection conn;
 
     @Override
-    public void connect() throws ClassNotFoundException, SQLException {
+    public void connect() throws ClassNotFoundException {
         conn = null;
         Class.forName("org.sqlite.JDBC");
-        conn = DriverManager.getConnection("jdbc:sqlite:./.vcs/vcs.s3db");
-
+        try {
+            conn = DriverManager.getConnection("jdbc:sqlite:./.vcs/vcs.s3db");
+        } catch (SQLException ex) {
+            throw new VCSException("database is corrupted", ex);
+        }
     }
 
     @Override
