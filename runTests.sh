@@ -70,6 +70,63 @@ fi
 
 
 cd .. && rm -rf workdir && mkdir workdir && cd workdir
+echo -e "${orange}Checkout not found test${nc}"
+echo "file1" >> file1.txt
+echo "file2" >> file2.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs init
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs commit "first"
+RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs checkout "branch"`
+if [[ "$RESULT" != `echo -ne "VCS exception: Not found target of checkout"` ]]
+then
+	echo -e "${red}Cannot found exception of wrong branch${nc}"
+fi
+
+
+cd .. && rm -rf workdir && mkdir workdir && cd workdir
+echo -e "${orange}Checkout new and old branch${nc}"
+echo "file1" >> file1.txt
+echo "file2" >> file2.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs init
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs commit "first"
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs checkout -b "branch"
+echo "file3" >> file3.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs commit "second"
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs checkout "master"
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs checkout "branch"
+RESULT=`ls`
+if [[ "$RESULT" != `echo -ne "file1.txt\nfile2.txt\nfile3.txt"` ]]
+then
+	echo -e "${red}Wrong checkout on branch${nc}"
+fi
+
+cd .. && rm -rf workdir && mkdir workdir && cd workdir
+echo -e "${orange}Checkout on commit${nc}"
+echo "file1" >> file1.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs init
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs commit "first"
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs checkout -b "branch"
+echo "file2" >> file2.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs commit "second"
+echo "file3" >> file3.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs commit "third"
+echo "file4" >> file4.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs commit "fourth"
+echo "file5" >> file5.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs commit "fifth"
+echo "file6" >> file6.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs commit "sixth"
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs checkout "master"
+echo "file7" >> file7.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs commit "seventh"
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs checkout "5"
+RESULT=`ls`
+if [[ "$RESULT" != `echo -ne "file1.txt\nfile2.txt\nfile3.txt\nfile4.txt\nfile5.txt"` ]]
+then
+	echo -e "${red}Wrong checkout on branch${nc}"
+fi
+
+
+cd .. && rm -rf workdir && mkdir workdir && cd workdir
 echo -e "${orange}Merge test${nc}"
 echo "file1" >> file1.txt
 echo "file2" >> file2.txt
@@ -116,3 +173,6 @@ if [[ "$RESULT" != 'VCS exception: database is corrupted' ]]
 then 
 	echo -e "${red}failed${nc}"
 fi
+
+
+

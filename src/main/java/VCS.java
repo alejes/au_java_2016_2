@@ -49,17 +49,18 @@ public class VCS {
         }
     }
 
-    @SuppressWarnings("all")
     public void checkout(String branchName, boolean create) {
         try {
             db.connect();
             if (create) {
                 db.addBranch(branchName);
             } else {
-
                 DBDriver.CommitResult commitData = db.getLastCommit(branchName);
                 if (commitData == null) {
                     commitData = db.getCommitById(branchName);
+                }
+                if (commitData == null) {
+                    throw new VCSException("Not found target of checkout");
                 }
                 String commitDirectory = "./.vcs/" + commitData.branchId + "/" + commitData.commitId;
 

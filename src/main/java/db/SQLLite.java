@@ -45,6 +45,9 @@ public class SQLLite implements DBDriver {
         PreparedStatement stmt = conn.prepareStatement("SELECT `id`, `branch` FROM  `commits` WHERE (`commits`.`id` = ?);");
         stmt.setString(1, commit);
         ResultSet result = stmt.executeQuery();
+        if (result.isClosed()) {
+            return null;
+        }
         int commitId = result.getInt(1);
         int branchId = result.getInt(2);
         return new CommitResult(branchId, commitId);
