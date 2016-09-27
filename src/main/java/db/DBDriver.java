@@ -24,6 +24,8 @@ public interface DBDriver {
 
     String getCurrentBranch() throws SQLException;
 
+    Integer getBranchId(String branchName) throws SQLException;
+
     class CommitResult {
         public int branchId;
         public int commitId;

@@ -80,7 +80,7 @@ public class SQLLite implements DBDriver {
         if (getCurrentBranch().equals(branchName)) {
             throw new VCSException("You cannot delete current branch");
         }
-        PreparedStatement preparedStatement = conn.prepareStatement("DELETE FROM `settings` WHERE (`settings`.`name` = ?);");
+        PreparedStatement preparedStatement = conn.prepareStatement("DELETE FROM `branches` WHERE (`branches`.`name` = ?);");
         preparedStatement.setString(1, branchName);
         preparedStatement.executeUpdate();
     }
@@ -133,7 +133,8 @@ public class SQLLite implements DBDriver {
         return result.getString(1);
     }
 
-    private Integer getBranchId(String branchName) throws SQLException {
+    @Override
+    public Integer getBranchId(String branchName) throws SQLException {
         PreparedStatement preparedStatement = conn.prepareStatement("SELECT `id` FROM `branches` WHERE (`branches`.`name` = ?);");
         preparedStatement.setString(1, branchName);
         ResultSet result = preparedStatement.executeQuery();

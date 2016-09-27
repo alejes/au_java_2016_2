@@ -127,6 +127,22 @@ fi
 
 
 cd .. && rm -rf workdir && mkdir workdir && cd workdir
+echo -e "${orange}Delete branch${nc}"
+echo "file1" >> file1.txt
+echo "file2" >> file2.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs init
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs commit "first"
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs checkout -b "branch"
+echo "file3" >> file3.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs commit "second"
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs branch -d "master"
+RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar vcs checkout "master"`
+if [[ "$RESULT" != `echo -ne "VCS exception: Not found target of checkout"` ]]
+then
+	echo -e "${red}Wrong deleted branch${nc}"
+fi
+
+cd .. && rm -rf workdir && mkdir workdir && cd workdir
 echo -e "${orange}Merge test${nc}"
 echo "file1" >> file1.txt
 echo "file2" >> file2.txt

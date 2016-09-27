@@ -62,6 +62,7 @@ public class VCS {
                 if (commitData == null) {
                     throw new VCSException("Not found target of checkout");
                 }
+
                 String commitDirectory = "./.vcs/" + commitData.branchId + "/" + commitData.commitId;
 
                 File vcs = new File(commitDirectory);
@@ -102,7 +103,7 @@ public class VCS {
         } catch (SQLException e) {
             System.out.println("SQL exception:" + e.getMessage());
         } catch (IOException e) {
-            System.out.println("Cannot switch files during checkout:");
+            System.out.println("Cannot switch files during checkout: " + e.getMessage());
         }
     }
 
@@ -114,7 +115,12 @@ public class VCS {
                     db.addBranch(branchName);
                     break;
                 case DELETE:
+                    Integer branchId = db.getBranchId(branchName);
+                    if (branchId == null) {
+                        throw new VCSException("Cannot found branch " + branchName);
+                    }
                     db.deleteBranch(branchName);
+                    FileUtils.deleteDirectory(new File("./.vcs/" + branchId));
                     break;
             }
         } catch (ClassNotFoundException e) {
@@ -123,6 +129,8 @@ public class VCS {
             System.out.printf("VCS exception: " + e.getMessage());
         } catch (SQLException e) {
             System.out.println("SQL exception:" + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Cannot delete branch");
         }
     }
 
