@@ -1,6 +1,7 @@
 package db;
 
 import exceptions.VCSException;
+import models.CommitResult;
 
 import java.sql.*;
 

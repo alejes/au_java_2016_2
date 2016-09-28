@@ -1,6 +1,9 @@
 import db.DBDriver;
 import db.SQLLite;
 import exceptions.VCSException;
+import models.CommitResult;
+import models.FILE_ACTION;
+import models.VCSFile;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -8,10 +11,14 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.Integer.min;
 
@@ -22,6 +29,40 @@ public class VCS {
 
     public VCS() {
         db = new SQLLite();
+    }
+
+    private static List<File> getDirectoryFiles(File directory) {
+        List<File> result = Arrays.stream(directory.listFiles(filter)).filter(File::isDirectory).map(VCS::getDirectoryFiles).flatMap(List::stream).collect(Collectors.toList());
+        result.addAll(Arrays.stream(directory.listFiles(filter)).filter((it) -> !it.isDirectory()).collect(Collectors.toList()));
+        return result;
+    }
+
+    private static boolean isFilesEquals(File first, File second) throws IOException {
+        String firstContent = new String(Files.readAllBytes(first.toPath()));
+        String secondContent = new String(Files.readAllBytes(second.toPath()));
+
+        return firstContent.equals(secondContent);
+    }
+
+    private static List<VCSFile> modifiedFilesList(File target, File source) throws IOException {
+        Stream<File> targetFiles = getDirectoryFiles(target).stream().filter((it) -> !it.isDirectory());
+        Stream<File> sourceFiles = getDirectoryFiles(source).stream().filter((it) -> !it.isDirectory());
+
+        Map<String, File> fileMap = sourceFiles.collect(Collectors.toMap(File::getName, file -> file));
+
+        List<VCSFile> result = new ArrayList<>();
+        for (File file : targetFiles.collect(Collectors.toList())) {
+            if (fileMap.containsKey(file.getName())) {
+                File targetFile = fileMap.get(file.getName());
+                boolean equalsCheck = isFilesEquals(file, targetFile);
+                result.add(new VCSFile(file, targetFile, (equalsCheck) ? FILE_ACTION.EQUAL : FILE_ACTION.MODIFIED));
+                fileMap.remove(file.getName());
+            } else {
+                result.add(new VCSFile(file, null, FILE_ACTION.ADDED));
+            }
+        }
+        result.addAll(fileMap.values().stream().map(file -> new VCSFile(file, null, FILE_ACTION.DELETED)).collect(Collectors.toList()));
+        return result;
     }
 
     public void initRepository() {
@@ -55,7 +96,7 @@ public class VCS {
             if (create) {
                 db.addBranch(branchName);
             } else {
-                DBDriver.CommitResult commitData = db.getLastCommit(branchName);
+                CommitResult commitData = db.getLastCommit(branchName);
                 if (commitData == null) {
                     commitData = db.getCommitById(branchName);
                 }
@@ -92,7 +133,7 @@ public class VCS {
     public void merge(String sourceBranch) {
         try {
             db.connect();
-            DBDriver.CommitResult commitData = db.getLastCommit(sourceBranch);
+            CommitResult commitData = db.getLastCommit(sourceBranch);
             String commitDirectory = "./.vcs/" + commitData.branchId + "/" + commitData.commitId;
 
             mergeDirectory(new File("."), new File(commitDirectory));
@@ -137,10 +178,18 @@ public class VCS {
     public void commit(String message) {
         try {
             db.connect();
-            DBDriver.CommitResult commitData = db.commit(message);
+
+            CommitResult commitData = db.commit(message);
 
             String commitDirectory = "./.vcs/" + commitData.branchId + "/" + commitData.commitId;
             File vcs = new File(commitDirectory);
+            List<VCSFile> listFiles = modifiedBetweenCommits(commitData);
+            System.out.printf("===============");
+            for (VCSFile file : listFiles) {
+                System.out.printf(file.toString());
+            }
+            System.out.printf("===============");
+
             if (!vcs.mkdirs()) {
                 throw new VCSException("Cannot initialize branch directory");
             }
@@ -228,6 +277,22 @@ public class VCS {
         resultLines.deleteCharAt(resultLines.length() - 1);
         Files.write(target.toPath(), resultLines.toString().getBytes());
     }
+
+    private List<VCSFile> modifiedBetweenCommits(CommitResult newCommit) throws SQLException, IOException {
+        String currentBranch = db.getCurrentBranch();
+        CommitResult lastCommitId = null;
+        if (currentBranch != null) {
+            lastCommitId = db.getLastCommit(currentBranch);
+        }
+
+        if (lastCommitId == null) {
+            return getDirectoryFiles(new File(".")).stream().filter((it) -> !it.isDirectory()).map((it) -> new VCSFile(it, null, FILE_ACTION.ADDED)).collect(Collectors.toList());
+        } else {
+            System.out.printf(lastCommitId.toString());
+            return modifiedFilesList(new File("."), new File("./.vcs/" + lastCommitId.branchId + "/" + lastCommitId.commitId));
+        }
+    }
+
 
     public enum MODIFY_ACTION {
         CREATE,

@@ -1,6 +1,6 @@
 package db;
 
-
+import models.CommitResult;
 import java.sql.SQLException;
 
 public interface DBDriver {
@@ -26,13 +26,4 @@ public interface DBDriver {
 
     Integer getBranchId(String branchName) throws SQLException;
 
-    class CommitResult {
-        public int branchId;
-        public int commitId;
-
-        public CommitResult(int branchId, int commitId) {
-            this.branchId = branchId;
-            this.commitId = commitId;
-        }
-    }
 }
