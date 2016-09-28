@@ -16,7 +16,21 @@ public class VCSFile {
 
     @Override
     public String toString() {
-        return "[VCSFile: new=" + currentVersion.getAbsolutePath() + "; old=" +
-                oldVersion.getAbsolutePath() + " action= " + action.name() + "]";
+        StringBuilder result = new StringBuilder("[VCSFile: new=");
+        if (currentVersion == null) {
+            result.append("null");
+        } else {
+            result.append(currentVersion.getAbsolutePath());
+        }
+        result.append("; old=");
+        if (oldVersion == null) {
+            result.append("null");
+        } else {
+            result.append(oldVersion.getAbsolutePath());
+        }
+        result.append(" action= ");
+        result.append(action.name());
+        result.append("]");
+        return result.toString();
     }
 }

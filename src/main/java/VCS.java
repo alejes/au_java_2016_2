@@ -179,17 +179,11 @@ public class VCS {
         try {
             db.connect();
 
+            List<VCSFile> listFiles = modifiedBetweenCommits();
             CommitResult commitData = db.commit(message);
-
             String commitDirectory = "./.vcs/" + commitData.branchId + "/" + commitData.commitId;
             File vcs = new File(commitDirectory);
-            List<VCSFile> listFiles = modifiedBetweenCommits(commitData);
-            System.out.printf("===============");
-            for (VCSFile file : listFiles) {
-                System.out.printf(file.toString());
-            }
-            System.out.printf("===============");
-
+            
             if (!vcs.mkdirs()) {
                 throw new VCSException("Cannot initialize branch directory");
             }
@@ -278,7 +272,7 @@ public class VCS {
         Files.write(target.toPath(), resultLines.toString().getBytes());
     }
 
-    private List<VCSFile> modifiedBetweenCommits(CommitResult newCommit) throws SQLException, IOException {
+    private List<VCSFile> modifiedBetweenCommits() throws SQLException, IOException {
         String currentBranch = db.getCurrentBranch();
         CommitResult lastCommitId = null;
         if (currentBranch != null) {
