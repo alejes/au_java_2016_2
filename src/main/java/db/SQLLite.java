@@ -2,8 +2,14 @@ package db;
 
 import exceptions.VCSException;
 import models.CommitResult;
+import models.VCSEntity;
+import org.apache.commons.io.monitor.FileEntry;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class SQLLite implements DBDriver {
     Connection conn;
@@ -84,6 +90,50 @@ public class SQLLite implements DBDriver {
         PreparedStatement stmt = conn.prepareStatement("UPDATE `settings` SET `value`=? WHERE (`settings`.`name` = 'current_branch');");
         stmt.setString(1, branchName);
         stmt.executeUpdate();
+    }
+
+    @Override
+    public Set<VCSEntity> commitFiles(CommitResult commit) throws SQLException {
+        Set<VCSEntity> result = new HashSet<>();
+        if (commit == null){
+            return result;
+        }
+
+        PreparedStatement stmt = conn.prepareStatement(
+                "SELECT `commit_files`.`file_id`, `files`.`name` " +
+                        "FROM `commit_files` " +
+                        "LEFT JOIN `files` ON `files`.`id`=`commit_files`.`file_id` " +
+                        "WHERE (`commit_files`.`commit_id` = ?);");
+        stmt.setInt(1, commit.commitId);
+        ResultSet resultSet = stmt.executeQuery();
+        while (resultSet.next()) {
+            int fileId = resultSet.getInt(1);
+            String path = resultSet.getString(2);
+            result.add(new VCSEntity(fileId, path));
+        }
+        return result;
+    }
+
+    @Override
+    public Integer getFileIdInCommit(int commitId, String path) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement(
+                "SELECT `commit_files`.`file_id` " +
+                        "FROM `commit_files` " +
+                        "LEFT JOIN `files` ON `files`.`id`=`commit_files`.`file_id` " +
+                        "WHERE ((`commit_files`.`commit_id` = ?) and (`files`.`name` = ?));");
+        stmt.setInt(1, commitId);
+        stmt.setString(2, path);
+        System.out.println("SELECT `commit_files`.`file_id` " +
+                "FROM `commit_files` " +
+                "LEFT JOIN `files` ON `files`.`id`=`commit_files`.`file_id` " +
+                "WHERE ((`commit_files`.`commit_id` = "+commitId+") and (`files`.`name` = '"+path+"'));");
+        ResultSet resultSet = stmt.executeQuery();
+
+        if (resultSet.isClosed()) {
+            return null;
+        }
+
+        return resultSet.getInt(1);
     }
 
     @Override

@@ -3,6 +3,7 @@ import db.SQLLite;
 import exceptions.VCSException;
 import models.CommitResult;
 import models.FILE_ACTION;
+import models.VCSEntity;
 import models.VCSFile;
 import org.apache.commons.io.FileUtils;
 
@@ -10,21 +11,26 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.Integer.min;
 
 public class VCS {
+    private static String rootDirectory = Paths.get(".").resolve(".").normalize().toAbsolutePath().toString();
 
     private static FileFilter filter = pathname -> !pathname.getAbsoluteFile().toString().endsWith("\\.vcs");
-    private static String stageDirectory = "stage";
-    private static String deleteDirectory = "deleted";
-    private static String filesDirectory = "files";
+    private static String resolveFilePath(String path){
+        return Paths.get(".").resolve(path).normalize().toAbsolutePath().toString().replaceFirst(rootDirectory, "");
+    }
+
+    private static String vcsDirectory = "./.vcs";
+    private static String stageDirectory = vcsDirectory + "/stage";
+    private static String deleteDirectory = vcsDirectory + "/deleted";
+    private static String filesDirectory = vcsDirectory + "/files";
     private DBDriver db;
 
     public VCS() {
@@ -67,21 +73,21 @@ public class VCS {
 
     public void initRepository() {
         try {
-            FileUtils.deleteDirectory(new File("./.vcs"));
+            FileUtils.deleteDirectory(new File(VCS.vcsDirectory));
         } catch (IOException e) {
             System.out.printf("Cannot get stat of directory");
         }
         try {
-            File vcs = new File("./.vcs");
+            File vcs = new File(VCS.vcsDirectory);
             if (!vcs.mkdir()) {
                 throw new VCSException("Cannot initialize .vcs directory");
             }
-            File files = new File("./.vcs/" + VCS.filesDirectory);
+            File files = new File(VCS.filesDirectory);
             if (!files.mkdir()) {
                 throw new VCSException("Cannot initialize files directory");
             }
 
-            File stage = new File("./.vcs/" + VCS.stageDirectory);
+            File stage = new File(VCS.stageDirectory);
             if (!stage.mkdir()) {
                 throw new VCSException("Cannot initialize stage directory");
             }
@@ -114,7 +120,7 @@ public class VCS {
                     throw new VCSException("Not found target of checkout");
                 }
 
-                String commitDirectory = "./.vcs/" + commitData.branchId + "/" + commitData.commitId;
+                String commitDirectory = VCS.vcsDirectory + "/" + commitData.branchId + "/" + commitData.commitId;
 
                 File vcs = new File(commitDirectory);
                 File currentDirectory = new File(".");
@@ -144,7 +150,7 @@ public class VCS {
         try {
             db.connect();
             CommitResult commitData = db.getLastCommit(sourceBranch);
-            String commitDirectory = "./.vcs/" + commitData.branchId + "/" + commitData.commitId;
+            String commitDirectory = VCS.vcsDirectory + "/" + commitData.branchId + "/" + commitData.commitId;
 
             mergeDirectory(new File("."), new File(commitDirectory));
         } catch (ClassNotFoundException e) {
@@ -171,7 +177,7 @@ public class VCS {
                         throw new VCSException("Cannot found branch " + branchName);
                     }
                     db.deleteBranch(branchName);
-                    FileUtils.deleteDirectory(new File("./.vcs/" + branchId));
+                    FileUtils.deleteDirectory(new File(VCS.vcsDirectory + "/" + branchId));
                     break;
             }
         } catch (ClassNotFoundException e) {
@@ -188,16 +194,37 @@ public class VCS {
     public void commit(String message) {
         try {
             db.connect();
+            String currentBranch = db.getCurrentBranch();
+            CommitResult lastCommit = null;
+            if (currentBranch != null) {
+                lastCommit = db.getLastCommit(currentBranch);
+            }
+            Set<VCSEntity> lastCommitFiles = db.commitFiles(lastCommit);
+            System.out.println("last commit");
+            lastCommitFiles.forEach(System.out::println);
+
+
             CommitResult commitData = db.commit(message);
-            String commitDirectory = "./.vcs/" + filesDirectory;
-            File stage = new File(commitDirectory);
-            if (stage.exists()) {
-                throw new VCSException("cannot on");
+
+            File stage = new File(VCS.stageDirectory);
+
+            Set<VCSEntity> stageEntities = registerDirectory(stage, ".");
+
+            System.out.println("stage files");
+            for (VCSEntity entity : stageEntities) {
+                System.out.println(entity);
+                db.addFileToCommit(commitData.commitId, entity.fileId);
+                lastCommitFiles.remove(entity);
             }
 
-            Set<Integer> all = registerDirectory(stage, ".");
+            System.out.println("files from last commit");
+            for (VCSEntity entity : lastCommitFiles) {
+                System.out.println(entity);
+                db.addFileToCommit(commitData.commitId, entity.fileId);
+            }
 
-
+            FileUtils.deleteDirectory(new File(VCS.stageDirectory));
+            FileUtils.forceMkdir(new File(VCS.stageDirectory));
         } catch (ClassNotFoundException e) {
             System.out.printf("Cannot find SQLite");
         } catch (VCSException e) {
@@ -226,15 +253,24 @@ public class VCS {
     }
 
     public void addFileToStage(String path) {
-        File source = new File(path);
+        path = resolveFilePath(path);
+        System.out.println(path);
+        File source = new File("." + path);
         if (!source.exists()) {
             throw new VCSException("file " + path + " not found");
         }
 
         try {
-            FileUtils.copyFile(source, new File("./.vcs/" + stageDirectory + "/" + path));
+            db.connect();
+            if (wasFileChanged(path)) {
+                FileUtils.copyFile(source, new File(VCS.stageDirectory + "/" + path));
+            }
+        } catch (ClassNotFoundException e) {
+            System.out.printf("Cannot find SQLite");
         } catch (IOException e) {
             System.out.printf("Cannot copy file to stage");
+        } catch (SQLException e) {
+            System.out.println("SQL exception:" + e.getMessage());
         }
     }
 
@@ -253,21 +289,23 @@ public class VCS {
         }
 
         try {
-            FileUtils.moveFile(source, new File("./.vcs/" + stageDirectory + "/" + path));
+            FileUtils.moveFile(source, new File(VCS.stageDirectory + "/" + path));
         } catch (IOException e) {
             System.out.printf("Cannot delete file to stage");
         }
     }
 
-    private Set<Integer> registerDirectory(File sourceDirectory, String prefix) throws SQLException, IOException {
-        Set<Integer> hs = new HashSet<>();
+    private Set<VCSEntity> registerDirectory(File sourceDirectory, String prefix) throws SQLException, IOException {
+        Set<VCSEntity> hs = new HashSet<>();
         for (File file : sourceDirectory.listFiles(filter)) {
+            String stageFilePath = prefix + "/" + file.getName();
             if (file.isDirectory()) {
-                hs.addAll(registerDirectory(file, prefix + "/" + file.getName()));
+                hs.addAll(registerDirectory(file, stageFilePath));
             } else {
-                int fileId = db.registerFile(prefix + "/" + file.getName());
-                FileUtils.copyFile(file, new File("./.vcs/" + fileId));
-                hs.add(fileId);
+                String resolvedPath = resolveFilePath(stageFilePath);
+                int fileId = db.registerFile(resolvedPath);
+                FileUtils.copyFile(file, new File(VCS.filesDirectory + "/" + fileId));
+                hs.add(new VCSEntity(fileId, resolvedPath));
             }
         }
         return hs;
@@ -341,8 +379,28 @@ public class VCS {
             return getDirectoryFiles(new File(".")).stream().filter((it) -> !it.isDirectory()).map((it) -> new VCSFile(it, null, FILE_ACTION.ADDED)).collect(Collectors.toList());
         } else {
             System.out.printf(lastCommitId.toString());
-            return modifiedFilesList(new File("."), new File("./.vcs/" + lastCommitId.branchId + "/" + lastCommitId.commitId));
+            return modifiedFilesList(new File("."), new File(VCS.vcsDirectory + "/" + lastCommitId.branchId + "/" + lastCommitId.commitId));
         }
+    }
+
+    private boolean wasFileChanged(String path) throws SQLException, IOException {
+        String currentBranch = db.getCurrentBranch();
+        CommitResult lastCommitId = null;
+        if (currentBranch != null) {
+            lastCommitId = db.getLastCommit(currentBranch);
+        }
+
+        if (lastCommitId == null) {
+            System.out.println("lastCommitId == null");
+            return true;
+        }
+
+        Integer fileId = db.getFileIdInCommit(lastCommitId.commitId, path);
+        if (fileId == null) {
+            System.out.println("fileId == null");
+            return true;
+        }
+        return !isFilesEquals(new File("." + path), new File(VCS.filesDirectory + "/" + fileId));
     }
 
     public enum MODIFY_ACTION {
