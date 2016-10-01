@@ -51,6 +51,21 @@ public class VCSMain {
                     vcs.log();
                     break;
 
+                case "add":
+                    Utils.checkArgumentsLength(args, 3, "you must specify target file");
+                    vcs.addFileToStage(args[2]);
+                    break;
+
+                case "reset":
+                    Utils.checkArgumentsLength(args, 3, "you must specify target file");
+                    vcs.resetFileInStage(args[2]);
+                    break;
+
+                case "rm":
+                    Utils.checkArgumentsLength(args, 3, "you must specify target file");
+                    vcs.removeFileInStage(args[2]);
+                    break;
+
                 case "merge":
                     Utils.checkArgumentsLength(args, 3, "you must specify source merge branch");
                     vcs.merge(args[2]);

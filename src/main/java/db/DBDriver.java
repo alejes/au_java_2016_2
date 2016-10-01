@@ -24,6 +24,10 @@ public interface DBDriver {
 
     String getCurrentBranch() throws SQLException;
 
+    int registerFile(String path) throws SQLException;
+
+    void addFileToCommit(int commitId, int fileId) throws SQLException;
+
     Integer getBranchId(String branchName) throws SQLException;
 
 }

@@ -25,6 +25,8 @@ public class SQLLite implements DBDriver {
         stmt.execute("CREATE TABLE IF NOT EXISTS `branches` ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' TEXT);");
         stmt.execute("CREATE TABLE IF NOT EXISTS `commits` ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'branch' INTEGER, 'message' TEXT, 'date' TIMESTAMP);");
         stmt.execute("CREATE TABLE IF NOT EXISTS `settings` ('name' TEXT PRIMARY KEY , 'value' TEXT);");
+        stmt.execute("CREATE TABLE IF NOT EXISTS `files` ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' TEXT);");
+        stmt.execute("CREATE TABLE IF NOT EXISTS `commit_files` ('commit_id' INTEGER , 'file_id' INTEGER, PRIMARY KEY (`commit_id`, `file_id`));");
         stmt.execute("INSERT INTO `settings` VALUES ('current_branch', 'master');");
     }
 
@@ -70,6 +72,14 @@ public class SQLLite implements DBDriver {
     }
 
     @Override
+    public void addFileToCommit(int commitId, int fileId) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO `commit_files` VALUES(? ,?)");
+        stmt.setInt(1, commitId);
+        stmt.setInt(2, fileId);
+        stmt.executeUpdate();
+    }
+
+    @Override
     public void switchBranch(String branchName) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("UPDATE `settings` SET `value`=? WHERE (`settings`.`name` = 'current_branch');");
         stmt.setString(1, branchName);
@@ -100,6 +110,18 @@ public class SQLLite implements DBDriver {
         int insert_id = result.getInt(1);
 
         return new CommitResult(branchId, insert_id);
+    }
+
+    @Override
+    public int registerFile(String path) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO `files` VALUES(NULL, ?)");
+        stmt.setString(1, path);
+        stmt.executeUpdate();
+
+        ResultSet result = stmt.getGeneratedKeys();
+        int insert_id = result.getInt(1);
+
+        return insert_id;
     }
 
     @Override
