@@ -28,7 +28,7 @@ public class SQLLite implements DBDriver {
     @Override
     public void initTables() throws SQLException {
         Statement stmt = conn.createStatement();
-        stmt.execute("CREATE TABLE IF NOT EXISTS `branches` ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' TEXT);");
+        stmt.execute("CREATE TABLE IF NOT EXISTS `branches` ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' TEXT, 'base_commit' INTEGER);");
         stmt.execute("CREATE TABLE IF NOT EXISTS `commits` ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'branch' INTEGER, 'message' TEXT, 'date' TIMESTAMP);");
         stmt.execute("CREATE TABLE IF NOT EXISTS `settings` ('name' TEXT PRIMARY KEY , 'value' TEXT);");
         stmt.execute("CREATE TABLE IF NOT EXISTS `files` ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' TEXT);");
@@ -44,8 +44,20 @@ public class SQLLite implements DBDriver {
         if (result.getInt(1) > 0) {
             throw new VCSException("Branch already exists");
         }
-        stmt = conn.prepareStatement("INSERT INTO `branches` VALUES(NULL, ?)");
+        String currentBranch = getCurrentBranch();
+        CommitResult lastOldBranchCommit = null;
+        if (currentBranch != null) {
+            lastOldBranchCommit = getLastCommit(currentBranch);
+        }
+
+        stmt = conn.prepareStatement("INSERT INTO `branches` VALUES(NULL, ?, ?)");
         stmt.setString(1, branchName);
+        if (lastOldBranchCommit == null) {
+            stmt.setInt(2, -1);
+        } else {
+            stmt.setInt(2, lastOldBranchCommit.commitId);
+        }
+
         stmt.executeUpdate();
     }
 
@@ -70,10 +82,19 @@ public class SQLLite implements DBDriver {
         }
         Statement stmt = conn.createStatement();
         ResultSet result = stmt.executeQuery("SELECT `id` FROM  `commits` WHERE (`commits`.`branch` = '" + branchId + "') ORDER by `commits`.`id` DESC;");
+        Integer last_commit_id = null;
         if (result.isClosed()) {
-            return null;
+            result = stmt.executeQuery("SELECT `base_commit` FROM  `branches` WHERE (`branches`.`id` = '" + branchId + "');");
+            if (result.isClosed()) {
+                return null;
+            }
+            last_commit_id = result.getInt(1);
+            if (last_commit_id < 0){
+                return null;
+            }
+        } else {
+            last_commit_id = result.getInt(1);
         }
-        int last_commit_id = result.getInt(1);
         return new CommitResult(branchId, last_commit_id);
     }
 
@@ -95,7 +116,7 @@ public class SQLLite implements DBDriver {
     @Override
     public Set<VCSEntity> commitFiles(CommitResult commit) throws SQLException {
         Set<VCSEntity> result = new HashSet<>();
-        if (commit == null){
+        if (commit == null) {
             return result;
         }
 
@@ -123,10 +144,6 @@ public class SQLLite implements DBDriver {
                         "WHERE ((`commit_files`.`commit_id` = ?) and (`files`.`name` = ?));");
         stmt.setInt(1, commitId);
         stmt.setString(2, path);
-        System.out.println("SELECT `commit_files`.`file_id` " +
-                "FROM `commit_files` " +
-                "LEFT JOIN `files` ON `files`.`id`=`commit_files`.`file_id` " +
-                "WHERE ((`commit_files`.`commit_id` = "+commitId+") and (`files`.`name` = '"+path+"'));");
         ResultSet resultSet = stmt.executeQuery();
 
         if (resultSet.isClosed()) {
@@ -203,7 +220,11 @@ public class SQLLite implements DBDriver {
     public String getCurrentBranch() throws SQLException {
         Statement stmt = conn.createStatement();
         ResultSet result = stmt.executeQuery("SELECT `value` FROM  `settings` WHERE (`settings`.`name` = 'current_branch');");
-        return result.getString(1);
+        if (result.isClosed()) {
+            return null;
+        } else {
+            return result.getString(1);
+        }
     }
 
     @Override

@@ -8,4 +8,12 @@ public class CommitResult {
         this.branchId = branchId;
         this.commitId = commitId;
     }
+
+    @Override
+    public String toString() {
+        return "CommitResult{" +
+                "branchId=" + branchId +
+                ", commitId=" + commitId +
+                '}';
+    }
 }

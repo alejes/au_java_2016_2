@@ -13,7 +13,11 @@ echo -e "${orange}Checkout test${nc}"
 echo "file1" >> file1.txt
 echo "file2" >> file2.txt
 java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar init
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status
 java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add "file1.txt"
 java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add "file2.txt"
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status
 java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar commit "first"
 java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar checkout -b "branch"
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status
+

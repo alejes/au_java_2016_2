@@ -14,17 +14,15 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.Integer.min;
 
 public class VCS {
     private static String rootDirectory = Paths.get(".").resolve(".").normalize().toAbsolutePath().toString();
 
-    private static FileFilter filter = pathname -> !pathname.getAbsoluteFile().toString().endsWith("\\.vcs");
+    private static FileFilter weakFilter = pathname -> !pathname.getAbsoluteFile().toString().endsWith(".vcs");
+    private static FileFilter strongFilter = pathname -> !pathname.getAbsoluteFile().toString().endsWith(".vcs");
 
     private static String resolveFilePath(String path) {
         return resolveFilePath(path, rootDirectory);
@@ -44,10 +42,14 @@ public class VCS {
         db = new SQLLite();
     }
 
-    private static List<String> getDirectoryFiles(File directory, String base) {
+    private static List<String> getDirectoryFiles(File directory, String base, FileFilter filter) {
         List<String> result = Arrays.stream(directory.listFiles(filter)).filter(File::isDirectory).map((it) -> getDirectoryFiles(it, base)).flatMap(List::stream).collect(Collectors.toList());
         result.addAll(Arrays.stream(directory.listFiles(filter)).filter((it) -> !it.isDirectory()).map((it) -> resolveFilePath(it.getAbsolutePath(), base)).collect(Collectors.toList()));
         return result;
+    }
+
+    private static List<String> getDirectoryFiles(File directory, String base) {
+        return getDirectoryFiles(directory,base, weakFilter);
     }
 
     private static boolean isFilesEquals(File first, File second) throws IOException {
@@ -111,11 +113,10 @@ public class VCS {
                     throw new VCSException("Not found target of checkout");
                 }
 
-                String commitDirectory = VCS.vcsDirectory + "/" + commitData.branchId + "/" + commitData.commitId;
                 Set<VCSEntity> commitFiles = db.commitFiles(commitData);
 
                 File currentDirectory = new File(".");
-                for (File file : currentDirectory.listFiles(filter)) {
+                for (File file : currentDirectory.listFiles(weakFilter)) {
                     if (file.isFile()) {
                         file.delete();
                     } else {
@@ -124,7 +125,7 @@ public class VCS {
                 }
 
                 for (VCSEntity entity : commitFiles) {
-                    FileUtils.copyFile(new File(VCS.filesDirectory), new File(entity.path));
+                    FileUtils.copyFile(new File(VCS.filesDirectory +"/"+ entity.fileId), new File(entity.path));
                 }
             }
             db.switchBranch(branchName);
@@ -262,8 +263,10 @@ public class VCS {
             if (currentBranch != null) {
                 lastCommit = db.getLastCommit(currentBranch);
             }
+
             Map<String, Integer> lastCommitFiles = db.commitFiles(lastCommit).stream().collect(Collectors.toMap((x) -> x.path, (y) -> y.fileId));
-            List<VCSEntity> allFiles = getDirectoryFiles(new File("."), ".").stream().map((it) -> new VCSEntity(-1, it)).collect(Collectors.toList());
+            List<VCSEntity> allFiles = getDirectoryFiles(new File("."), ".", strongFilter).stream().map((it) -> new VCSEntity(-1, it)).collect(Collectors.toList());
+
 
             List<VCSFile> notStagedChanges = new ArrayList<>();
             for (VCSEntity entity : allFiles) {
@@ -343,7 +346,7 @@ public class VCS {
 
     private Set<VCSEntity> registerDirectory(File sourceDirectory, String prefix) throws SQLException, IOException {
         Set<VCSEntity> hs = new HashSet<>();
-        for (File file : sourceDirectory.listFiles(filter)) {
+        for (File file : sourceDirectory.listFiles(weakFilter)) {
             String stageFilePath = prefix + "/" + file.getName();
             if (file.isDirectory()) {
                 hs.addAll(registerDirectory(file, stageFilePath));
@@ -358,8 +361,8 @@ public class VCS {
     }
 
     private void mergeDirectory(File target, File source) throws IOException {
-        Map<String, File> fileMap = Arrays.stream(source.listFiles(filter)).collect(Collectors.toMap(File::getName, file -> file));
-        for (File file : target.listFiles(filter)) {
+        Map<String, File> fileMap = Arrays.stream(source.listFiles(weakFilter)).collect(Collectors.toMap(File::getName, file -> file));
+        for (File file : target.listFiles(weakFilter)) {
             if (fileMap.containsKey(file.getName())) {
                 if (file.isDirectory()) {
                     mergeDirectory(file, fileMap.get(file.getName()));
