@@ -57,27 +57,6 @@ public class VCS {
         return firstContent.equals(secondContent);
     }
 
-/*    private static List<VCSFile> modifiedFilesList(File target, File source) throws IOException {
-        Stream<File> targetFiles = getDirectoryFiles(target).stream().filter((it) -> !it.isDirectory());
-        Stream<File> sourceFiles = getDirectoryFiles(source).stream().filter((it) -> !it.isDirectory());
-
-        Map<String, File> fileMap = sourceFiles.collect(Collectors.toMap(File::getName, file -> file));
-
-        List<VCSFile> result = new ArrayList<>();
-        for (File file : targetFiles.collect(Collectors.toList())) {
-            if (fileMap.containsKey(file.getName())) {
-                File targetFile = fileMap.get(file.getName());
-                boolean equalsCheck = isFilesEquals(file, targetFile);
-                result.add(new VCSFile(file, targetFile, (equalsCheck) ? FILE_ACTION.EQUAL : FILE_ACTION.MODIFIED));
-                fileMap.remove(file.getName());
-            } else {
-                result.add(new VCSFile(file, null, FILE_ACTION.ADDED));
-            }
-        }
-        result.addAll(fileMap.values().stream().map(file -> new VCSFile(file, null, FILE_ACTION.DELETED)).collect(Collectors.toList()));
-        return result;
-    }*/
-
     public void initRepository() {
         try {
             FileUtils.deleteDirectory(new File(VCS.vcsDirectory));
@@ -133,8 +112,8 @@ public class VCS {
                 }
 
                 String commitDirectory = VCS.vcsDirectory + "/" + commitData.branchId + "/" + commitData.commitId;
+                Set<VCSEntity> commitFiles = db.commitFiles(commitData);
 
-                File vcs = new File(commitDirectory);
                 File currentDirectory = new File(".");
                 for (File file : currentDirectory.listFiles(filter)) {
                     if (file.isFile()) {
@@ -144,7 +123,9 @@ public class VCS {
                     }
                 }
 
-                FileUtils.copyDirectory(vcs, new File("."), filter);
+                for (VCSEntity entity : commitFiles) {
+                    FileUtils.copyFile(new File(VCS.filesDirectory), new File(entity.path));
+                }
             }
             db.switchBranch(branchName);
         } catch (ClassNotFoundException e) {
@@ -154,7 +135,7 @@ public class VCS {
         } catch (SQLException e) {
             System.out.println("SQL exception:" + e.getMessage());
         } catch (IOException e) {
-            System.out.println("Cannot switch files during checkout:");
+            System.out.println("Cannot switch files during checkout:" + e.getMessage());
         }
     }
 
@@ -212,30 +193,18 @@ public class VCS {
                 lastCommit = db.getLastCommit(currentBranch);
             }
             Set<VCSEntity> lastCommitFiles = db.commitFiles(lastCommit);
-            System.out.println("last commit");
-            lastCommitFiles.forEach(System.out::println);
-
             Set<VCSEntity> deletedFiles = getDirectoryFiles(new File(VCS.deleteDirectory), VCS.deleteDirectory).stream().map((it) -> new VCSEntity(0, it)).collect(Collectors.toSet());
-            System.out.println("deletedFiles files");
-            deletedFiles.forEach(System.out::println);
-
             CommitResult commitData = db.commit(message);
-
             File stage = new File(VCS.stageDirectory);
-
             Set<VCSEntity> stageEntities = registerDirectory(stage, ".");
             stageEntities.removeAll(deletedFiles);
 
-            System.out.println("=====stage files");
             for (VCSEntity entity : stageEntities) {
-                System.out.println(entity);
                 db.addFileToCommit(commitData.commitId, entity.fileId);
                 lastCommitFiles.remove(entity);
             }
 
-            System.out.println("=====files from last commit");
             for (VCSEntity entity : lastCommitFiles) {
-                System.out.println(entity);
                 db.addFileToCommit(commitData.commitId, entity.fileId);
             }
 
@@ -293,7 +262,7 @@ public class VCS {
             if (currentBranch != null) {
                 lastCommit = db.getLastCommit(currentBranch);
             }
-            Map<String, Integer> lastCommitFiles = db.commitFiles(lastCommit).stream().collect(Collectors.toMap((x)-> x.path, (y)-> y.fileId));
+            Map<String, Integer> lastCommitFiles = db.commitFiles(lastCommit).stream().collect(Collectors.toMap((x) -> x.path, (y) -> y.fileId));
             List<VCSEntity> allFiles = getDirectoryFiles(new File("."), ".").stream().map((it) -> new VCSEntity(-1, it)).collect(Collectors.toList());
 
             List<VCSFile> notStagedChanges = new ArrayList<>();
@@ -444,23 +413,6 @@ public class VCS {
         resultLines.deleteCharAt(resultLines.length() - 1);
         Files.write(target.toPath(), resultLines.toString().getBytes());
     }
-
-/*
-    private List<VCSFile> modifiedBetweenCommits() throws SQLException, IOException {
-        String currentBranch = db.getCurrentBranch();
-        CommitResult lastCommitId = null;
-        if (currentBranch != null) {
-            lastCommitId = db.getLastCommit(currentBranch);
-        }
-
-        if (lastCommitId == null) {
-            return getDirectoryFiles(new File(".")).stream().filter((it) -> !it.isDirectory()).map((it) -> new VCSFile(it, null, FILE_ACTION.ADDED)).collect(Collectors.toList());
-        } else {
-            System.out.printf(lastCommitId.toString());
-            return modifiedFilesList(new File("."), new File(VCS.vcsDirectory + "/" + lastCommitId.branchId + "/" + lastCommitId.commitId));
-        }
-    }
-*/
 
     private boolean wasFileChanged(String path) throws SQLException, IOException {
         String currentBranch = db.getCurrentBranch();
