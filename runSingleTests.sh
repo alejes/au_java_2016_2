@@ -9,26 +9,84 @@ nc='\033[0m'
 WORKDIR=`echo 'tests/workdir'`
 rm -rf $WORKDIR && mkdir -p $WORKDIR
 cd $WORKDIR
-echo -e "${orange}Checkout and Add test${nc}"
+echo -e "${orange}Status test${nc}"
 echo "file1" >> file1.txt
 echo "file2" >> file2.txt
 java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar init
-java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file1.txt
-java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file2.txt
-java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar commit "first"
-java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar checkout -b "branch"
-echo "file1_!" >> file1.txt
-java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file1.txt
-java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar commit "branchcommit"
-java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar checkout "master"
-RESULT=`cat file1.txt`
-if [[ "$RESULT" != 'file1' ]]
+RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
+if [[ "$RESULT" != `echo -ne "On branch master:\nChanges not staged for commit:\nNEW file1.txt\nNEW file2.txt"` ]]
 then
-	echo -e "${red}Wrong old file content${nc}"
+	echo -e "${red}Wrong status #1${nc}"
 fi
-java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar checkout "branch"
-RESULT=`cat file1.txt`
-if [[ "$RESULT" != `echo -ne "file1\nfile1_!"` ]]
+
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file1.txt
+RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
+if [[ "$RESULT" != `echo -ne "On branch master:\nChanges to be committed:\nfile1.txt\nChanges not staged for commit:\nNEW file2.txt"` ]]
 then
-	echo -e "${red}Wrong new file content${nc}"
+	echo -e "${red}Wrong status #2${nc}"
+fi
+
+echo "file3" >> file1.txt
+RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
+
+if [[ "$RESULT" != `echo -ne "On branch master:\nChanges to be committed:\nfile1.txt\nChanges not staged for commit:\nMODIFIED file1.txt\nNEW file2.txt"` ]]
+then
+	echo -e "${red}Wrong status #3${nc}"
+fi
+
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file2.txt
+RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
+
+
+if [[ "$RESULT" != `echo -ne "On branch master:\nChanges to be committed:\nfile1.txt\nfile2.txt\nChanges not staged for commit:\nMODIFIED file1.txt"` ]]
+then
+	echo -e "${red}Wrong status #4${nc}"
+fi
+
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file1.txt
+RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
+
+if [[ "$RESULT" != `echo -ne "On branch master:\nChanges to be committed:\nfile1.txt\nfile2.txt"` ]]
+then
+	echo -e "${red}Wrong status #5${nc}"
+fi
+
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar reset file1.txt
+RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
+
+if [[ "$RESULT" != `echo -ne "On branch master:\nChanges to be committed:\nfile2.txt\nChanges not staged for commit:\nNEW file1.txt"` ]]
+then
+	echo -e "${red}Wrong status #6${nc}"
+fi
+
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar commit "initial commit"
+RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
+
+
+if [[ "$RESULT" != `echo -ne "On branch master:\nChanges not staged for commit:\nNEW file1.txt"` ]]
+then
+	echo -e "${red}Wrong status #7${nc}"
+fi
+
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar rm file2.txt
+RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
+
+if [[ "$RESULT" != `echo -ne "On branch master:\nFiles will be deleted:\nfile2.txt\nChanges not staged for commit:\nNEW file1.txt"` ]]
+then
+	echo -e "${red}Wrong status #8${nc}"
+fi
+
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar reset file2.txt
+RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
+
+if [[ "$RESULT" != `echo -ne "On branch master:\nChanges not staged for commit:\nNEW file1.txt"` ]]
+then
+	echo -e "${red}Wrong status #9${nc}"
+fi
+
+RESULT=`cat file2.txt`
+
+if [[ "$RESULT" != `echo -ne "file2"` ]]
+then
+	echo -e "${red}Wrong file after reset delete #10${nc}"
 fi

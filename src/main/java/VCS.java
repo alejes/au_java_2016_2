@@ -323,9 +323,22 @@ public class VCS {
 
     public void resetFileInStage(String path) {
         try {
-            FileUtils.moveFile(new File(VCS.deleteDirectory + "/" + path), new File("./" + path));
+            File deletedFile = new File(VCS.deleteDirectory + "/" + path);
+            File stageFile = new File(VCS.stageDirectory + "/" + path);
+            File targetFile = new File("./" + path);
+            if (deletedFile.exists()) {
+                targetFile.delete();
+                FileUtils.moveFile(deletedFile, new File("./" + path));
+            }
+            else if (stageFile.exists()) {
+                targetFile.delete();
+                FileUtils.moveFile(stageFile, new File("./" + path));
+            }
+            else {
+                throw new VCSException("Cannot found file " + path);
+            }
         } catch (IOException e) {
-            System.out.printf("Cannot delete file from stage");
+            System.out.printf("Cannot move file from stage");
         }
     }
 
