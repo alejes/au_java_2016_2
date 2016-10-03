@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.*;
@@ -49,7 +50,7 @@ public class VCS {
     }
 
     private static List<String> getDirectoryFiles(File directory, String base) {
-        return getDirectoryFiles(directory,base, weakFilter);
+        return getDirectoryFiles(directory, base, weakFilter);
     }
 
     private static boolean isFilesEquals(File first, File second) throws IOException {
@@ -125,14 +126,14 @@ public class VCS {
                 }
 
                 for (VCSEntity entity : commitFiles) {
-                    FileUtils.copyFile(new File(VCS.filesDirectory +"/"+ entity.fileId), new File(entity.path));
+                    FileUtils.copyFile(new File(VCS.filesDirectory + "/" + entity.fileId), new File(entity.path));
                 }
             }
             db.switchBranch(branchName);
         } catch (ClassNotFoundException e) {
-            System.out.printf("Cannot find SQLite");
+            System.out.println("Cannot find SQLite");
         } catch (VCSException e) {
-            System.out.printf("VCS exception: " + e.getMessage());
+            System.out.println("VCS exception: " + e.getMessage());
         } catch (SQLException e) {
             System.out.println("SQL exception:" + e.getMessage());
         } catch (IOException e) {
@@ -144,9 +145,10 @@ public class VCS {
         try {
             db.connect();
             CommitResult commitData = db.getLastCommit(sourceBranch);
-            String commitDirectory = VCS.vcsDirectory + "/" + commitData.branchId + "/" + commitData.commitId;
 
-            mergeDirectory(new File("."), new File(commitDirectory));
+            Map<String, Integer> commitFiles = db.commitFiles(commitData).stream().collect(Collectors.toMap((it) -> it.path, (it) -> it.fileId));
+
+            startMerge(new File("."), commitFiles);
         } catch (ClassNotFoundException e) {
             System.out.printf("Cannot find SQLite");
         } catch (VCSException e) {
@@ -171,7 +173,6 @@ public class VCS {
                         throw new VCSException("Cannot found branch " + branchName);
                     }
                     db.deleteBranch(branchName);
-                    FileUtils.deleteDirectory(new File(VCS.vcsDirectory + "/" + branchId));
                     break;
             }
         } catch (ClassNotFoundException e) {
@@ -180,8 +181,6 @@ public class VCS {
             System.out.printf("VCS exception: " + e.getMessage());
         } catch (SQLException e) {
             System.out.println("SQL exception:" + e.getMessage());
-        } catch (IOException e) {
-            System.out.println("Cannot delete branch");
         }
     }
 
@@ -360,24 +359,27 @@ public class VCS {
         return hs;
     }
 
-    private void mergeDirectory(File target, File source) throws IOException {
-        Map<String, File> fileMap = Arrays.stream(source.listFiles(weakFilter)).collect(Collectors.toMap(File::getName, file -> file));
-        for (File file : target.listFiles(weakFilter)) {
-            if (fileMap.containsKey(file.getName())) {
-                if (file.isDirectory()) {
-                    mergeDirectory(file, fileMap.get(file.getName()));
-                } else {
-                    mergeFiles(file, fileMap.get(file.getName()));
-                }
-                fileMap.remove(file.getName());
-            }
+    private void startMerge(File target, Map<String, Integer> source) throws IOException {
+        mergeDirectory(target,source);
+        for (Map.Entry<String, Integer> entry : source.entrySet()) {
+            Path directoryPath = Paths.get(entry.getKey()).getParent();
+            FileUtils.forceMkdir(new File(directoryPath.toString()));
+
+            FileUtils.copyFile(new File(VCS.filesDirectory + "/" + entry.getValue()), new File(entry.getKey()));
         }
-        for (File file : fileMap.values()) {
-            String targetName = target.getAbsolutePath() + "/" + file.getName();
-            if (file.isDirectory()) {
-                FileUtils.copyDirectory(file, new File(targetName));
-            } else {
-                FileUtils.copyFile(file, new File(targetName));
+    }
+
+    private void mergeDirectory(File target, Map<String, Integer> source) throws IOException {
+        for (File file : target.listFiles(weakFilter)) {
+            String filePath = resolveFilePath(file.getAbsolutePath());
+            if (source.containsKey(filePath)) {
+                if (file.isDirectory()) {
+                    mergeDirectory(file, source);
+                } else {
+                    int fileId = source.get(filePath);
+                    mergeFiles(file, new File(VCS.filesDirectory + "/" + fileId));
+                    source.remove(filePath);
+                }
             }
         }
     }
@@ -432,7 +434,7 @@ public class VCS {
         if (fileId == null) {
             return true;
         }
-        return !isFilesEquals(new File("." + path), new File(VCS.filesDirectory + "/" + fileId));
+        return !isFilesEquals(new File("./" + path), new File(VCS.filesDirectory + "/" + fileId));
     }
 
     public enum MODIFY_ACTION {

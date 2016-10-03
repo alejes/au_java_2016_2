@@ -156,6 +156,32 @@ fi
 
 
 cd .. && rm -rf workdir && mkdir workdir && cd workdir
+echo -e "${orange}Checkout and Add test${nc}"
+echo "file1" >> file1.txt
+echo "file2" >> file2.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar init
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file1.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file2.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar commit "first"
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar checkout -b "branch"
+echo "file1_!" >> file1.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file1.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar commit "branchcommit"
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar checkout "master"
+RESULT=`cat file1.txt`
+if [[ "$RESULT" != 'file1' ]]
+then
+	echo -e "${red}Wrong old file content${nc}"
+fi
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar checkout "branch"
+RESULT=`cat file1.txt`
+if [[ "$RESULT" != `echo -ne "file1\nfile1_!"` ]]
+then
+	echo -e "${red}Wrong new file content${nc}"
+fi
+
+
+cd .. && rm -rf workdir && mkdir workdir && cd workdir
 echo -e "${orange}Delete branch${nc}"
 echo "file1" >> file1.txt
 echo "file2" >> file2.txt
@@ -224,8 +250,18 @@ cd .. && rm -rf workdir && mkdir workdir && cd workdir
 echo -e "${orange}Commit without init test${nc}"
 echo "file1" >> file1.txt
 echo "file2" >> file2.txt
-java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file1.txt
-java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file2.txt
+RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file1.txt`
+if [[ "$RESULT" != 'VCS exception: database is corrupted' ]]
+then
+	echo -e "${red}failed${nc}"
+fi
+
+RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file2.txt`
+if [[ "$RESULT" != 'VCS exception: database is corrupted' ]]
+then
+	echo -e "${red}failed${nc}"
+fi
+
 RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar commit "first"`
 if [[ "$RESULT" != 'VCS exception: database is corrupted' ]]
 then 
