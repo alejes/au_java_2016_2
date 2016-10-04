@@ -11,10 +11,11 @@ public final class VCSEntity {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null){
+        if (o == null) {
             return false;
-        }
-        else if (!(o instanceof VCSEntity)){
+        } else if (o instanceof String) {
+            return this.path.equals(o);
+        } else if (!(o instanceof VCSEntity)) {
             return false;
         }
         return this.path.equals(((VCSEntity) o).path);

@@ -67,6 +67,10 @@ public class VCSMain {
                     vcs.status();
                     break;
 
+                case "clean":
+                    vcs.clean();
+                    break;
+
                 case "rm":
                     Utils.checkArgumentsLength(args, 2, "you must specify target file");
                     vcs.removeFileInStage(args[1]);

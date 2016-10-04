@@ -24,6 +24,14 @@ public class VCS {
 
     private static FileFilter weakFilter = pathname -> !pathname.getAbsoluteFile().toString().endsWith(".vcs");
     private static FileFilter strongFilter = pathname -> !pathname.getAbsoluteFile().toString().endsWith(".vcs");
+    private static String vcsDirectory = "./.vcs";
+    private static String stageDirectory = vcsDirectory + "/stage";
+    private static String deleteDirectory = vcsDirectory + "/deleted";
+    private static String filesDirectory = vcsDirectory + "/files";
+    private DBDriver db;
+    public VCS() {
+        db = new SQLLite();
+    }
 
     private static String resolveFilePath(String path) {
         return resolveFilePath(path, rootDirectory);
@@ -31,16 +39,6 @@ public class VCS {
 
     private static String resolveFilePath(String path, String base) {
         return Paths.get(base).normalize().toAbsolutePath().relativize(Paths.get(base).resolve(path).normalize().toAbsolutePath()).toString();
-    }
-
-    private static String vcsDirectory = "./.vcs";
-    private static String stageDirectory = vcsDirectory + "/stage";
-    private static String deleteDirectory = vcsDirectory + "/deleted";
-    private static String filesDirectory = vcsDirectory + "/files";
-    private DBDriver db;
-
-    public VCS() {
-        db = new SQLLite();
     }
 
     private static List<String> getDirectoryFiles(File directory, String base, FileFilter filter) {
@@ -299,6 +297,40 @@ public class VCS {
         }
     }
 
+    public void clean() {
+        try {
+            db.connect();
+
+            FileUtils.deleteDirectory(new File(VCS.stageDirectory));
+            FileUtils.forceMkdir(new File(VCS.stageDirectory));
+            FileUtils.deleteDirectory(new File(VCS.deleteDirectory));
+            FileUtils.forceMkdir(new File(VCS.deleteDirectory));
+
+            String currentBranch = db.getCurrentBranch();
+            CommitResult lastCommit = null;
+            if (currentBranch != null) {
+                lastCommit = db.getLastCommit(currentBranch);
+            }
+            Set<String> lastCommitFiles = db.commitFiles(lastCommit).stream().map(it -> it.path).collect(Collectors.toSet());
+            List<VCSEntity> allFiles = getDirectoryFiles(new File("."), ".", strongFilter).stream().map((it) -> new VCSEntity(-1, it)).collect(Collectors.toList());
+
+            for (VCSEntity entity : allFiles) {
+                if (!lastCommitFiles.contains(entity.path)) {
+                    new File(entity.path).delete();
+                }
+            }
+
+        } catch (ClassNotFoundException e) {
+            System.out.printf("Cannot find SQLite");
+        } catch (VCSException e) {
+            System.out.printf("VCS exception: " + e.getMessage());
+        } catch (SQLException e) {
+            System.out.println("SQL exception:" + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Cannot compare files");
+        }
+    }
+
     public void addFileToStage(String path) {
         path = resolveFilePath(path);
 
@@ -329,12 +361,10 @@ public class VCS {
             if (deletedFile.exists()) {
                 targetFile.delete();
                 FileUtils.moveFile(deletedFile, new File("./" + path));
-            }
-            else if (stageFile.exists()) {
+            } else if (stageFile.exists()) {
                 targetFile.delete();
                 FileUtils.moveFile(stageFile, new File("./" + path));
-            }
-            else {
+            } else {
                 throw new VCSException("Cannot found file " + path);
             }
         } catch (IOException e) {
@@ -373,7 +403,7 @@ public class VCS {
     }
 
     private void startMerge(File target, Map<String, Integer> source) throws IOException {
-        mergeDirectory(target,source);
+        mergeDirectory(target, source);
         for (Map.Entry<String, Integer> entry : source.entrySet()) {
             Path directoryPath = Paths.get(entry.getKey()).getParent();
             FileUtils.forceMkdir(new File(directoryPath.toString()));

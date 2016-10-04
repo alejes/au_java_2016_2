@@ -3,12 +3,9 @@ package db;
 import exceptions.VCSException;
 import models.CommitResult;
 import models.VCSEntity;
-import org.apache.commons.io.monitor.FileEntry;
 
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class SQLLite implements DBDriver {
@@ -89,7 +86,7 @@ public class SQLLite implements DBDriver {
                 return null;
             }
             last_commit_id = result.getInt(1);
-            if (last_commit_id < 0){
+            if (last_commit_id < 0) {
                 return null;
             }
         } else {

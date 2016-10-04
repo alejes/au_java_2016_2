@@ -351,3 +351,100 @@ if [[ "$RESULT" != `echo -ne "file2"` ]]
 then
 	echo -e "${red}Wrong file after reset delete #10${nc}"
 fi
+
+
+
+
+cd .. && rm -rf workdir && mkdir workdir && cd workdir
+echo -e "${orange}Clean test${nc}"
+echo "file1" >> file1.txt
+echo "file2" >> file2.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar init
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file1.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar clean
+RESULT=`ls`
+
+if [[ "$RESULT" != `echo -ne ""` ]]
+then
+	echo -e "${red}Wrong clean #1${nc}"
+fi
+
+echo "file1" >> file1.txt
+echo "file2" >> file2.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file1.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar commit "first commit"
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar clean
+RESULT=`ls`
+
+if [[ "$RESULT" != `echo -ne "file1.txt"` ]]
+then
+	echo -e "${red}Wrong clean #2${nc}"
+fi
+
+
+mkdir dir1
+echo "file3dir1" >> dir1/file3.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add dir1/file3.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar commit "second commit"
+echo "file4dir1" >> dir1/file4.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar clean
+RESULT=`ls dir1`
+if [[ "$RESULT" != `echo -ne "file3.txt"` ]]
+then
+	echo -e "${red}Wrong clean #3${nc}"
+fi
+
+
+
+cd .. && rm -rf workdir && mkdir workdir && cd workdir
+echo -e "${orange}Rm test${nc}"
+echo "file1" >> file1.txt
+echo "file2" >> file2.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar init
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file1.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file2.txt
+mkdir dir1
+echo "file3dir1" >> dir1/file3.txt
+echo "file4dir1" >> dir1/file4.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add dir1/file3.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add dir1/file4.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar commit "first commit"
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar clean
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar rm dir1/file4.txt
+RESULT=`ls dir1`
+if [[ "$RESULT" != `echo -ne "file3.txt"` ]]
+then
+	echo -e "${red}Wrong rm #1${nc}"
+fi
+RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
+
+if [[ "$RESULT" != `echo -ne "On branch master:\nFiles will be deleted:\ndir1/file4.txt"` ]]
+then
+	echo -e "${red}Wrong rm #2${nc}"
+fi
+
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar commit "second commit"
+RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
+
+if [[ "$RESULT" != `echo -ne "On branch master:"` ]]
+then
+	echo -e "${red}Wrong rm #3${nc}"
+fi
+
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar rm dir1/file3.txt
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar commit "third commit"
+RESULT=`ls dir1`
+if [[ "$RESULT" != `echo -ne ""` ]]
+then
+	echo -e "${red}Wrong rm #4${nc}"
+fi
+
+rm -rf dir1
+
+java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar checkout 1
+
+RESULT=`ls dir1`
+if [[ "$RESULT" != `echo -ne "file3.txt\nfile4.txt"` ]]
+then
+	echo -e "${red}Wrong rm #5${nc}"
+fi
