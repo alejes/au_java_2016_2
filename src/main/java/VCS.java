@@ -29,6 +29,7 @@ public class VCS {
     private static String deleteDirectory = vcsDirectory + "/deleted";
     private static String filesDirectory = vcsDirectory + "/files";
     private DBDriver db;
+
     public VCS() {
         db = new SQLLite();
     }
@@ -62,7 +63,7 @@ public class VCS {
         try {
             FileUtils.deleteDirectory(new File(VCS.vcsDirectory));
         } catch (IOException e) {
-            System.out.printf("Cannot get stat of directory");
+            throw new VCSException("Cannot get stat of directory", e);
         }
         try {
             File vcs = new File(VCS.vcsDirectory);
@@ -90,11 +91,9 @@ public class VCS {
             db.switchBranch("master");
 
         } catch (ClassNotFoundException e) {
-            System.out.printf("Cannot find SQLite");
-        } catch (VCSException e) {
-            System.out.printf("VCS exception: " + e.getMessage());
+            throw new VCSException("Cannot find SQLite", e);
         } catch (SQLException e) {
-            System.out.println("SQL exception:" + e.getMessage());
+            throw new VCSException("SQL exception:" + e.getMessage(), e);
         }
     }
 
@@ -129,13 +128,11 @@ public class VCS {
             }
             db.switchBranch(branchName);
         } catch (ClassNotFoundException e) {
-            System.out.println("Cannot find SQLite");
-        } catch (VCSException e) {
-            System.out.println("VCS exception: " + e.getMessage());
+            throw new VCSException("Cannot find SQLite", e);
         } catch (SQLException e) {
-            System.out.println("SQL exception:" + e.getMessage());
+            throw new VCSException("SQL exception:" + e.getMessage(), e);
         } catch (IOException e) {
-            System.out.println("Cannot switch files during checkout:" + e.getMessage());
+            throw new VCSException("Cannot switch files during checkout:" + e.getMessage(), e);
         }
     }
 
@@ -148,13 +145,11 @@ public class VCS {
 
             startMerge(new File("."), commitFiles);
         } catch (ClassNotFoundException e) {
-            System.out.printf("Cannot find SQLite");
-        } catch (VCSException e) {
-            System.out.printf("VCS exception: " + e.getMessage());
+            throw new VCSException("Cannot find SQLite", e);
         } catch (SQLException e) {
-            System.out.println("SQL exception:" + e.getMessage());
+            throw new VCSException("SQL exception:" + e.getMessage(), e);
         } catch (IOException e) {
-            System.out.println("Cannot switch files during checkout: " + e.getMessage());
+            throw new VCSException("Cannot switch files during merge:" + e.getMessage(), e);
         }
     }
 
@@ -174,11 +169,9 @@ public class VCS {
                     break;
             }
         } catch (ClassNotFoundException e) {
-            System.out.printf("Cannot find SQLite");
-        } catch (VCSException e) {
-            System.out.printf("VCS exception: " + e.getMessage());
+            throw new VCSException("Cannot find SQLite", e);
         } catch (SQLException e) {
-            System.out.println("SQL exception:" + e.getMessage());
+            throw new VCSException("SQL exception:" + e.getMessage(), e);
         }
     }
 
@@ -211,13 +204,11 @@ public class VCS {
             FileUtils.deleteDirectory(new File(VCS.deleteDirectory));
             FileUtils.forceMkdir(new File(VCS.deleteDirectory));
         } catch (ClassNotFoundException e) {
-            System.out.printf("Cannot find SQLite");
-        } catch (VCSException e) {
-            System.out.printf("VCS exception: " + e.getMessage());
+            throw new VCSException("Cannot find SQLite", e);
         } catch (SQLException e) {
-            System.out.println("SQL exception:" + e.getMessage());
+            throw new VCSException("SQL exception:" + e.getMessage(), e);
         } catch (IOException e) {
-            System.out.printf("Cannot copy commit files");
+            throw new VCSException("Cannot copy commit files:" + e.getMessage(), e);
         }
     }
 
@@ -229,11 +220,9 @@ public class VCS {
             String log = db.log();
             System.out.printf(log);
         } catch (ClassNotFoundException e) {
-            System.out.printf("Cannot find SQLite");
-        } catch (VCSException e) {
-            System.out.printf("VCS exception: " + e.getMessage());
+            throw new VCSException("Cannot find SQLite", e);
         } catch (SQLException e) {
-            System.out.println("SQL exception:" + e.getMessage());
+            throw new VCSException("SQL exception:" + e.getMessage(), e);
         }
     }
 
@@ -287,13 +276,11 @@ public class VCS {
                 notStagedChanges.forEach((it) -> System.out.println(it.action.name() + " " + it.entity.path));
             }
         } catch (ClassNotFoundException e) {
-            System.out.printf("Cannot find SQLite");
-        } catch (VCSException e) {
-            System.out.printf("VCS exception: " + e.getMessage());
+            throw new VCSException("Cannot find SQLite", e);
         } catch (SQLException e) {
-            System.out.println("SQL exception:" + e.getMessage());
+            throw new VCSException("SQL exception:" + e.getMessage(), e);
         } catch (IOException e) {
-            System.out.println("Cannot compare files");
+            throw new VCSException("Cannot evaluate IO operation:" + e.getMessage(), e);
         }
     }
 
@@ -321,13 +308,11 @@ public class VCS {
             }
 
         } catch (ClassNotFoundException e) {
-            System.out.printf("Cannot find SQLite");
-        } catch (VCSException e) {
-            System.out.printf("VCS exception: " + e.getMessage());
+            throw new VCSException("Cannot find SQLite", e);
         } catch (SQLException e) {
-            System.out.println("SQL exception:" + e.getMessage());
+            throw new VCSException("SQL exception:" + e.getMessage(), e);
         } catch (IOException e) {
-            System.out.println("Cannot compare files");
+            throw new VCSException("Cannot evaluate IO operation:" + e.getMessage(), e);
         }
     }
 
@@ -345,11 +330,11 @@ public class VCS {
                 FileUtils.copyFile(source, new File(VCS.stageDirectory + "/" + path));
             }
         } catch (ClassNotFoundException e) {
-            System.out.printf("Cannot find SQLite");
-        } catch (IOException e) {
-            System.out.printf("Cannot copy file to stage");
+            throw new VCSException("Cannot find SQLite", e);
         } catch (SQLException e) {
-            System.out.println("SQL exception:" + e.getMessage());
+            throw new VCSException("SQL exception:" + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new VCSException("Cannot copy file to stage", e);
         }
     }
 
@@ -368,7 +353,7 @@ public class VCS {
                 throw new VCSException("Cannot found file " + path);
             }
         } catch (IOException e) {
-            System.out.printf("Cannot move file from stage");
+            throw new VCSException("Cannot move file from stage", e);
         }
     }
 
@@ -382,7 +367,7 @@ public class VCS {
         try {
             FileUtils.moveFile(source, new File(VCS.deleteDirectory + "/" + path));
         } catch (IOException e) {
-            System.out.printf("Cannot delete file to stage");
+            throw new VCSException("Cannot delete file to stage", e);
         }
     }
 
