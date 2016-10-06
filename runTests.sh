@@ -277,14 +277,14 @@ java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar init
 RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
 if [[ "$RESULT" != `echo -ne "On branch master:\nChanges not staged for commit:\nNEW file1.txt\nNEW file2.txt"` ]]
 then
-	echo -e "${red}Wrong status #1${nc}"
+	echo -e "${red}Wrong status #1: ${RESULT}${nc}"
 fi
 
 java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file1.txt
 RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
 if [[ "$RESULT" != `echo -ne "On branch master:\nChanges to be committed:\nfile1.txt\nChanges not staged for commit:\nNEW file2.txt"` ]]
 then
-	echo -e "${red}Wrong status #2${nc}"
+	echo -e "${red}Wrong status #2: ${RESULT}${nc}"
 fi
 
 echo "file3" >> file1.txt
@@ -292,7 +292,7 @@ RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
 
 if [[ "$RESULT" != `echo -ne "On branch master:\nChanges to be committed:\nfile1.txt\nChanges not staged for commit:\nMODIFIED file1.txt\nNEW file2.txt"` ]]
 then
-	echo -e "${red}Wrong status #3${nc}"
+	echo -e "${red}Wrong status #3: ${RESULT}${nc}"
 fi
 
 java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file2.txt
@@ -301,7 +301,7 @@ RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
 
 if [[ "$RESULT" != `echo -ne "On branch master:\nChanges to be committed:\nfile1.txt\nfile2.txt\nChanges not staged for commit:\nMODIFIED file1.txt"` ]]
 then
-	echo -e "${red}Wrong status #4${nc}"
+	echo -e "${red}Wrong status #4: ${RESULT}${nc}"
 fi
 
 java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar add file1.txt
@@ -309,7 +309,7 @@ RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
 
 if [[ "$RESULT" != `echo -ne "On branch master:\nChanges to be committed:\nfile1.txt\nfile2.txt"` ]]
 then
-	echo -e "${red}Wrong status #5${nc}"
+	echo -e "${red}Wrong status #5: ${RESULT}${nc}"
 fi
 
 java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar reset file1.txt
@@ -317,7 +317,7 @@ RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
 
 if [[ "$RESULT" != `echo -ne "On branch master:\nChanges to be committed:\nfile2.txt\nChanges not staged for commit:\nNEW file1.txt"` ]]
 then
-	echo -e "${red}Wrong status #6${nc}"
+	echo -e "${red}Wrong status #6: ${RESULT}${nc}"
 fi
 
 java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar commit "initial commit"
@@ -326,7 +326,7 @@ RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
 
 if [[ "$RESULT" != `echo -ne "On branch master:\nChanges not staged for commit:\nNEW file1.txt"` ]]
 then
-	echo -e "${red}Wrong status #7${nc}"
+	echo -e "${red}Wrong status #7: ${RESULT}${nc}"
 fi
 
 java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar rm file2.txt
@@ -334,7 +334,7 @@ RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
 
 if [[ "$RESULT" != `echo -ne "On branch master:\nFiles will be deleted:\nfile2.txt\nChanges not staged for commit:\nNEW file1.txt"` ]]
 then
-	echo -e "${red}Wrong status #8${nc}"
+	echo -e "${red}Wrong status #8: ${RESULT}${nc}"
 fi
 
 java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar reset file2.txt
@@ -342,14 +342,14 @@ RESULT=`java -jar ../../build/libs/vcs-1.0-SNAPSHOT.jar status`
 
 if [[ "$RESULT" != `echo -ne "On branch master:\nChanges not staged for commit:\nNEW file1.txt"` ]]
 then
-	echo -e "${red}Wrong status #9${nc}"
+	echo -e "${red}Wrong status #9: ${RESULT}${nc}"
 fi
 
 RESULT=`cat file2.txt`
 
 if [[ "$RESULT" != `echo -ne "file2"` ]]
 then
-	echo -e "${red}Wrong file after reset delete #10${nc}"
+	echo -e "${red}Wrong file after reset delete #10: ${RESULT}${nc}"
 fi
 
 

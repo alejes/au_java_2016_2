@@ -25,17 +25,34 @@ public class SQLLite implements DBDriver {
     @Override
     public void initTables() throws SQLException {
         Statement stmt = conn.createStatement();
-        stmt.execute("CREATE TABLE IF NOT EXISTS `branches` ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' TEXT, 'base_commit' INTEGER);");
-        stmt.execute("CREATE TABLE IF NOT EXISTS `commits` ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'branch' INTEGER, 'message' TEXT, 'date' TIMESTAMP);");
-        stmt.execute("CREATE TABLE IF NOT EXISTS `settings` ('name' TEXT PRIMARY KEY , 'value' TEXT);");
-        stmt.execute("CREATE TABLE IF NOT EXISTS `files` ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' TEXT);");
-        stmt.execute("CREATE TABLE IF NOT EXISTS `commit_files` ('commit_id' INTEGER , 'file_id' INTEGER, PRIMARY KEY (`commit_id`, `file_id`));");
-        stmt.execute("INSERT INTO `settings` VALUES ('current_branch', 'master');");
+        stmt.execute("CREATE TABLE IF NOT EXISTS `branches` " +
+                "('id' INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "'name' TEXT, " +
+                "'base_commit' INTEGER);");
+        stmt.execute("CREATE TABLE IF NOT EXISTS `commits` " +
+                "('id' INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "'branch' INTEGER, " +
+                "'message' TEXT, " +
+                "'date' TIMESTAMP);");
+        stmt.execute("CREATE TABLE IF NOT EXISTS `settings` " +
+                "('name' TEXT PRIMARY KEY , " +
+                "'value' TEXT);");
+        stmt.execute("CREATE TABLE IF NOT EXISTS `files` " +
+                "('id' INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "'name' TEXT);");
+        stmt.execute("CREATE TABLE IF NOT EXISTS `commit_files` " +
+                "('commit_id' INTEGER , " +
+                "'file_id' INTEGER, " +
+                "PRIMARY KEY (`commit_id`, `file_id`));");
+        stmt.execute("INSERT INTO `settings` " +
+                "VALUES ('current_branch', 'master');");
     }
 
     @Override
     public void addBranch(String branchName) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) FROM `branches` WHERE (`branches`.`name` = ?)");
+        PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) " +
+                "FROM `branches` " +
+                "WHERE (`branches`.`name` = ?)");
         stmt.setString(1, branchName);
         ResultSet result = stmt.executeQuery();
         if (result.getInt(1) > 0) {
@@ -60,7 +77,10 @@ public class SQLLite implements DBDriver {
 
     @Override
     public CommitResult getCommitById(String commit) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("SELECT `id`, `branch` FROM  `commits` WHERE (`commits`.`id` = ?);");
+        PreparedStatement stmt = conn.
+                prepareStatement("SELECT `id`, `branch` " +
+                        "FROM  `commits` " +
+                        "WHERE (`commits`.`id` = ?);");
         stmt.setString(1, commit);
         ResultSet result = stmt.executeQuery();
         if (result.isClosed()) {
@@ -78,10 +98,15 @@ public class SQLLite implements DBDriver {
             return null;
         }
         Statement stmt = conn.createStatement();
-        ResultSet result = stmt.executeQuery("SELECT `id` FROM  `commits` WHERE (`commits`.`branch` = '" + branchId + "') ORDER by `commits`.`id` DESC;");
-        Integer last_commit_id = null;
+        ResultSet result = stmt.executeQuery("SELECT `id` " +
+                "FROM  `commits` " +
+                "WHERE (`commits`.`branch` = '" + branchId + "') " +
+                "ORDER by `commits`.`id` DESC;");
+        Integer last_commit_id;
         if (result.isClosed()) {
-            result = stmt.executeQuery("SELECT `base_commit` FROM  `branches` WHERE (`branches`.`id` = '" + branchId + "');");
+            result = stmt.executeQuery("SELECT `base_commit` " +
+                    "FROM  `branches` " +
+                    "WHERE (`branches`.`id` = '" + branchId + "');");
             if (result.isClosed()) {
                 return null;
             }
@@ -105,7 +130,10 @@ public class SQLLite implements DBDriver {
 
     @Override
     public void switchBranch(String branchName) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("UPDATE `settings` SET `value`=? WHERE (`settings`.`name` = 'current_branch');");
+        PreparedStatement stmt = conn
+                .prepareStatement("UPDATE `settings` " +
+                        "SET `value`=? " +
+                        "WHERE (`settings`.`name` = 'current_branch');");
         stmt.setString(1, branchName);
         stmt.executeUpdate();
     }
@@ -155,7 +183,8 @@ public class SQLLite implements DBDriver {
         if (getCurrentBranch().equals(branchName)) {
             throw new VCSException("You cannot delete current branch");
         }
-        PreparedStatement preparedStatement = conn.prepareStatement("DELETE FROM `branches` WHERE (`branches`.`name` = ?);");
+        PreparedStatement preparedStatement = conn
+                .prepareStatement("DELETE FROM `branches` WHERE (`branches`.`name` = ?);");
         preparedStatement.setString(1, branchName);
         preparedStatement.executeUpdate();
     }
@@ -195,7 +224,10 @@ public class SQLLite implements DBDriver {
         if (branchId == null) {
             throw new VCSException("Illegal State: wrong current branch name");
         }
-        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM `commits` WHERE (`commits`.`branch`=?) ORDER BY `commits`.`id` DESC LIMIT 7");
+        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM `commits` " +
+                "WHERE (`commits`.`branch`=?) " +
+                "ORDER BY `commits`.`id` DESC " +
+                "LIMIT 7");
         stmt.setInt(1, branchId);
 
         ResultSet result = stmt.executeQuery();
@@ -216,7 +248,9 @@ public class SQLLite implements DBDriver {
     @Override
     public String getCurrentBranch() throws SQLException {
         Statement stmt = conn.createStatement();
-        ResultSet result = stmt.executeQuery("SELECT `value` FROM  `settings` WHERE (`settings`.`name` = 'current_branch');");
+        ResultSet result = stmt.executeQuery("SELECT `value` " +
+                "FROM  `settings` " +
+                "WHERE (`settings`.`name` = 'current_branch');");
         if (result.isClosed()) {
             return null;
         } else {
@@ -226,7 +260,10 @@ public class SQLLite implements DBDriver {
 
     @Override
     public Integer getBranchId(String branchName) throws SQLException {
-        PreparedStatement preparedStatement = conn.prepareStatement("SELECT `id` FROM `branches` WHERE (`branches`.`name` = ?);");
+        PreparedStatement preparedStatement = conn.
+                prepareStatement("SELECT `id` " +
+                        "FROM `branches` " +
+                        "WHERE (`branches`.`name` = ?);");
         preparedStatement.setString(1, branchName);
         ResultSet result = preparedStatement.executeQuery();
         if (result.isClosed()) {

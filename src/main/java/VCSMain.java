@@ -1,4 +1,6 @@
 import exceptions.VCSException;
+import models.ModifyAction;
+import utils.Cmd;
 
 public class VCSMain {
     public static void main(String[] args) {
@@ -14,7 +16,7 @@ public class VCSMain {
                     break;
 
                 case "checkout":
-                    Utils.checkArgumentsLength(args, 2, "checkout require at least 1 arguments - branch name. " +
+                    Cmd.checkArgumentsLength(args, 2, "checkout require at least 1 arguments - branch name. " +
                             "You can use -b modificator for create");
                     switch (args.length) {
                         case 2:
@@ -29,21 +31,21 @@ public class VCSMain {
                     break;
 
                 case "branch":
-                    Utils.checkArgumentsLength(args, 3, "branch require at least 2 arguments.\n" +
+                    Cmd.checkArgumentsLength(args, 3, "branch require at least 2 arguments.\n" +
                             "First -b and -d modificators for create and delete branch.\n" +
                             "Second is branch name.");
                     switch (args[1]) {
                         case "-b":
-                            vcs.branch(args[2], VCS.MODIFY_ACTION.CREATE);
+                            vcs.branch(args[2], ModifyAction.CREATE);
                             break;
                         case "-d":
-                            vcs.branch(args[2], VCS.MODIFY_ACTION.DELETE);
+                            vcs.branch(args[2], ModifyAction.DELETE);
                             break;
                     }
                     break;
 
                 case "commit":
-                    Utils.checkArgumentsLength(args, 2, "you must specify commit message");
+                    Cmd.checkArgumentsLength(args, 2, "you must specify commit message");
                     vcs.commit(args[1]);
                     break;
 
@@ -52,14 +54,14 @@ public class VCSMain {
                     break;
 
                 case "add":
-                    Utils.checkArgumentsLength(args, 2, "you must specify target file");
+                    Cmd.checkArgumentsLength(args, 2, "you must specify target file");
                     for (int fileId = 1; fileId < args.length; ++fileId) {
                         vcs.addFileToStage(args[fileId]);
                     }
                     break;
 
                 case "reset":
-                    Utils.checkArgumentsLength(args, 2, "you must specify target file");
+                    Cmd.checkArgumentsLength(args, 2, "you must specify target file");
                     vcs.resetFileInStage(args[1]);
                     break;
 
@@ -72,12 +74,12 @@ public class VCSMain {
                     break;
 
                 case "rm":
-                    Utils.checkArgumentsLength(args, 2, "you must specify target file");
+                    Cmd.checkArgumentsLength(args, 2, "you must specify target file");
                     vcs.removeFileInStage(args[1]);
                     break;
 
                 case "merge":
-                    Utils.checkArgumentsLength(args, 2, "you must specify source merge branch");
+                    Cmd.checkArgumentsLength(args, 2, "you must specify source merge branch");
                     vcs.merge(args[1]);
                     break;
 

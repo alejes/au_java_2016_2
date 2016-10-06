@@ -3,9 +3,9 @@ package models;
 
 public class VCSFile {
     public VCSEntity entity;
-    public FILE_ACTION action;
+    public ModifyAction action;
 
-    public VCSFile(VCSEntity entity, FILE_ACTION action) {
+    public VCSFile(VCSEntity entity, ModifyAction action) {
         this.entity = entity;
         this.action = action;
     }
@@ -18,3 +18,4 @@ public class VCSFile {
                 '}';
     }
 }
+

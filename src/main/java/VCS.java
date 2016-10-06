@@ -2,7 +2,7 @@ import db.DBDriver;
 import db.SQLLite;
 import exceptions.VCSException;
 import models.CommitResult;
-import models.FILE_ACTION;
+import models.ModifyAction;
 import models.VCSEntity;
 import models.VCSFile;
 import org.apache.commons.io.FileUtils;
@@ -39,12 +39,15 @@ public class VCS {
     }
 
     private static String resolveFilePath(String path, String base) {
-        return Paths.get(base).normalize().toAbsolutePath().relativize(Paths.get(base).resolve(path).normalize().toAbsolutePath()).toString();
+        return Paths.get(base).normalize().toAbsolutePath()
+                .relativize(Paths.get(base).resolve(path).normalize().toAbsolutePath()).toString();
     }
 
     private static List<String> getDirectoryFiles(File directory, String base, FileFilter filter) {
-        List<String> result = Arrays.stream(directory.listFiles(filter)).filter(File::isDirectory).map((it) -> getDirectoryFiles(it, base)).flatMap(List::stream).collect(Collectors.toList());
-        result.addAll(Arrays.stream(directory.listFiles(filter)).filter((it) -> !it.isDirectory()).map((it) -> resolveFilePath(it.getAbsolutePath(), base)).collect(Collectors.toList()));
+        List<String> result = Arrays.stream(directory.listFiles(filter)).filter(File::isDirectory)
+                .map((it) -> getDirectoryFiles(it, base)).flatMap(List::stream).collect(Collectors.toList());
+        result.addAll(Arrays.stream(directory.listFiles(filter)).filter((it) -> !it.isDirectory())
+                .map((it) -> resolveFilePath(it.getAbsolutePath(), base)).collect(Collectors.toList()));
         return result;
     }
 
@@ -141,7 +144,8 @@ public class VCS {
             db.connect();
             CommitResult commitData = db.getLastCommit(sourceBranch);
 
-            Map<String, Integer> commitFiles = db.commitFiles(commitData).stream().collect(Collectors.toMap((it) -> it.path, (it) -> it.fileId));
+            Map<String, Integer> commitFiles = db.commitFiles(commitData).stream()
+                    .collect(Collectors.toMap((it) -> it.path, (it) -> it.fileId));
 
             startMerge(new File("."), commitFiles);
         } catch (ClassNotFoundException e) {
@@ -153,7 +157,7 @@ public class VCS {
         }
     }
 
-    public void branch(String branchName, MODIFY_ACTION action) {
+    public void branch(String branchName, ModifyAction action) {
         try {
             db.connect();
             switch (action) {
@@ -184,7 +188,8 @@ public class VCS {
                 lastCommit = db.getLastCommit(currentBranch);
             }
             Set<VCSEntity> lastCommitFiles = db.commitFiles(lastCommit);
-            Set<VCSEntity> deletedFiles = getDirectoryFiles(new File(VCS.deleteDirectory), VCS.deleteDirectory).stream().map((it) -> new VCSEntity(0, it)).collect(Collectors.toSet());
+            Set<VCSEntity> deletedFiles = getDirectoryFiles(new File(VCS.deleteDirectory), VCS.deleteDirectory).stream()
+                    .map((it) -> new VCSEntity(0, it)).collect(Collectors.toSet());
             CommitResult commitData = db.commit(message);
             File stage = new File(VCS.stageDirectory);
             Set<VCSEntity> stageEntities = registerDirectory(stage, ".");
@@ -236,13 +241,13 @@ public class VCS {
 
             if (!stageFiles.isEmpty()) {
                 System.out.println("Changes to be committed:");
-                stageFiles.forEach(System.out::println);
+                stageFiles.stream().sorted().forEach(System.out::println);
             }
 
             List<String> deletedFiles = getDirectoryFiles(new File(VCS.deleteDirectory), VCS.deleteDirectory);
             if (!deletedFiles.isEmpty()) {
                 System.out.println("Files will be deleted:");
-                deletedFiles.forEach(System.out::println);
+                deletedFiles.stream().sorted().forEach(System.out::println);
             }
 
             CommitResult lastCommit = null;
@@ -250,8 +255,10 @@ public class VCS {
                 lastCommit = db.getLastCommit(currentBranch);
             }
 
-            Map<String, Integer> lastCommitFiles = db.commitFiles(lastCommit).stream().collect(Collectors.toMap((x) -> x.path, (y) -> y.fileId));
-            List<VCSEntity> allFiles = getDirectoryFiles(new File("."), ".", strongFilter).stream().map((it) -> new VCSEntity(-1, it)).collect(Collectors.toList());
+            Map<String, Integer> lastCommitFiles = db.commitFiles(lastCommit).stream()
+                    .collect(Collectors.toMap((x) -> x.path, (y) -> y.fileId));
+            List<VCSEntity> allFiles = getDirectoryFiles(new File("."), ".", strongFilter).stream()
+                    .map((it) -> new VCSEntity(-1, it)).collect(Collectors.toList());
 
 
             List<VCSFile> notStagedChanges = new ArrayList<>();
@@ -265,15 +272,17 @@ public class VCS {
                 }
 
                 if (compareTarget == null) {
-                    notStagedChanges.add(new VCSFile(entity, FILE_ACTION.NEW));
+                    notStagedChanges.add(new VCSFile(entity, ModifyAction.NEW));
                 } else if (!isFilesEquals(new File("./" + entity.path), compareTarget)) {
-                    notStagedChanges.add(new VCSFile(entity, FILE_ACTION.MODIFIED));
+                    notStagedChanges.add(new VCSFile(entity, ModifyAction.MODIFIED));
                 }
             }
 
             if (!notStagedChanges.isEmpty()) {
                 System.out.println("Changes not staged for commit:");
-                notStagedChanges.forEach((it) -> System.out.println(it.action.name() + " " + it.entity.path));
+                notStagedChanges.stream()
+                        .sorted((e1, e2) -> e1.entity.path.compareTo(e2.entity.path))
+                        .forEach((it) -> System.out.println(it.action.name() + " " + it.entity.path));
             }
         } catch (ClassNotFoundException e) {
             throw new VCSException("Cannot find SQLite", e);
@@ -298,8 +307,10 @@ public class VCS {
             if (currentBranch != null) {
                 lastCommit = db.getLastCommit(currentBranch);
             }
-            Set<String> lastCommitFiles = db.commitFiles(lastCommit).stream().map(it -> it.path).collect(Collectors.toSet());
-            List<VCSEntity> allFiles = getDirectoryFiles(new File("."), ".", strongFilter).stream().map((it) -> new VCSEntity(-1, it)).collect(Collectors.toList());
+            Set<String> lastCommitFiles = db.commitFiles(lastCommit).stream()
+                    .map(it -> it.path).collect(Collectors.toSet());
+            List<VCSEntity> allFiles = getDirectoryFiles(new File("."), ".", strongFilter).stream()
+                    .map((it) -> new VCSEntity(-1, it)).collect(Collectors.toList());
 
             for (VCSEntity entity : allFiles) {
                 if (!lastCommitFiles.contains(entity.path)) {
@@ -463,10 +474,5 @@ public class VCS {
             return true;
         }
         return !isFilesEquals(new File("./" + path), new File(VCS.filesDirectory + "/" + fileId));
-    }
-
-    public enum MODIFY_ACTION {
-        CREATE,
-        DELETE
     }
 }
