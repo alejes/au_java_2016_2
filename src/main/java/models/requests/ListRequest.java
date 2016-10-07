@@ -1,7 +1,7 @@
 package models.requests;
 
 
-public class ListRequest {
+public class ListRequest implements Request {
     private String path;
 
     public ListRequest(String path) {
@@ -11,5 +11,9 @@ public class ListRequest {
     @Override
     public String toString() {
         return "1 " + path;
+    }
+
+    public byte[] toByteArray() {
+        return toString().getBytes();
     }
 }
