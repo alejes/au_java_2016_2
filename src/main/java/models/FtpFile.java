@@ -1,9 +1,9 @@
 package models;
 
 
-public class FtpFile {
-    private boolean isDirectory;
-    private String path;
+public class FtpFile implements Networkable {
+    private final boolean isDirectory;
+    private final String path;
 
     public FtpFile(boolean isDirectory, String path) {
         this.isDirectory = isDirectory;
@@ -16,6 +16,11 @@ public class FtpFile {
 
     @Override
     public String toString() {
+        return ((isDirectory) ? ">" : "") + getName();
+    }
+
+    @Override
+    public String toNetworkResponse() {
         return getName() + " " + isDirectory;
     }
 }

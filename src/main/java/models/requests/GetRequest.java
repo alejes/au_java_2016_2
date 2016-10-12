@@ -2,7 +2,7 @@ package models.requests;
 
 
 public class GetRequest implements Request{
-    private String path;
+    private final String path;
 
     public GetRequest(String path) {
         this.path = path;

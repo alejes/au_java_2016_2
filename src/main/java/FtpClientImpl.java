@@ -11,10 +11,10 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 public class FtpClientImpl implements FtpClient {
-    private String serverHost = "127.0.0.1";
-    private int serverPort = 8000;
+    private final String serverHost = "127.0.0.1";
+    private final int serverPort = 8000;
+    private final byte[] byteBuffer = new byte[1024];
     private Socket socket = null;
-    private byte[] byteBuffer = new byte[1024];
 
     @Override
     public void connect() {
@@ -27,6 +27,7 @@ public class FtpClientImpl implements FtpClient {
 
     @Override
     public void disconnect() {
+        checkActiveConnection();
         try {
             if (socket != null) {
                 socket.close();
@@ -38,15 +39,19 @@ public class FtpClientImpl implements FtpClient {
 
     @Override
     public ListResponse executeList(ListRequest request) {
+        checkActiveConnection();
         try {
             OutputStream os = socket.getOutputStream();
             os.write(request.toByteArray());
             os.flush();
             InputStream is = socket.getInputStream();
             int cnt = is.read(byteBuffer);
+            if (cnt < 0) {
+                return null;
+            }
             String result = new String(byteBuffer).substring(0, cnt);
-            System.out.println("Receive: " + result);
-            return null;
+
+            return new ListResponse(result);
         } catch (IOException e) {
             throw new FTPException("IOException: ", e);
         }
@@ -54,25 +59,26 @@ public class FtpClientImpl implements FtpClient {
 
     @Override
     public GetResponse executeGet(GetRequest request) {
+        checkActiveConnection();
         try {
             OutputStream os = socket.getOutputStream();
             os.write(request.toByteArray());
             os.flush();
             InputStream is = socket.getInputStream();
             int cnt = is.read(byteBuffer);
-            if (cnt < 0){
+            if (cnt < 0) {
                 return null;
             }
-            System.out.println("size=" + cnt);
-            for (int i = 0; i < cnt; ++i){
-                int val = ((int)byteBuffer[i]);
-                System.out.print(val);
-            }
             String result = new String(byteBuffer).substring(0, cnt);
-            System.out.println("Receive: " + result);
-            return null;
+            return new GetResponse(result);
         } catch (IOException e) {
             throw new FTPException("IOException: ", e);
+        }
+    }
+
+    private void checkActiveConnection() {
+        if ((socket == null) || (socket.isClosed())) {
+            throw new FTPException("You are not connected to server");
         }
     }
 }
