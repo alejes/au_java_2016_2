@@ -5,6 +5,8 @@ import models.requests.ListRequest;
 import models.responses.GetResponse;
 import models.responses.ListResponse;
 
+import java.io.File;
+
 public interface FtpClient {
     void connect();
 
@@ -13,5 +15,7 @@ public interface FtpClient {
     ListResponse executeList(ListRequest request);
 
     GetResponse executeGet(GetRequest request);
+
+    GetResponse executeGetLazy(GetRequest request);
 
 }

@@ -3,9 +3,6 @@ import models.requests.ListRequest;
 import models.responses.GetResponse;
 import models.responses.ListResponse;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Scanner;
 
 public class FtpClientCmd {
@@ -22,23 +19,15 @@ public class FtpClientCmd {
                     ftp.connect();
                     break;
                 case "get":
-                    GetResponse getResponse = ftp.executeGet(new GetRequest(s.next()));
+                    System.out.println("Enter file destination:");
+                    GetResponse getResponse = ftp.executeGetLazy(new GetRequest(s.next()));
+
+                    String fileTarget = s.next();
                     if (getResponse == null) {
                         System.out.println("We receive empty answer");
                     } else {
-                        System.out.println("Enter file destination:");
-                        String fileTarget = s.next();
-                        try {
-                            FileOutputStream targetFile = new FileOutputStream(fileTarget);
-                            targetFile.write(getResponse.getBytes());
-                            targetFile.close();
-                            System.out.println("The file is recorded.");
-                        } catch (FileNotFoundException e) {
-                            System.out.println("Exception: file not found: " + e.getMessage());
-                        } catch (IOException e) {
-                            System.out.println("IOException: " + e.getMessage());
-                        }
-
+                        getResponse.toFile(fileTarget);
+                        System.out.println("The file is recorded.");
                     }
                     break;
                 case "list":

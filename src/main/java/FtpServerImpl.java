@@ -11,8 +11,16 @@ import java.net.Socket;
 
 public class FtpServerImpl extends Ftp implements FtpServer {
     private final static int bufferLength = 4096;
-    private final int serverPort = 8000;
+    private final int serverPort;
     private Thread serverManager = null;
+
+    public FtpServerImpl() {
+        this.serverPort = 8000;
+    }
+
+    public FtpServerImpl(int serverPort) {
+        this.serverPort = serverPort;
+    }
 
     @Override
     public void serverStart() {
@@ -67,7 +75,7 @@ public class FtpServerImpl extends Ftp implements FtpServer {
                 OutputStream os = socket.getOutputStream();
                 while (socket.isConnected() && !socket.isInputShutdown()) {
                     int bytesRead = is.read(requestBytes);
-                    if (bytesRead < 0){
+                    if (bytesRead < 0) {
                         continue;
                     }
                     String request = new String(requestBytes).substring(0, bytesRead);

@@ -1,13 +1,13 @@
 import java.util.Scanner;
 
 public class FtpServerCmd {
-    public static void main(String[] args){
+    public static void main(String[] args) {
         FtpServerImpl ftp = new FtpServerImpl();
         String mode;
         Scanner s = new Scanner(System.in);
 
         boolean serverIsRunnig = true;
-        while(serverIsRunnig) {
+        while (serverIsRunnig) {
             System.out.printf("Enter command: ");
             mode = s.next();
             switch (mode) {
