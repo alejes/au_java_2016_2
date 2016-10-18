@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FtpTests {
     private static final int portNumberMod = 30000;
-    private static Random rnd = new Random();
+    private static final Random rnd = new Random();
     public final int MAX_CLIENT_COUNT = 100;
 
     @Test

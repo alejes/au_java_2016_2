@@ -5,8 +5,6 @@ import models.requests.ListRequest;
 import models.responses.GetResponse;
 import models.responses.ListResponse;
 
-import java.io.File;
-
 public interface FtpClient {
     void connect();
 
