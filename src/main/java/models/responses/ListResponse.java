@@ -16,7 +16,7 @@ public class ListResponse implements Networkable {
     }
 
     public ListResponse(String stringResponse) {
-         String[] parts = stringResponse.split(" ");
+        String[] parts = stringResponse.split(" ");
         if ((parts.length < 1) || (parts.length % 2 != 1)) {
             throw new FTPException("Cannot parse list response");
         }
