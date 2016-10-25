@@ -5,17 +5,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TorrentFile {
-    private int fileId;
-    private List<Integer> pieces;
+    private final long size;
+    private final String name;
+    private final int fileId;
+    private final List<Integer> pieces;
 
-    public TorrentFile(int fileId) {
+    public TorrentFile(int fileId, long size, String name) {
         this.fileId = fileId;
+        this.size = size;
+        this.name = name;
         this.pieces = new ArrayList<>();
     }
 
-    public TorrentFile(int fileId, List<Integer> pieces) {
+    public TorrentFile(int fileId, long size, String name, List<Integer> pieces) {
         this.fileId = fileId;
+        this.size = size;
+        this.name = name;
         this.pieces = pieces;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public long getSize() {
+        return size;
     }
 
     public List<Integer> getPieces() {
