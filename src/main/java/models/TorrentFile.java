@@ -10,7 +10,7 @@ public class TorrentFile {
     private final int fileId;
     private final List<Integer> pieces;
 
-    public TorrentFile(int fileId, long size, String name) {
+    public TorrentFile(int fileId, String name, long size) {
         this.fileId = fileId;
         this.size = size;
         this.name = name;

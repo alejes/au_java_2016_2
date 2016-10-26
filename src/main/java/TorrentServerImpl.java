@@ -2,10 +2,7 @@ import models.commands.Command;
 import models.torrent.TorrentServer;
 import models.torrent.TorrentServerState;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 
 
@@ -17,9 +14,11 @@ public class TorrentServerImpl implements TorrentServer {
         InputStream is = socket.getInputStream();
         DataInputStream dis = new DataInputStream(is);
         OutputStream os = socket.getOutputStream();
+        DataOutputStream dos = new DataOutputStream(os);
 
         while (socket.isConnected() && !socket.isInputShutdown()) {
-            Command cmd = Command.build(tss, dis);
+            byte[] ip = socket.getInetAddress().getAddress();
+            Command cmd = Command.build(tss, dis, ip);
         }
     }
 }
