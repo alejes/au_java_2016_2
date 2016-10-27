@@ -1,4 +1,5 @@
 import models.commands.Command;
+import models.commands.server.ServerCommandBuilder;
 import models.torrent.TorrentServer;
 import models.torrent.TorrentServerState;
 
@@ -18,7 +19,9 @@ public class TorrentServerImpl implements TorrentServer {
 
         while (socket.isConnected() && !socket.isInputShutdown()) {
             byte[] ip = socket.getInetAddress().getAddress();
-            Command cmd = Command.build(tss, dis, ip);
+            Command cmd = ServerCommandBuilder.build(tss, dis, ip);
+            cmd.evaluateCommand(dos);
+            socket.close();
         }
     }
 }

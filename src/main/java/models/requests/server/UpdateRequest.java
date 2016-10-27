@@ -1,28 +1,23 @@
 package models.requests.server;
 
 import exceptions.TorrentException;
-import models.TorrentFile;
 import models.requests.Request;
+import models.torrent.TorrentClientState;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.List;
 
 public class UpdateRequest implements Request {
+    private final TorrentClientState tcs;
 
-    private final short clientPort;
-
-    private final List<TorrentFile> distributedFiles;
-
-    public UpdateRequest(short clientPort, List<TorrentFile> distributedFiles) {
-        this.clientPort = clientPort;
-        this.distributedFiles = distributedFiles;
+    public UpdateRequest(TorrentClientState tcs) {
+        this.tcs = tcs;
     }
 
     @Override
     public void writeToDataOutputStream(DataOutputStream dos) throws IOException {
-        dos.writeShort(clientPort);
-        distributedFiles.forEach((x) -> {
+        dos.writeShort(tcs.getPort());
+        tcs.getOwnFiles().values().forEach((x) -> {
             try {
                 dos.writeInt(x.getFileId());
             } catch (IOException e) {
