@@ -1,19 +1,20 @@
-package models.commands;
+package models.commands.server;
 
 
 import models.TorrentFile;
+import models.commands.Command;
 import models.torrent.TorrentServerState;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-public class UploadCommand extends Command {
+public class UploadCommand implements Command {
     private final TorrentServerState tss;
     private final String fileName;
     private final long fileSize;
 
-    public UploadCommand(TorrentServerState tss, String fileName, long fileSize) {
+    protected UploadCommand(TorrentServerState tss, String fileName, long fileSize) {
         this.tss = tss;
         this.fileName = fileName;
         this.fileSize = fileSize;

@@ -7,7 +7,7 @@ import java.io.IOException;
 
 
 public class StatRequest implements Request {
-    private int fileId;
+    private final int fileId;
 
     public StatRequest(int fileId) {
         this.fileId = fileId;

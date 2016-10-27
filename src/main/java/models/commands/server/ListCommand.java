@@ -1,14 +1,15 @@
-package models.commands;
+package models.commands.server;
 
 
 import exceptions.TorrentException;
+import models.commands.Command;
 import models.torrent.TorrentServerState;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 
 
-public class ListCommand extends Command {
+public class ListCommand implements Command {
     private final TorrentServerState tss;
 
     protected ListCommand(TorrentServerState tss) {

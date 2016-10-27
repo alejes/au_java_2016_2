@@ -7,8 +7,8 @@ import java.io.IOException;
 
 
 public class UploadRequest implements Request {
-    private String name;
-    private long size;
+    private final String name;
+    private final long size;
 
     public UploadRequest(String name, long size) {
         this.name = name;

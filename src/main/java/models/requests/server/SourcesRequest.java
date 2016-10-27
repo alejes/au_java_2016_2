@@ -6,7 +6,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class SourcesRequest implements Request {
-    private int fileId;
+    private final int fileId;
 
     public SourcesRequest(int fileId) {
         this.fileId = fileId;

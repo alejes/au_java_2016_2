@@ -1,7 +1,8 @@
-package models.commands;
+package models.commands.server;
 
 
 import models.TorrentPeer;
+import models.commands.Command;
 import models.torrent.TorrentServerState;
 
 import java.io.DataOutputStream;
@@ -9,13 +10,13 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
-public class UpdateCommand extends Command {
+public class UpdateCommand implements Command {
     private final TorrentServerState tss;
     private final short clientPort;
     private final Set<Integer> distributedFiles;
     private final byte[] clientIp;
 
-    public UpdateCommand(TorrentServerState tss, byte[] clientIp, short clientPort, Set<Integer> distributedFiles) {
+    protected UpdateCommand(TorrentServerState tss, byte[] clientIp, short clientPort, Set<Integer> distributedFiles) {
         this.tss = tss;
         this.clientPort = clientPort;
         this.distributedFiles = distributedFiles;

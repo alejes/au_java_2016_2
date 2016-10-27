@@ -10,13 +10,13 @@ import java.util.List;
 
 public class UpdateRequest implements Request {
 
-    private short clientPort;
+    private final short clientPort;
 
-    private List<TorrentFile> distributedFiles;
+    private final List<TorrentFile> distributedFiles;
 
-    @Override
-    public String toString() {
-        return super.toString();
+    public UpdateRequest(short clientPort, List<TorrentFile> distributedFiles) {
+        this.clientPort = clientPort;
+        this.distributedFiles = distributedFiles;
     }
 
     @Override

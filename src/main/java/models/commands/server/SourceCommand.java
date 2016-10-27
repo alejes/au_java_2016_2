@@ -1,8 +1,9 @@
-package models.commands;
+package models.commands.server;
 
 
 import exceptions.TorrentException;
 import models.TorrentPeer;
+import models.commands.Command;
 import models.torrent.TorrentServerState;
 
 import java.io.DataOutputStream;
@@ -11,11 +12,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class SourceCommand extends Command {
+public class SourceCommand implements Command {
     private final TorrentServerState tss;
     private final int fileId;
 
-    public SourceCommand(TorrentServerState tss, int fileId) {
+    protected  SourceCommand(TorrentServerState tss, int fileId) {
         this.tss = tss;
         this.fileId = fileId;
     }

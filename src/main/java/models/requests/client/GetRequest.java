@@ -7,12 +7,12 @@ import java.io.IOException;
 
 
 public class GetRequest implements Request {
-    private int fileId;
-    private int partId;
+    private final int fileId;
+    private final int partId;
 
-    @Override
-    public String toString() {
-        return super.toString();
+    public GetRequest(int fileId, int partId) {
+        this.fileId = fileId;
+        this.partId = partId;
     }
 
     @Override
