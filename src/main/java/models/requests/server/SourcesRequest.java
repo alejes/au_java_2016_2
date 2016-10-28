@@ -22,4 +22,9 @@ public class SourcesRequest implements Request {
         dos.writeByte(3);
         dos.writeInt(fileId);
     }
+
+    @Override
+    public byte getCommandId() {
+        return 3;
+    }
 }

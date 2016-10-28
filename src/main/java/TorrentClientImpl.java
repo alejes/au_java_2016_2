@@ -16,21 +16,20 @@ import java.net.Socket;
 
 public class TorrentClientImpl implements TorrentClient {
     private final String serverHost;
-    private final int serverPort;
     private Thread updateThread;
     private TorrentClientState tcs;
 
-    public TorrentClientImpl(String serverHost, int serverPort) throws IOException {
+    public TorrentClientImpl(String serverHost) throws IOException {
         this.serverHost = serverHost;
-        this.serverPort = serverPort;
         ServerSocket server = new ServerSocket(0);
         tcs = new TorrentClientState(server);
+        update();
     }
 
     private void sendRequest(Request request, Response response) {
         try {
             Socket socket = new Socket();
-            socket.connect(new InetSocketAddress(serverHost, serverPort), 5000);
+            socket.connect(new InetSocketAddress(serverHost, getServerPort()), 5000);
             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
             DataInputStream dis = new DataInputStream(socket.getInputStream());
             request.writeToDataOutputStream(dos);
@@ -43,12 +42,17 @@ public class TorrentClientImpl implements TorrentClient {
     @Override
     public void update() {
         updateThread = new Thread(() -> {
-            while(!Thread.interrupted()) {
+            while (!Thread.interrupted()) {
                 Request updateRequest = new UpdateRequest(tcs);
                 Response updateResponse = new UpdateResponse();
-                sendRequest(updateRequest, updateResponse);
                 try {
-                    Thread.sleep(4500);
+                    sendRequest(updateRequest, updateResponse);
+                } catch (TorrentException e) {
+                    System.out.println("TorrentException: " + e.getMessage());
+                }
+                System.out.println("Information updated");
+                try {
+                    Thread.sleep((long) (4.5 * 60 * 1000));
                 } catch (InterruptedException e) {
                     break;
                 }

@@ -13,6 +13,7 @@ import java.util.stream.IntStream;
 public class ServerCommandBuilder {
     public static Command build(TorrentServerState tss, DataInputStream dis, byte[] clientIp) throws IOException {
         byte commandId = dis.readByte();
+        System.out.println("build command :" +commandId);
         switch (commandId) {
             case 1:
                 return new ListCommand(tss);
@@ -25,6 +26,7 @@ public class ServerCommandBuilder {
                 return new SourceCommand(tss, fileId);
             case 4:
                 short clientPort = dis.readShort();
+
                 int filesCount = dis.readInt();
                 Set<Integer> distributedFiles = IntStream.range(0, filesCount).mapToObj((x) -> {
                     try {
@@ -35,7 +37,7 @@ public class ServerCommandBuilder {
                 }).collect(Collectors.toSet());
                 return new UpdateCommand(tss, clientIp, clientPort, distributedFiles);
             default:
-                throw new TorrentException("Unexpected command id");
+                throw new TorrentException("Unexpected command id = " + commandId);
         }
     }
 }

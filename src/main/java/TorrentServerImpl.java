@@ -21,7 +21,9 @@ public class TorrentServerImpl implements TorrentServer {
             byte[] ip = socket.getInetAddress().getAddress();
             Command cmd = ServerCommandBuilder.build(tss, dis, ip);
             cmd.evaluateCommand(dos);
+            dos.flush();
             socket.close();
+            break;
         }
     }
 }

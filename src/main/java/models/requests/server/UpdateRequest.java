@@ -16,7 +16,9 @@ public class UpdateRequest implements Request {
 
     @Override
     public void writeToDataOutputStream(DataOutputStream dos) throws IOException {
+        dos.writeByte(getCommandId());
         dos.writeShort(tcs.getPort());
+        dos.writeInt(tcs.getOwnFiles().size());
         tcs.getOwnFiles().values().forEach((x) -> {
             try {
                 dos.writeInt(x.getFileId());
@@ -24,5 +26,10 @@ public class UpdateRequest implements Request {
                 throw new TorrentException("Cannot write distributed file id " + x.getFileId(), e);
             }
         });
+    }
+
+    @Override
+    public byte getCommandId() {
+        return 4;
     }
 }

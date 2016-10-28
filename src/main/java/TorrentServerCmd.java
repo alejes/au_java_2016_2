@@ -15,9 +15,14 @@ public class TorrentServerCmd {
         try {
             ServerSocket server = new ServerSocket(serverPort);
             while (true) {
-                System.out.println("waiting new client");
-                Socket socket = server.accept();
-                ts.acceptServerSocket(socket);
+                try {
+                    System.out.println("waiting new client");
+                    Socket socket = server.accept();
+                    ts.acceptServerSocket(socket);
+                }
+                catch (TorrentException e) {
+                    System.out.println("TorrentException: " + e.getMessage());
+                }
             }
         } catch (IOException e) {
             throw new TorrentException("IOException: ", e);

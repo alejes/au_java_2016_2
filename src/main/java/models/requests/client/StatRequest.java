@@ -23,4 +23,9 @@ public class StatRequest implements Request {
         dos.writeShort(1);
         dos.writeInt(fileId);
     }
+
+    @Override
+    public byte getCommandId() {
+        return 1;
+    }
 }

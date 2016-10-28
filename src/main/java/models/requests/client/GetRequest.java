@@ -21,4 +21,9 @@ public class GetRequest implements Request {
         dos.writeInt(fileId);
         dos.writeInt(partId);
     }
+
+    @Override
+    public byte getCommandId() {
+        return 2;
+    }
 }

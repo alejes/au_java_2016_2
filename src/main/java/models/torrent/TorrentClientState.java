@@ -22,6 +22,6 @@ public class TorrentClientState {
     }
 
     public short getPort() {
-        return (short) server.getLocalPort();
+        return (short) (Short.MAX_VALUE - server.getLocalPort());
     }
 }

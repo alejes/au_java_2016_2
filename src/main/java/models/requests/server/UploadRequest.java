@@ -26,4 +26,9 @@ public class UploadRequest implements Request {
         dos.writeUTF(name);
         dos.writeLong(size);
     }
+
+    @Override
+    public byte getCommandId() {
+        return 2;
+    }
 }

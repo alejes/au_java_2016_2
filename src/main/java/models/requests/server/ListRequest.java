@@ -15,4 +15,9 @@ public class ListRequest implements Request {
     public void writeToDataOutputStream(DataOutputStream dos) throws IOException {
         dos.writeByte(1);
     }
+
+    @Override
+    public byte getCommandId() {
+        return 1;
+    }
 }

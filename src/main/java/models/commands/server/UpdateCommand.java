@@ -9,6 +9,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 public class UpdateCommand implements Command {
     private final TorrentServerState tss;
@@ -28,6 +29,8 @@ public class UpdateCommand implements Command {
         Map<TorrentPeer, Set<Integer>> peersMap = tss.getPeersFilesMap();
         TorrentPeer peerCandidate = new TorrentPeer(clientIp, clientPort);
         peersMap.put(peerCandidate, distributedFiles);
+        System.out.println("update info on " + clientIp + ":" + clientPort);
         dos.writeBoolean(true);
+        dos.flush();
     }
 }
