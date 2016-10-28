@@ -17,6 +17,10 @@ public class TorrentClientState {
         this.server = server;
     }
 
+    public ServerSocket getServer() {
+        return server;
+    }
+
     public Map<Integer, TorrentFile> getOwnFiles() {
         return ownFiles;
     }

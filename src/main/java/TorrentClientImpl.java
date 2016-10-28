@@ -1,17 +1,22 @@
 import exceptions.TorrentException;
+import models.TorrentFile;
 import models.requests.Request;
 import models.requests.server.UpdateRequest;
+import models.requests.server.UploadRequest;
 import models.response.Response;
 import models.response.server.UpdateResponse;
+import models.response.server.UploadResponse;
 import models.torrent.TorrentClient;
 import models.torrent.TorrentClientState;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Collection;
 
 
 public class TorrentClientImpl implements TorrentClient {
@@ -24,6 +29,23 @@ public class TorrentClientImpl implements TorrentClient {
         ServerSocket server = new ServerSocket(0);
         tcs = new TorrentClientState(server);
         update();
+    }
+
+    @Override
+    public Collection<TorrentFile> distributedFiles() {
+        return tcs.getOwnFiles().values();
+    }
+
+    @Override
+    public void registerFile(File file) {
+        Request uploadRequest = new UploadRequest(file.getName(), file.length());
+        UploadResponse uploadResponse = new UploadResponse();
+
+        sendRequest(uploadRequest, uploadResponse);
+
+        int fileId = uploadResponse.getFileId();
+        System.out.println("new file = " + fileId);
+        tcs.getOwnFiles().put(fileId, new TorrentFile(fileId, file.getName(), file.length()));
     }
 
     private void sendRequest(Request request, Response response) {
@@ -40,6 +62,12 @@ public class TorrentClientImpl implements TorrentClient {
     }
 
     @Override
+    public void shutdown() throws IOException {
+        updateThread.interrupt();
+        tcs.getServer().close();
+    }
+
+    @Override
     public void update() {
         updateThread = new Thread(() -> {
             while (!Thread.interrupted()) {
@@ -48,7 +76,7 @@ public class TorrentClientImpl implements TorrentClient {
                 try {
                     sendRequest(updateRequest, updateResponse);
                 } catch (TorrentException e) {
-                    System.out.println("TorrentException: " + e.getMessage());
+                    System.out.println("Cannot update information: " + e.getMessage());
                 }
                 System.out.println("Information updated");
                 try {

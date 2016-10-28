@@ -25,5 +25,6 @@ public class UploadCommand implements Command {
         List<TorrentFile> list = tss.getListTorrentFiles();
         int fileId = list.size();
         tss.getListTorrentFiles().add(new TorrentFile(fileId, fileName, fileSize));
+        dos.writeInt(fileId);
     }
 }
