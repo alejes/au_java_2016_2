@@ -3,12 +3,14 @@ package models;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class TorrentFile {
     private final long size;
-    private final String name;
     private final int fileId;
     private final List<Integer> pieces;
+    private String name;
 
     public TorrentFile(int fileId, String name, long size) {
         this.fileId = fileId;
@@ -24,8 +26,24 @@ public class TorrentFile {
         this.pieces = pieces;
     }
 
+    public TorrentFile(int fileId, String name, long size, boolean loaded) {
+        this.fileId = fileId;
+        this.size = size;
+        this.name = name;
+        if (loaded) {
+            this.pieces = IntStream.rangeClosed(0, getTotalPieces())
+                    .mapToObj(Integer::new).collect(Collectors.toList());
+        } else {
+            this.pieces = new ArrayList<>();
+        }
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public long getSize() {
@@ -38,5 +56,45 @@ public class TorrentFile {
 
     public int getFileId() {
         return fileId;
+    }
+
+    public int getCountPieces() {
+        return pieces.size();
+    }
+
+    public int getTotalPieces() {
+        return (int) (size / getPieceSize() + ((size % getPieceSize() != 0) ? 1 : 0));
+    }
+
+    public final long getPieceSize() {
+        return 10;
+    }
+
+    public boolean isDownload() {
+        return getCountPieces() * getPieceSize() > size;
+    }
+
+    @Override
+    public String toString() {
+        String result = getFileId() + "\t" + getName() + "\t" + getSize();
+        if (isDownload()) {
+            result += "\t" + "[OK]";
+        } else {
+            result += "\t" + "[" + getCountPieces() + "/" + getTotalPieces() + "]";
+        }
+        return result;
+    }
+
+    public String toString(boolean inLocalList) {
+        String result = getFileId() + "\t" + getName() + "\t" + getSize();
+        if (!inLocalList){
+            result += "\t" + "[-]";
+        }
+        else if (isDownload()) {
+            result += "\t" + "[OK]";
+        } else {
+            result += "\t" + "[" + getCountPieces() + "/" + getTotalPieces() + "]";
+        }
+        return result;
     }
 }

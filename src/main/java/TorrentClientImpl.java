@@ -20,6 +20,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 
 public class TorrentClientImpl implements TorrentClient {
@@ -48,7 +49,7 @@ public class TorrentClientImpl implements TorrentClient {
 
         int fileId = uploadResponse.getFileId();
         System.out.println("new file = " + fileId);
-        tcs.getOwnFiles().put(fileId, new TorrentFile(fileId, file.getName(), file.length()));
+        tcs.getOwnFiles().put(fileId, new TorrentFile(fileId, file.getName(), file.length(), true));
     }
 
     private void sendRequest(Request request, Response response) {
@@ -80,6 +81,18 @@ public class TorrentClientImpl implements TorrentClient {
             System.out.println("Cannot forceUpdate information: " + e.getMessage());
         }
         System.out.println("Information updated");
+    }
+
+    @Override
+    public boolean addGetTask(int id, String location) {
+        Optional<TorrentFile> targetFile = listFiles().stream().filter(x -> x.getFileId() == id).findAny();
+        if (!targetFile.isPresent()) {
+            return false;
+        }
+        TorrentFile target = targetFile.get();
+        target.setName(location);
+        tcs.getOwnFiles().putIfAbsent(id, target);
+        return true;
     }
 
     @Override
