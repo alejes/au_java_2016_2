@@ -6,14 +6,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class TorrentServerCmd {
-    private static final String serverHost = "127.0.0.1";
-    private static final int serverPort = 8081;
-
     public static void main(String[] args) {
         TorrentServer ts = new TorrentServerImpl();
 
         try {
-            ServerSocket server = new ServerSocket(serverPort);
+            ServerSocket server = new ServerSocket(ts.getServerPort());
             while (true) {
                 try {
                     System.out.println("waiting new client");

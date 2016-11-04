@@ -19,15 +19,28 @@ public class TorrentClientCmd {
                         //System.out.println("Enter file location: ");
                         String targetFile = scr.next();
                         File file = new File(targetFile);
-                        if (!file.exists()){
+                        if (!file.exists()) {
                             System.out.println("File not found");
                             break;
                         }
                         tc.registerFile(file);
                         break;
-                    case "list":
+                    case "mylist":
                         System.out.println("Distributed files");
                         tc.distributedFiles().forEach((x) -> System.out.println(x.getFileId() + "\t" + x.getName() + "\t" + x.getSize() + "\n"));
+                        break;
+                    case "list":
+                        System.out.println("Global distributed files");
+                        tc.listFiles().forEach((x) -> System.out.println(x.getFileId() + "\t" + x.getName() + "\t" + x.getSize() + "\n"));
+                        break;
+                    case "update":
+                        System.out.println("Force update");
+                        tc.forceUpdate();
+                        break;
+                    case "sources":
+                        int sourcesId = scr.nextInt();
+                        System.out.println("Sources of file ");
+                        tc.forceUpdate();
                         break;
                     case "exit":
                         tc.shutdown();

@@ -1,9 +1,11 @@
 import exceptions.TorrentException;
 import models.TorrentFile;
 import models.requests.Request;
+import models.requests.server.ListRequest;
 import models.requests.server.UpdateRequest;
 import models.requests.server.UploadRequest;
 import models.response.Response;
+import models.response.server.ListResponse;
 import models.response.server.UpdateResponse;
 import models.response.server.UploadResponse;
 import models.torrent.TorrentClient;
@@ -17,6 +19,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Collection;
+import java.util.List;
 
 
 public class TorrentClientImpl implements TorrentClient {
@@ -68,17 +71,33 @@ public class TorrentClientImpl implements TorrentClient {
     }
 
     @Override
-    public void update() {
+    public void forceUpdate() {
+        Request updateRequest = new UpdateRequest(tcs);
+        Response updateResponse = new UpdateResponse();
+        try {
+            sendRequest(updateRequest, updateResponse);
+        } catch (TorrentException e) {
+            System.out.println("Cannot forceUpdate information: " + e.getMessage());
+        }
+        System.out.println("Information updated");
+    }
+
+    @Override
+    public List<TorrentFile> listFiles() {
+        Request listRequest = new ListRequest();
+        ListResponse listResponse = new ListResponse();
+        try {
+            sendRequest(listRequest, listResponse);
+        } catch (TorrentException e) {
+            System.out.println("Cannot list global files: " + e.getMessage());
+        }
+        return listResponse.getFilesList();
+    }
+
+    private void update() {
         updateThread = new Thread(() -> {
             while (!Thread.interrupted()) {
-                Request updateRequest = new UpdateRequest(tcs);
-                Response updateResponse = new UpdateResponse();
-                try {
-                    sendRequest(updateRequest, updateResponse);
-                } catch (TorrentException e) {
-                    System.out.println("Cannot update information: " + e.getMessage());
-                }
-                System.out.println("Information updated");
+                forceUpdate();
                 try {
                     Thread.sleep((long) (4.5 * 60 * 1000));
                 } catch (InterruptedException e) {

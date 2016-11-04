@@ -17,13 +17,12 @@ public class TorrentServerImpl implements TorrentServer {
         OutputStream os = socket.getOutputStream();
         DataOutputStream dos = new DataOutputStream(os);
 
-        while (socket.isConnected() && !socket.isInputShutdown()) {
+        if (socket.isConnected() && !socket.isInputShutdown()) {
             byte[] ip = socket.getInetAddress().getAddress();
             Command cmd = ServerCommandBuilder.build(tss, dis, ip);
             cmd.evaluateCommand(dos);
             dos.flush();
             socket.close();
-            break;
         }
     }
 }

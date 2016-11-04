@@ -3,6 +3,7 @@ package models;
 import com.sun.istack.internal.NotNull;
 
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 public class TorrentPeer {
     @NotNull
@@ -40,5 +41,12 @@ public class TorrentPeer {
         int result = Arrays.hashCode(peerIp);
         result = 31 * result + (int) peerPort;
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return IntStream.range(0, peerIp.length).map(i -> peerIp[i])
+                .mapToObj(Integer::toString).reduce((x, y) -> x + "." + y)
+                + ":" + (Short.MAX_VALUE - peerPort);
     }
 }
