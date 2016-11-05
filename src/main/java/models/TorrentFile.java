@@ -75,7 +75,7 @@ public class TorrentFile {
     }
 
     public List<Integer> getMissingPieces() {
-        return IntStream.range(0, getTotalPieces()).filter(pieces::contains)
+        return IntStream.range(0, getTotalPieces()).filter(x -> !pieces.contains(x))
                 .mapToObj(Integer::new).collect(Collectors.toList());
     }
 

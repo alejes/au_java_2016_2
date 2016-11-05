@@ -20,7 +20,7 @@ public class StatRequest implements Request {
 
     @Override
     public void writeToDataOutputStream(DataOutputStream dos) throws IOException {
-        dos.writeShort(1);
+        dos.writeByte(1);
         dos.writeInt(fileId);
     }
 

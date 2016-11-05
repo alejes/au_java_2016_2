@@ -1,6 +1,8 @@
 import exceptions.TorrentException;
 import models.TorrentFile;
 import models.TorrentPeer;
+import models.commands.Command;
+import models.commands.client.ClientCommandBuilder;
 import models.requests.Request;
 import models.requests.client.GetRequest;
 import models.requests.client.StatRequest;
@@ -19,6 +21,7 @@ import models.torrent.TorrentClient;
 import models.torrent.TorrentClientState;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -32,14 +35,16 @@ public class TorrentClientImpl implements TorrentClient {
     private final String serverHost;
     private Thread updateThread;
     private Thread downloadThread;
+    private Thread localServerThread;
     private TorrentClientState tcs;
 
     public TorrentClientImpl(String serverHost) throws IOException {
         this.serverHost = serverHost;
         ServerSocket server = new ServerSocket(0);
         tcs = new TorrentClientState(server);
-        update();
-        download();
+        updateRun();
+        downloadRun();
+        localServerRun();
     }
 
     @Override
@@ -52,14 +57,14 @@ public class TorrentClientImpl implements TorrentClient {
         Request uploadRequest = new UploadRequest(file.getName(), file.length());
         UploadResponse uploadResponse = new UploadResponse();
 
-        sendRequest(uploadRequest, uploadResponse);
+        sendServerRequest(uploadRequest, uploadResponse);
 
         int fileId = uploadResponse.getFileId();
         System.out.println("new file = " + fileId);
         tcs.getOwnFiles().put(fileId, new TorrentFile(fileId, file.getName(), file.length(), true));
     }
 
-    private void sendRequest(Request request, Response response) {
+    private void sendServerRequest(Request request, Response response) {
         try {
             Socket socket = new Socket();
             socket.connect(new InetSocketAddress(serverHost, getServerPort()), 5000);
@@ -68,7 +73,20 @@ public class TorrentClientImpl implements TorrentClient {
             request.writeToDataOutputStream(dos);
             response.readFromDataInputStream(dis);
         } catch (IOException e) {
-            throw new TorrentException("IOException: ", e);
+            throw new TorrentException("C2S IOException: ", e);
+        }
+    }
+
+    private void sendClientRequest(Request request, Response response, byte[] targetIp, short targetPort) {
+        try {
+            Socket socket = new Socket();
+            socket.connect(new InetSocketAddress(InetAddress.getByAddress(targetIp), Short.MAX_VALUE - targetPort), 5000);
+            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+            DataInputStream dis = new DataInputStream(socket.getInputStream());
+            request.writeToDataOutputStream(dos);
+            response.readFromDataInputStream(dis);
+        } catch (IOException e) {
+            throw new TorrentException("C2C IOException: ", e);
         }
     }
 
@@ -83,7 +101,7 @@ public class TorrentClientImpl implements TorrentClient {
         Request updateRequest = new UpdateRequest(tcs);
         Response updateResponse = new UpdateResponse();
         try {
-            sendRequest(updateRequest, updateResponse);
+            sendServerRequest(updateRequest, updateResponse);
         } catch (TorrentException e) {
             System.out.println("Cannot forceUpdate information: " + e.getMessage());
         }
@@ -107,7 +125,7 @@ public class TorrentClientImpl implements TorrentClient {
         Request listRequest = new ListRequest();
         ListResponse listResponse = new ListResponse();
 
-        sendRequest(listRequest, listResponse);
+        sendServerRequest(listRequest, listResponse);
 
         return listResponse.getFilesList();
     }
@@ -119,7 +137,7 @@ public class TorrentClientImpl implements TorrentClient {
             Request sourcesRequest = new SourcesRequest(file.getFileId());
             SourcesResponse sourcesResponse = new SourcesResponse();
 
-            sendRequest(sourcesRequest, sourcesResponse);
+            sendServerRequest(sourcesRequest, sourcesResponse);
 
 
             try (RandomAccessFile raf = new RandomAccessFile(file.getName(), "rw")) {
@@ -127,15 +145,16 @@ public class TorrentClientImpl implements TorrentClient {
                     Request statRequest = new StatRequest(file.getFileId());
                     StatResponse statResponse = new StatResponse();
 
-                    sendRequest(statRequest, statResponse);
+                    sendClientRequest(statRequest, statResponse, peer.getPeerIp(), peer.getPeerPort());
 
 
                     for (Integer missingPartId : file.getMissingPieces()) {
                         if (statResponse.getPartsList().contains(missingPartId)) {
                             Request getRequest = new GetRequest(file.getFileId(), missingPartId);
                             GetResponse getResponse = new GetResponse(file.getPieceSize());
-                            /* send request to peer*/
-                            sendRequest(getRequest, getResponse);
+
+                            sendClientRequest(getRequest, getResponse, peer.getPeerIp(), peer.getPeerPort());
+
                             raf.seek(missingPartId * file.getPieceSize());
                             raf.write(getResponse.getContent(), 0, getResponse.getContentSize());
                             file.getPieces().add(missingPartId);
@@ -150,7 +169,21 @@ public class TorrentClientImpl implements TorrentClient {
         return was;
     }
 
-    private void update() {
+    private void forceLocalServerResponse(Socket socket) throws IOException {
+        InputStream is = socket.getInputStream();
+        DataInputStream dis = new DataInputStream(is);
+        OutputStream os = socket.getOutputStream();
+        DataOutputStream dos = new DataOutputStream(os);
+
+        if (socket.isConnected() && !socket.isInputShutdown()) {
+            Command cmd = ClientCommandBuilder.build(tcs, dis);
+            cmd.evaluateCommand(dos);
+            dos.flush();
+            socket.close();
+        }
+    }
+
+    private void updateRun() {
         updateThread = new Thread(() -> {
             while (!Thread.interrupted()) {
                 forceUpdate();
@@ -164,7 +197,7 @@ public class TorrentClientImpl implements TorrentClient {
         updateThread.start();
     }
 
-    private void download() {
+    private void downloadRun() {
         downloadThread = new Thread(() -> {
             while (!Thread.interrupted()) {
                 boolean result = forceDownload();
@@ -177,5 +210,21 @@ public class TorrentClientImpl implements TorrentClient {
                 }
             }
         });
+        downloadThread.start();
+    }
+
+    private void localServerRun() {
+        localServerThread = new Thread(() -> {
+            while (!Thread.interrupted()) {
+                try {
+                    System.out.println("waiting new connect");
+                    Socket socket = tcs.getServer().accept();
+                    forceLocalServerResponse(socket);
+                } catch (IOException e) {
+                    throw new TorrentException("IOException: ", e);
+                }
+            }
+        });
+        localServerThread.start();
     }
 }

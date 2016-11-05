@@ -20,7 +20,7 @@ public class ClientCommandBuilder {
                 int pieceId = dis.readInt();
                 return new GetCommand(tcs, getFileId, pieceId);
             default:
-                throw new TorrentException("Unexpected command id");
+                throw new TorrentException("Unexpected command id=" + commandId);
         }
     }
 }

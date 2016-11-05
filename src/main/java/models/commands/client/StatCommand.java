@@ -36,6 +36,10 @@ public class StatCommand implements Command {
                     throw new TorrentException("Cannot write distributed file piece id " + x, e);
                 }
             });
+
+            System.out.print("stat =" );
+            pieces.forEach(x-> System.out.print(x +";"));
+            System.out.println();
         }
     }
 }
