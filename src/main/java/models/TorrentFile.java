@@ -66,12 +66,17 @@ public class TorrentFile {
         return (int) (size / getPieceSize() + ((size % getPieceSize() != 0) ? 1 : 0));
     }
 
-    public final long getPieceSize() {
+    public final int getPieceSize() {
         return 10;
     }
 
     public boolean isDownload() {
         return getCountPieces() * getPieceSize() > size;
+    }
+
+    public List<Integer> getMissingPieces() {
+        return IntStream.range(0, getTotalPieces()).filter(pieces::contains)
+                .mapToObj(Integer::new).collect(Collectors.toList());
     }
 
     @Override
@@ -87,10 +92,9 @@ public class TorrentFile {
 
     public String toString(boolean inLocalList) {
         String result = getFileId() + "\t" + getName() + "\t" + getSize();
-        if (!inLocalList){
+        if (!inLocalList) {
             result += "\t" + "[-]";
-        }
-        else if (isDownload()) {
+        } else if (isDownload()) {
             result += "\t" + "[OK]";
         } else {
             result += "\t" + "[" + getCountPieces() + "/" + getTotalPieces() + "]";

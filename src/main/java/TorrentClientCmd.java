@@ -54,7 +54,7 @@ public class TorrentClientCmd {
                         if (tc.addGetTask(sourcesId, location)) {
                             System.out.println("file successfully added to download");
                         } else {
-                            System.out.println("file added failed, maybe it already in queue");
+                            System.out.println("file added failed, maybe it absent");
                         }
                         break;
                     case "exit":
