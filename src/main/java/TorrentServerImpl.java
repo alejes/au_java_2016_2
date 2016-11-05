@@ -11,6 +11,11 @@ public class TorrentServerImpl implements TorrentServer {
     private final TorrentServerState tss = new TorrentServerState();
 
     @Override
+    public void shutdown() {
+        tss.saveState();
+    }
+
+    @Override
     public void acceptServerSocket(Socket socket) throws IOException {
         InputStream is = socket.getInputStream();
         DataInputStream dis = new DataInputStream(is);
