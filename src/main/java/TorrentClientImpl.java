@@ -46,8 +46,8 @@ public class TorrentClientImpl implements TorrentClient {
     }
 
     @Override
-    public Collection<TorrentFile> distributedFiles() {
-        return tcs.getOwnFiles().values();
+    public List<TorrentFile> distributedFiles() {
+        return tcs.getOwnFiles().values().stream().collect(Collectors.toList());
     }
 
     @Override
@@ -163,7 +163,7 @@ public class TorrentClientImpl implements TorrentClient {
                             if (!sendClientRequest(getRequest, getResponse, peer.getPeerIp(), peer.getPeerPort())) {
                                 continue;
                             }
-                            System.out.println("id= " + missingPartId + "; seek = " + missingPartId * file.getPieceSize() + ";size = "+ getResponse.getContentSize());
+                            System.out.println("id= " + missingPartId + "; seek = " + missingPartId * file.getPieceSize() + ";size = " + getResponse.getContentSize());
                             raf.seek(missingPartId * file.getPieceSize());
                             raf.write(getResponse.getContent(), 0, getResponse.getContentSize());
                             file.getPieces().add(missingPartId);

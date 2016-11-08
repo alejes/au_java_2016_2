@@ -20,7 +20,7 @@ public interface TorrentClient {
 
     void shutdown() throws IOException;
 
-    Collection<TorrentFile> distributedFiles();
+    List<TorrentFile> distributedFiles();
 
     void registerFile(File file);
 }
