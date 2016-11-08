@@ -155,7 +155,7 @@ public class TorrentClientImpl implements TorrentClient {
                     for (Integer missingPartId : file.getMissingPieces()) {
                         if (statResponse.getPartsList().contains(missingPartId)) {
                             Request getRequest = new GetRequest(file.getFileId(), missingPartId);
-                            GetResponse getResponse = new GetResponse(file.getPieceSize());
+                            GetResponse getResponse = new GetResponse(file.getPieceSizeById(missingPartId));
 
                             if (!sendClientRequest(getRequest, getResponse, peer.getPeerIp(), peer.getPeerPort())) {
                                 continue;

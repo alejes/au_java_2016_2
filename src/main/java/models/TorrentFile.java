@@ -85,8 +85,16 @@ public class TorrentFile {
         return 10;
     }
 
+    public int getPieceSizeById(int partId) {
+        if (partId < getCountPieces() - 1) {
+            return getPieceSize();
+        } else {
+            return (int) size % getPieceSize();
+        }
+    }
+
     public boolean isDownload() {
-        return getCountPieces() * getPieceSize() > size;
+        return getCountPieces() * getPieceSize() >= size;
     }
 
     public List<Integer> getMissingPieces() {

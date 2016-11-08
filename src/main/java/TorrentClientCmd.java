@@ -30,6 +30,7 @@ public class TorrentClientCmd {
                             break;
                         }
                         tc.registerFile(file);
+                        tc.forceUpdate();
                         break;
                     case "mylist":
                         System.out.println("Distributed files");

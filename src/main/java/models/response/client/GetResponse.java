@@ -23,6 +23,6 @@ public class GetResponse implements Response {
 
     @Override
     public void readFromDataInputStream(DataInputStream dis) throws IOException {
-        contentSize = dis.read(content);
+        dis.readFully(content);
     }
 }
