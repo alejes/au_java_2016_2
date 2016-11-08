@@ -13,7 +13,6 @@ import java.util.stream.IntStream;
 public class ServerCommandBuilder {
     public static Command build(TorrentServerState tss, DataInputStream dis, byte[] clientIp) throws IOException {
         byte commandId = dis.readByte();
-        System.out.println("build command :" +commandId);
         switch (commandId) {
             case 1:
                 return new ListCommand(tss);

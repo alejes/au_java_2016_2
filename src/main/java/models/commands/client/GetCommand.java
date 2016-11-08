@@ -28,7 +28,6 @@ public class GetCommand implements Command {
                 byte[] content = new byte[targetFile.getPieceSize()];
                 int readed = raf.read(content);
                 dos.write(content, 0, readed);
-                System.out.println("get sended file=" + fileId + "; part=" + partId + ";readed=" + readed);
             }
         }
     }

@@ -22,7 +22,6 @@ import models.torrent.TorrentClientState;
 
 import java.io.*;
 import java.net.*;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -60,7 +59,6 @@ public class TorrentClientImpl implements TorrentClient {
         }
 
         int fileId = uploadResponse.getFileId();
-        System.out.println("new file = " + fileId);
         tcs.getOwnFiles().put(fileId, new TorrentFile(fileId, file.getName(), file.length(), true));
     }
 
@@ -163,7 +161,6 @@ public class TorrentClientImpl implements TorrentClient {
                             if (!sendClientRequest(getRequest, getResponse, peer.getPeerIp(), peer.getPeerPort())) {
                                 continue;
                             }
-                            System.out.println("id= " + missingPartId + "; seek = " + missingPartId * file.getPieceSize() + ";size = " + getResponse.getContentSize());
                             raf.seek(missingPartId * file.getPieceSize());
                             raf.write(getResponse.getContent(), 0, getResponse.getContentSize());
                             file.getPieces().add(missingPartId);
@@ -226,7 +223,6 @@ public class TorrentClientImpl implements TorrentClient {
         localServerThread = new Thread(() -> {
             while (!Thread.interrupted()) {
                 try {
-                    System.out.println("client local server - waiting new connect");
                     Socket socket = tcs.getServer().accept();
                     forceLocalServerResponse(socket);
                 } catch (SocketException e) {
