@@ -6,15 +6,14 @@ import java.io.DataInputStream;
 import java.io.IOException;
 
 public class GetResponse implements Response {
-    private byte[] content = null;
-    private int contentSize = 0;
+    private final byte[] content;
 
     public GetResponse(int contentSize) {
         content = new byte[contentSize];
     }
 
     public int getContentSize() {
-        return contentSize;
+        return content.length;
     }
 
     public byte[] getContent() {

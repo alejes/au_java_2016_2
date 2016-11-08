@@ -22,13 +22,6 @@ public class TorrentFile {
         this.pieces = new ArrayList<>();
     }
 
-    public TorrentFile(int fileId, long size, String name, List<Integer> pieces) {
-        this.fileId = fileId;
-        this.size = size;
-        this.name = name;
-        this.pieces = pieces;
-    }
-
     public TorrentFile(int fileId, String name, long size, boolean loaded) {
         this.fileId = fileId;
         this.size = size;

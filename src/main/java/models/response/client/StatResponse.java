@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StatResponse implements Response {
-    private List<Integer> partsList = new ArrayList<>();
+    private final List<Integer> partsList = new ArrayList<>();
 
     public List<Integer> getPartsList() {
         return partsList;

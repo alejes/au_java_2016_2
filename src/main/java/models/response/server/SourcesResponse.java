@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SourcesResponse implements Response {
-    private List<TorrentPeer> peersList = new ArrayList<>();
+    private final List<TorrentPeer> peersList = new ArrayList<>();
 
     public List<TorrentPeer> getPeersList() {
         return peersList;

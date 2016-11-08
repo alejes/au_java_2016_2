@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ListResponse implements Response {
-    private List<TorrentFile> filesList = new ArrayList<>();
+    private final List<TorrentFile> filesList = new ArrayList<>();
 
     public List<TorrentFile> getFilesList() {
         return filesList;

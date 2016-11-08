@@ -9,7 +9,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.IntStream;
 
 public class UpdateCommand implements Command {
     private final TorrentServerState tss;

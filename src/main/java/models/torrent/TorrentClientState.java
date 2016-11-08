@@ -13,8 +13,8 @@ import java.util.Map;
 public class TorrentClientState {
     private final Map<Integer, TorrentFile> ownFiles = new HashMap<>();
     @NotNull
-    private ServerSocket server;
-    private int clientId;
+    private final ServerSocket server;
+    private final int clientId;
 
     public TorrentClientState(@NotNull ServerSocket server, int clientId) {
         this.server = server;
