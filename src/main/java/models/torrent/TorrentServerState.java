@@ -12,7 +12,9 @@ public class TorrentServerState {
     private final List<TorrentFile> listTorrentFiles = new ArrayList<>();
     private final Map<TorrentPeer, Set<Integer>> peersFilesMap = new HashMap<>();
 
-    public TorrentServerState() {
+    public TorrentServerState(boolean cleanState) {
+        if (cleanState) return;
+
         FileInputStream fis;
 
         File file = new File("torrent-settings.dat");

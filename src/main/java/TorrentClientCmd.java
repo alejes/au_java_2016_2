@@ -15,8 +15,12 @@ public class TorrentClientCmd {
         if (args.length > 0){
             clientId = Integer.valueOf(args[0]);
         }
+        boolean cleanState = false;
+        if (args.length > 1) {
+            cleanState = args[1].equals("cleanState");
+        }
         try {
-            TorrentClient tc = new TorrentClientImpl(serverHost, clientId);
+            TorrentClient tc = new TorrentClientImpl(serverHost, clientId, cleanState);
             Scanner scr = new Scanner(System.in);
             boolean activeConnection = true;
             while (activeConnection) {

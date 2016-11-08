@@ -79,10 +79,10 @@ public class TorrentFile {
     }
 
     public int getPieceSizeById(int partId) {
-        if (partId < getCountPieces() - 1) {
+        if (partId < getTotalPieces() - 1) {
             return getPieceSize();
         } else {
-            return (int) size % getPieceSize();
+            return (int) size - (getPieceSize() * (getTotalPieces() - 1));
         }
     }
 

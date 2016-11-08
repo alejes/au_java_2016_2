@@ -8,10 +8,15 @@ import java.net.Socket;
 
 
 public class TorrentServerImpl implements TorrentServer {
-    private final TorrentServerState tss = new TorrentServerState();
+    private final TorrentServerState tss;
+
+    public TorrentServerImpl(boolean cleanState) {
+          tss = new TorrentServerState(cleanState);
+    }
 
     @Override
     public void shutdown() {
+        System.out.println("server go offline");
         tss.saveState();
     }
 

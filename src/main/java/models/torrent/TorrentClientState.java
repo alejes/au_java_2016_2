@@ -16,10 +16,11 @@ public class TorrentClientState {
     private final ServerSocket server;
     private final int clientId;
 
-    public TorrentClientState(@NotNull ServerSocket server, int clientId) {
+    public TorrentClientState(@NotNull ServerSocket server, int clientId, boolean cleanState) {
         this.server = server;
         this.clientId = clientId;
 
+        if (cleanState) return;
         FileInputStream fis;
 
         File file = new File("torrent-client-" + clientId + ".dat");
