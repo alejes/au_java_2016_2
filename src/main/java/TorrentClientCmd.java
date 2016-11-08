@@ -11,8 +11,12 @@ public class TorrentClientCmd {
     private static final String serverHost = "127.0.0.1";
 
     public static void main(String[] args) {
+        int clientId = 0;
+        if (args.length > 0){
+            clientId = Integer.valueOf(args[0]);
+        }
         try {
-            TorrentClient tc = new TorrentClientImpl(serverHost);
+            TorrentClient tc = new TorrentClientImpl(serverHost, clientId);
             Scanner scr = new Scanner(System.in);
             boolean activeConnection = true;
             while (activeConnection) {

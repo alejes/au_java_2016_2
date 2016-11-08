@@ -1,6 +1,9 @@
 package models;
 
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,6 +40,18 @@ public class TorrentFile {
             this.pieces = new ArrayList<>();
         }
     }
+
+    public TorrentFile(DataInputStream dis) throws IOException {
+        fileId = dis.readInt();
+        name = dis.readUTF();
+        size = dis.readLong();
+        pieces = new ArrayList<>();
+        int piecesSize = dis.readInt();
+        for (int i = 0; i < piecesSize; ++i) {
+            pieces.add(dis.readInt());
+        }
+    }
+
 
     public String getName() {
         return name;
@@ -100,5 +115,16 @@ public class TorrentFile {
             result += "\t" + "[" + getCountPieces() + "/" + getTotalPieces() + "]";
         }
         return result;
+    }
+
+
+    public void dumpToDataStream(DataOutputStream dos) throws IOException {
+        dos.writeInt(getFileId());
+        dos.writeUTF(getName());
+        dos.writeLong(getSize());
+        dos.writeInt(pieces.size());
+        for (Integer piece : pieces) {
+            dos.writeInt(piece);
+        }
     }
 }

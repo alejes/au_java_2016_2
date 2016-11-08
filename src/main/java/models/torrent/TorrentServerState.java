@@ -23,12 +23,12 @@ public class TorrentServerState {
             throw new TorrentException("IOException", e);
         }
 
-        try (DataInputStream dos = new DataInputStream(fis)) {
-            int size = dos.readInt();
+        try (DataInputStream dis = new DataInputStream(fis)) {
+            int size = dis.readInt();
             for (int i = 0; i < size; ++i) {
-                int fileId = dos.readInt();
-                String fileName = dos.readUTF();
-                long fileSize = dos.readLong();
+                int fileId = dis.readInt();
+                String fileName = dis.readUTF();
+                long fileSize = dis.readLong();
                 listTorrentFiles.add(new TorrentFile(fileId, fileName, fileSize));
             }
         } catch (IOException e) {

@@ -21,10 +21,7 @@ import models.torrent.TorrentClient;
 import models.torrent.TorrentClientState;
 
 import java.io.*;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -37,11 +34,12 @@ public class TorrentClientImpl implements TorrentClient {
     private Thread downloadThread;
     private Thread localServerThread;
     private TorrentClientState tcs;
+    private volatile boolean shutdown = false;
 
-    public TorrentClientImpl(String serverHost) throws IOException {
+    public TorrentClientImpl(String serverHost, int clientId) throws IOException {
         this.serverHost = serverHost;
         ServerSocket server = new ServerSocket(0);
-        tcs = new TorrentClientState(server);
+        tcs = new TorrentClientState(server, clientId);
         updateRun();
         downloadRun();
         localServerRun();
@@ -77,7 +75,7 @@ public class TorrentClientImpl implements TorrentClient {
         }
     }
 
-    private void sendClientRequest(Request request, Response response, byte[] targetIp, short targetPort) {
+    private boolean sendClientRequest(Request request, Response response, byte[] targetIp, short targetPort) {
         try {
             Socket socket = new Socket();
             socket.connect(new InetSocketAddress(InetAddress.getByAddress(targetIp), Short.MAX_VALUE - targetPort), 5000);
@@ -86,14 +84,18 @@ public class TorrentClientImpl implements TorrentClient {
             request.writeToDataOutputStream(dos);
             response.readFromDataInputStream(dis);
         } catch (IOException e) {
-            throw new TorrentException("C2C IOException: ", e);
+            return false;
         }
+        return true;
     }
 
     @Override
     public void shutdown() throws IOException {
+        shutdown = true;
         updateThread.interrupt();
+        downloadThread.interrupt();
         tcs.getServer().close();
+        tcs.saveState();
     }
 
     @Override
@@ -145,7 +147,9 @@ public class TorrentClientImpl implements TorrentClient {
                     Request statRequest = new StatRequest(file.getFileId());
                     StatResponse statResponse = new StatResponse();
 
-                    sendClientRequest(statRequest, statResponse, peer.getPeerIp(), peer.getPeerPort());
+                    if (!sendClientRequest(statRequest, statResponse, peer.getPeerIp(), peer.getPeerPort())) {
+                        continue;
+                    }
 
 
                     for (Integer missingPartId : file.getMissingPieces()) {
@@ -153,7 +157,9 @@ public class TorrentClientImpl implements TorrentClient {
                             Request getRequest = new GetRequest(file.getFileId(), missingPartId);
                             GetResponse getResponse = new GetResponse(file.getPieceSize());
 
-                            sendClientRequest(getRequest, getResponse, peer.getPeerIp(), peer.getPeerPort());
+                            if (!sendClientRequest(getRequest, getResponse, peer.getPeerIp(), peer.getPeerPort())) {
+                                continue;
+                            }
 
                             raf.seek(missingPartId * file.getPieceSize());
                             raf.write(getResponse.getContent(), 0, getResponse.getContentSize());
@@ -220,6 +226,11 @@ public class TorrentClientImpl implements TorrentClient {
                     System.out.println("waiting new connect");
                     Socket socket = tcs.getServer().accept();
                     forceLocalServerResponse(socket);
+                } catch (SocketException e) {
+                    if (!shutdown) {
+                        throw new TorrentException("SocketException: ", e);
+                    }
+                    return;
                 } catch (IOException e) {
                     throw new TorrentException("IOException: ", e);
                 }

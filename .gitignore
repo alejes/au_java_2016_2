@@ -34,3 +34,4 @@ proguard/
 build/
 
 torrent-settings.dat
+torrent-client-*.dat
