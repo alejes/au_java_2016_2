@@ -13,7 +13,4 @@ public interface FtpClient {
     ListResponse executeList(ListRequest request);
 
     GetResponse executeGet(GetRequest request);
-
-    GetResponse executeGetLazy(GetRequest request);
-
 }

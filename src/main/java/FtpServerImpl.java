@@ -1,15 +1,12 @@
 import exceptions.FTPException;
-import ftp.Ftp;
 import ftp.FtpServer;
 import models.command.Command;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class FtpServerImpl extends Ftp implements FtpServer {
+public class FtpServerImpl implements FtpServer {
     private final static int bufferLength = 4096;
     private final int serverPort;
     private Thread serverManager = null;
@@ -81,8 +78,8 @@ public class FtpServerImpl extends Ftp implements FtpServer {
                     String request = new String(requestBytes).substring(0, bytesRead);
                     Command cmd = Command.build(request);
                     try {
-                        String response = cmd.evaluateCommand();
-                        os.write(response.getBytes());
+                        DataOutputStream dos = new DataOutputStream(os);
+                        cmd.evaluateCommand(dos);
                     } catch (Exception exception) {
                         os.write("0".getBytes());
                         throw exception;

@@ -1,3 +1,4 @@
+import ftp.FtpClient;
 import models.requests.GetRequest;
 import models.requests.ListRequest;
 import models.responses.GetResponse;
@@ -7,7 +8,7 @@ import java.util.Scanner;
 
 public class FtpClientCmd {
     public static void main(String[] args) {
-        FtpClientImpl ftp = new FtpClientImpl();
+        FtpClient ftp = new FtpClientImpl();
         String mode;
         Scanner s = new Scanner(System.in);
         boolean activeConnection = true;
@@ -20,7 +21,7 @@ public class FtpClientCmd {
                     break;
                 case "get":
                     System.out.println("Enter file destination:");
-                    GetResponse getResponse = ftp.executeGetLazy(new GetRequest(s.next()));
+                    GetResponse getResponse = ftp.executeGet(new GetRequest(s.next()));
 
                     String fileTarget = s.next();
                     if (getResponse == null) {
@@ -33,7 +34,7 @@ public class FtpClientCmd {
                 case "list":
                     ListResponse listResponse = ftp.executeList(new ListRequest(s.next()));
                     if (listResponse != null) {
-                        System.out.println("List:\n" + listResponse.toString());
+                        System.out.println("List:\n" + listResponse);
                     }
                     break;
                 case "disconnect":

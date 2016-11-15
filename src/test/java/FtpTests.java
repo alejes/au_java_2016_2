@@ -9,16 +9,19 @@ import org.junit.runners.MethodSorters;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FtpTests {
     private static final int portNumberMod = 30000;
     private static final Random rnd = new Random();
-    public final int MAX_CLIENT_COUNT = 100;
+    private static final int MAX_CLIENT_COUNT = 100;
 
     @Test
     public void connect() throws Exception {
@@ -91,18 +94,28 @@ public class FtpTests {
             ftpServer.serverStart();
             ftpClient.connect();
             GetResponse get = ftpClient.executeGet(new GetRequest("."));
-            assertEquals("", get.toString());
+            get.toFile("testFile.txt");
+            Optional<String> allLines = Files.readAllLines(Paths.get("testFile.txt")).stream().reduce((x, y) -> x + "\r\n" + y);
+            assertFalse(allLines.isPresent());
 
             get = ftpClient.executeGet(new GetRequest("./src/test/resources/listDir/file1.txt"));
+            get.toFile("testFile.txt");
+            allLines = Files.readAllLines(Paths.get("testFile.txt")).stream().reduce((x, y) -> x + "\r\n" + y);
+            assertTrue(allLines.isPresent());
             assertEquals("frefre\r\n" +
                     "frefref\r\n" +
                     "refrefre\r\n" +
-                    "frefre", get.toString());
+                    "frefre", allLines.get());
             get = ftpClient.executeGet(new GetRequest("./src/test/resources/listDir/file2.txt"));
-            assertEquals("9", get.toString());
+            get.toFile("testFile.txt");
+            allLines = Files.readAllLines(Paths.get("testFile.txt")).stream().reduce((x, y) -> x + "\r\n" + y);
+            assertTrue(allLines.isPresent());
+            assertEquals("9", allLines.get());
 
             get = ftpClient.executeGet(new GetRequest("./src/test/resources/listDir/emptyFile.txt"));
-            assertEquals("", get.toString());
+            get.toFile("testFile.txt");
+            allLines = Files.readAllLines(Paths.get("testFile.txt")).stream().reduce((x, y) -> x + "\r\n" + y);
+            assertFalse(allLines.isPresent());
 
 
         } finally {
@@ -120,7 +133,7 @@ public class FtpTests {
             ftpServer.serverStart();
             ftpClient.connect();
             String assertPath = "./src/test/resources/listDir/assert.txt";
-            GetResponse get = ftpClient.executeGetLazy(new GetRequest("./src/test/resources/listDir/file1.txt"));
+            GetResponse get = ftpClient.executeGet(new GetRequest("./src/test/resources/listDir/file1.txt"));
             get.toFile(assertPath);
 
             assertEquals(Files.readAllLines(Paths.get("./src/test/resources/listDir/file1.txt")), Files.readAllLines(Paths.get(assertPath)));

@@ -1,53 +1,36 @@
 package models.responses;
 
 import exceptions.FTPException;
-import models.Networkable;
-import models.utils.StreamFtpInputStream;
 
+import java.io.DataInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class GetResponse implements Networkable {
-    private final byte[] content;
-    private final StreamFtpInputStream is;
+public class GetResponse {
+    private final DataInputStream is;
 
-    public GetResponse(byte[] content) {
-        this.content = content;
-        this.is = null;
-    }
-
-    public GetResponse(StreamFtpInputStream is) {
-        this.content = null;
+    public GetResponse(DataInputStream is) {
         this.is = is;
     }
 
-    public GetResponse(String stringResponse) {
-        content = stringResponse.getBytes();
-        this.is = null;
-    }
-
-    public byte[] getBytes() {
-        return content;
-    }
-
     public void toFile(String filePath) {
-        try {
-            FileOutputStream fileStream = new FileOutputStream(filePath);
-
-            if (is == null) {
-                fileStream.write(content);
-            } else {
+        try (FileOutputStream fileStream = new FileOutputStream(filePath)) {
+            long size = is.readLong();
+            if (size > 0) {
+                char delimiter = is.readChar();
                 byte[] byteBuffer = new byte[4096];
-                while (is.available() > 0) {
+                long readed = 0;
+                while (readed < size) {
                     int cnt = is.read(byteBuffer);
+                    System.out.println("Reade GetResponse:= " + cnt);
                     if (cnt < 0) {
                         break;
                     }
-                    fileStream.write(new String(byteBuffer).substring(0, cnt).getBytes());
+                    readed += cnt;
+                    fileStream.write(byteBuffer, 0, cnt);
                 }
             }
-            fileStream.close();
         } catch (FileNotFoundException e) {
             throw new FTPException("Cant found target file to save", e);
         } catch (IOException e) {
@@ -55,13 +38,4 @@ public class GetResponse implements Networkable {
         }
     }
 
-    @Override
-    public String toString() {
-        return new String(content);
-    }
-
-    @Override
-    public String toNetworkResponse() {
-        return new String(content);
-    }
 }

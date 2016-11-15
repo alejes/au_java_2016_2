@@ -1,7 +1,7 @@
 package models.requests;
 
 
-public class GetRequest implements Request{
+public class GetRequest {
     private final String path;
 
     public GetRequest(String path) {

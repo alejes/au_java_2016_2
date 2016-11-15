@@ -3,6 +3,9 @@ package models.command;
 
 import exceptions.FTPException;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 public abstract class Command {
     protected final String path;
 
@@ -24,5 +27,5 @@ public abstract class Command {
         }
     }
 
-    public abstract String evaluateCommand();
+    public abstract void evaluateCommand(DataOutputStream os) throws IOException;
 }

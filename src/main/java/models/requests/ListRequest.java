@@ -1,7 +1,7 @@
 package models.requests;
 
 
-public class ListRequest implements Request {
+public class ListRequest {
     private final String path;
 
     public ListRequest(String path) {

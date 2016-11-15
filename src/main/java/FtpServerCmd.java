@@ -1,8 +1,10 @@
+import ftp.FtpServer;
+
 import java.util.Scanner;
 
 public class FtpServerCmd {
     public static void main(String[] args) {
-        FtpServerImpl ftp = new FtpServerImpl();
+        FtpServer ftp = new FtpServerImpl();
         String mode;
         Scanner s = new Scanner(System.in);
 
