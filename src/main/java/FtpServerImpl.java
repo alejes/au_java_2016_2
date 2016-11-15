@@ -12,7 +12,7 @@ public class FtpServerImpl implements FtpServer {
     private Thread serverManager = null;
 
     public FtpServerImpl() {
-        this.serverPort = 8000;
+        serverPort = 8000;
     }
 
     public FtpServerImpl(int serverPort) {
