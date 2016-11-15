@@ -23,7 +23,6 @@ public class GetResponse {
                 long readed = 0;
                 while (readed < size) {
                     int cnt = is.read(byteBuffer);
-                    System.out.println("Reade GetResponse:= " + cnt);
                     if (cnt < 0) {
                         break;
                     }

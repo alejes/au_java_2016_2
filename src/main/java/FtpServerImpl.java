@@ -80,9 +80,6 @@ public class FtpServerImpl implements FtpServer {
                     try {
                         DataOutputStream dos = new DataOutputStream(os);
                         cmd.evaluateCommand(dos);
-                    } catch (Exception exception) {
-                        os.write("0".getBytes());
-                        throw exception;
                     } finally {
                         os.flush();
                     }
