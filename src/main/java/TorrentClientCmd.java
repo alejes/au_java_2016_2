@@ -12,15 +12,14 @@ public class TorrentClientCmd {
 
     public static void main(String[] args) {
         int clientId = 0;
-        if (args.length > 0){
+        if (args.length > 0) {
             clientId = Integer.valueOf(args[0]);
         }
         boolean cleanState = false;
         if (args.length > 1) {
             cleanState = args[1].equals("cleanState");
         }
-        try {
-            TorrentClient tc = new TorrentClientImpl(serverHost, clientId, cleanState);
+        try (TorrentClient tc = new TorrentClientImpl(serverHost, clientId, cleanState)) {
             Scanner scr = new Scanner(System.in);
             boolean activeConnection = true;
             while (activeConnection) {
@@ -34,7 +33,11 @@ public class TorrentClientCmd {
                             break;
                         }
                         tc.registerFile(file);
-                        tc.forceUpdate();
+                        if (tc.forceUpdate()) {
+                            System.out.println("Information updated");
+                        } else {
+                            System.out.println("Cannot forceUpdate information.");
+                        }
                         break;
                     case "mylist":
                         System.out.println("Distributed files");
@@ -54,7 +57,11 @@ public class TorrentClientCmd {
                         break;
                     case "update":
                         System.out.println("Force update");
-                        tc.forceUpdate();
+                        if (tc.forceUpdate()) {
+                            System.out.println("Information updated");
+                        } else {
+                            System.out.println("Cannot forceUpdate information.");
+                        }
                         break;
                     case "load":
                         int sourcesId = scr.nextInt();
@@ -67,7 +74,7 @@ public class TorrentClientCmd {
                         }
                         break;
                     case "exit":
-                        tc.shutdown();
+                        tc.close();
                         activeConnection = false;
                         break;
                     default:

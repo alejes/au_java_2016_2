@@ -11,7 +11,7 @@ public class TorrentServerImpl implements TorrentServer {
     private final TorrentServerState tss;
 
     public TorrentServerImpl(boolean cleanState) {
-          tss = new TorrentServerState(cleanState);
+        tss = new TorrentServerState(cleanState);
     }
 
     @Override
@@ -22,17 +22,17 @@ public class TorrentServerImpl implements TorrentServer {
 
     @Override
     public void acceptServerSocket(Socket socket) throws IOException {
-        InputStream is = socket.getInputStream();
-        DataInputStream dis = new DataInputStream(is);
-        OutputStream os = socket.getOutputStream();
-        DataOutputStream dos = new DataOutputStream(os);
-
-        if (socket.isConnected() && !socket.isInputShutdown()) {
-            byte[] ip = socket.getInetAddress().getAddress();
-            Command cmd = ServerCommandBuilder.build(tss, dis, ip);
-            cmd.evaluateCommand(dos);
-            dos.flush();
-            socket.close();
+        try (
+                InputStream is = socket.getInputStream();
+                DataInputStream dis = new DataInputStream(is);
+                OutputStream os = socket.getOutputStream();
+                DataOutputStream dos = new DataOutputStream(os)
+        ) {
+            if (socket.isConnected() && !socket.isInputShutdown()) {
+                byte[] ip = socket.getInetAddress().getAddress();
+                Command cmd = ServerCommandBuilder.build(tss, dis, ip);
+                cmd.evaluateCommand(dos);
+            }
         }
     }
 }

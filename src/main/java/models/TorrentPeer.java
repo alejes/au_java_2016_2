@@ -8,7 +8,6 @@ import java.util.stream.IntStream;
 public class TorrentPeer {
     @NotNull
     private final byte[] peerIp;
-    @NotNull
     private final short peerPort;
 
     public TorrentPeer(byte[] peerIp, short peerPort) {

@@ -1,7 +1,7 @@
 package exceptions;
 
 
-public class TorrentException    extends RuntimeException {
+public class TorrentException extends RuntimeException {
 
     public TorrentException(String str) {
         super(str);

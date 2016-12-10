@@ -32,6 +32,5 @@ public class UpdateCommand implements Command {
         distributedFiles.forEach(x -> System.out.print(x + ";"));
         System.out.println();
         dos.writeBoolean(true);
-        dos.flush();
     }
 }

@@ -16,7 +16,7 @@ public class SourceCommand implements Command {
     private final TorrentServerState tss;
     private final int fileId;
 
-    protected  SourceCommand(TorrentServerState tss, int fileId) {
+    protected SourceCommand(TorrentServerState tss, int fileId) {
         this.tss = tss;
         this.fileId = fileId;
     }

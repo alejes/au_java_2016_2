@@ -63,8 +63,7 @@ public class TorrentClientImpl implements TorrentClient {
     }
 
     private boolean sendServerRequest(Request request, Response response) {
-        try {
-            Socket socket = new Socket();
+        try (Socket socket = new Socket()) {
             socket.connect(new InetSocketAddress(serverHost, getServerPort()), 5000);
             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
             DataInputStream dis = new DataInputStream(socket.getInputStream());
@@ -77,8 +76,7 @@ public class TorrentClientImpl implements TorrentClient {
     }
 
     private boolean sendClientRequest(Request request, Response response, byte[] targetIp, short targetPort) {
-        try {
-            Socket socket = new Socket();
+        try (Socket socket = new Socket()) {
             socket.connect(new InetSocketAddress(InetAddress.getByAddress(targetIp), Short.MAX_VALUE - targetPort), 5000);
             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
             DataInputStream dis = new DataInputStream(socket.getInputStream());
@@ -91,24 +89,32 @@ public class TorrentClientImpl implements TorrentClient {
     }
 
     @Override
-    public void shutdown() throws IOException {
-        shutdown = true;
-        updateThread.interrupt();
-        downloadThread.interrupt();
-        tcs.getServer().close();
-        tcs.saveState();
+    public void close() {
+        if (!shutdown) {
+            shutdown = true;
+            updateThread.interrupt();
+            downloadThread.interrupt();
+            localServerThread.interrupt();
+            try {
+                tcs.getServer().close();
+            } catch (IOException e) {
+                throw new TorrentException("IOException", e);
+            } finally {
+                tcs.saveState();
+            }
+        }
     }
 
     @Override
-    public void forceUpdate() {
+    public boolean forceUpdate() {
         Request updateRequest = new UpdateRequest(tcs);
         Response updateResponse = new UpdateResponse();
         try {
             sendServerRequest(updateRequest, updateResponse);
         } catch (TorrentException e) {
-            System.out.println("Cannot forceUpdate information: " + e.getMessage());
+            return false;
         }
-        System.out.println("Information updated");
+        return true;
     }
 
     @Override
@@ -176,16 +182,16 @@ public class TorrentClientImpl implements TorrentClient {
     }
 
     private void forceLocalServerResponse(Socket socket) throws IOException {
-        InputStream is = socket.getInputStream();
-        DataInputStream dis = new DataInputStream(is);
-        OutputStream os = socket.getOutputStream();
-        DataOutputStream dos = new DataOutputStream(os);
-
-        if (socket.isConnected() && !socket.isInputShutdown()) {
-            Command cmd = ClientCommandBuilder.build(tcs, dis);
-            cmd.evaluateCommand(dos);
-            dos.flush();
-            socket.close();
+        try (
+                InputStream is = socket.getInputStream();
+                DataInputStream dis = new DataInputStream(is);
+                OutputStream os = socket.getOutputStream();
+                DataOutputStream dos = new DataOutputStream(os)
+        ) {
+            if (socket.isConnected() && !socket.isInputShutdown()) {
+                Command cmd = ClientCommandBuilder.build(tcs, dis);
+                cmd.evaluateCommand(dos);
+            }
         }
     }
 
@@ -222,8 +228,7 @@ public class TorrentClientImpl implements TorrentClient {
     private void localServerRun() {
         localServerThread = new Thread(() -> {
             while (!Thread.interrupted()) {
-                try {
-                    Socket socket = tcs.getServer().accept();
+                try (Socket socket = tcs.getServer().accept()) {
                     forceLocalServerResponse(socket);
                 } catch (SocketException e) {
                     if (!shutdown) {

@@ -1,6 +1,7 @@
 import exceptions.TorrentException;
 import models.torrent.TorrentServer;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -13,25 +14,25 @@ public class TorrentServerCmd {
             cleanState = args[0].equals("cleanState");
         }
 
-        ServerManager serverManager = new ServerManager(cleanState);
-        serverManager.start();
+        try (ServerManager serverManager = new ServerManager(cleanState)) {
+            serverManager.start();
 
-        Scanner scr = new Scanner(System.in);
-        boolean activeConnection = true;
-        while (activeConnection) {
-            String mode = scr.next();
-            switch (mode) {
-                case "exit":
-                    activeConnection = false;
-                    break;
-                default:
-                    System.out.println("Unknown command = " + mode);
+            Scanner scr = new Scanner(System.in);
+            boolean activeConnection = true;
+            while (activeConnection) {
+                String mode = scr.next();
+                switch (mode) {
+                    case "exit":
+                        activeConnection = false;
+                        break;
+                    default:
+                        System.out.println("Unknown command = " + mode);
+                }
             }
         }
-        serverManager.shutdown();
     }
 
-    public static class ServerManager {
+    public static class ServerManager implements Closeable {
         private static ServerSocket server;
         private final TorrentServer ts;
         private Thread workedThread;
@@ -45,14 +46,14 @@ public class TorrentServerCmd {
             workedThread.start();
         }
 
-        public void shutdown() {
+        public void close() {
             workedThread.interrupt();
             ts.shutdown();
             if (!server.isClosed()) {
                 try {
                     server.close();
                 } catch (IOException e) {
-                    System.out.println("IOException: " + e.getMessage());
+                    throw new TorrentException("IOException", e);
                 }
             }
         }
@@ -63,9 +64,8 @@ public class TorrentServerCmd {
                 try {
                     server = new ServerSocket(ts.getServerPort());
                     while (!Thread.interrupted()) {
-                        try {
-                            System.out.println("server - waiting new client");
-                            Socket socket = server.accept();
+                        System.out.println("server - waiting new client");
+                        try (Socket socket = server.accept()) {
                             if (Thread.interrupted()) {
                                 break;
                             }

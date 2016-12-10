@@ -15,17 +15,10 @@ public class TorrentServerState {
     public TorrentServerState(boolean cleanState) {
         if (cleanState) return;
 
-        FileInputStream fis;
-
         File file = new File("torrent-settings.dat");
         if (!file.exists()) return;
-        try {
-            fis = new FileInputStream(file);
-        } catch (IOException e) {
-            throw new TorrentException("IOException", e);
-        }
 
-        try (DataInputStream dis = new DataInputStream(fis)) {
+        try (FileInputStream fis = new FileInputStream(file); DataInputStream dis = new DataInputStream(fis)) {
             int size = dis.readInt();
             for (int i = 0; i < size; ++i) {
                 int fileId = dis.readInt();
@@ -47,17 +40,14 @@ public class TorrentServerState {
     }
 
     public void saveState() {
-        FileOutputStream fos;
-
         File file = new File("torrent-settings.dat");
         try {
             file.createNewFile();
-            fos = new FileOutputStream(file);
         } catch (IOException e) {
             throw new TorrentException("IOException", e);
         }
 
-        try (DataOutputStream dos = new DataOutputStream(fos)) {
+        try (FileOutputStream fos = new FileOutputStream(file); DataOutputStream dos = new DataOutputStream(fos)) {
             dos.writeInt(listTorrentFiles.size());
             for (TorrentFile tf : listTorrentFiles) {
                 dos.writeInt(tf.getFileId());

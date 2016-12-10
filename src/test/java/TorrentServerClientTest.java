@@ -2,15 +2,13 @@ import models.torrent.TorrentClient;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class TorrentServerClientTest {
-    private static String SERVER_HOST = "127.0.0.1";
+    private static final String SERVER_HOST = "127.0.0.1";
 
     @Test
     public void simpleStart() throws Exception {
@@ -19,8 +17,8 @@ public class TorrentServerClientTest {
         serverManager.start();
 
         TorrentClient tc = new TorrentClientImpl(SERVER_HOST, 0, true);
-        serverManager.shutdown();
-        tc.shutdown();
+        serverManager.close();
+        tc.close();
         System.gc();
     }
 
@@ -39,9 +37,9 @@ public class TorrentServerClientTest {
         assertEquals(0, tc1.listFiles().size());
         assertEquals(0, tc2.listFiles().size());
 
-        serverManager.shutdown();
-        tc2.shutdown();
-        tc1.shutdown();
+        serverManager.close();
+        tc2.close();
+        tc1.close();
         System.gc();
     }
 
@@ -85,9 +83,9 @@ public class TorrentServerClientTest {
                 Files.readAllLines(Paths.get("gradlewPureDownload.bat")).stream().reduce(String::concat));
 
 
-        serverManager.shutdown();
-        tc2.shutdown();
-        tc1.shutdown();
+        serverManager.close();
+        tc2.close();
+        tc1.close();
         System.gc();
     }
 }

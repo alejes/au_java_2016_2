@@ -2,23 +2,23 @@ package models.torrent;
 
 import models.TorrentFile;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 
-public interface TorrentClient {
+public interface TorrentClient extends Closeable {
     default short getServerPort() {
         return 8081;
     }
 
-    void forceUpdate();
+    boolean forceUpdate();
 
     List<TorrentFile> listFiles();
 
     boolean addGetTask(int id, String location);
 
-    void shutdown() throws IOException;
+    void close() throws IOException;
 
     List<TorrentFile> distributedFiles();
 
