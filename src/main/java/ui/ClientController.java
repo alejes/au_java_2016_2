@@ -38,8 +38,6 @@ public class ClientController implements Initializable {
     private Button update;
     @FXML
     private TextField download_id;
-    @FXML
-    private ListView filesList;
 
     public void setupScene(Stage stage, TorrentClient tc, BorderPane root) {
 
@@ -85,9 +83,9 @@ public class ClientController implements Initializable {
 
                         for (HBox it : filesShowList) {
                             if ((it != null) && (it.getId().equals(String.valueOf(targetFile.getFileId())))) {
-                                ((StatusBar) it.getChildren().get(0)).setProgress(1.0 * targetFile.getCountPieces() / targetFile.getTotalPieces());
-                                ((StatusBar) it.getChildren().get(0)).setText(x.toString(/*inLocalList*/local.isPresent(),/*showProgress*/ false));
-                                //StatusBar statusBar = (StatusBar) resultList.get(0).getChildren().get(0);
+                                StatusBar statusBar = (StatusBar) it.getChildren().get(0);
+                                statusBar.setProgress(1.0 * targetFile.getCountPieces() / targetFile.getTotalPieces());
+                                statusBar.setText(x.toString(/*inLocalList*/local.isPresent(),/*showProgress*/ false));
                                 find = true;
                             }
                         }
