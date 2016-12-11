@@ -19,7 +19,7 @@ public class ListCommand extends Command {
     }
 
     @Override
-    public void evaluateCommand(DataOutputStream dos) throws IOException {
+    public void evaluateCommand(DataOutputStream dos) throws IOException, FTPException {
         Path basePath = Paths.get(System.getProperty("user.dir"));
         Path targetPath = basePath.resolve(path).normalize().toAbsolutePath();
 
@@ -27,7 +27,7 @@ public class ListCommand extends Command {
             throw new FTPException("You cant read outside root directory");
         }
 
-        File[] fileList = new File(targetPath.toString()).listFiles();
+        File[] fileList = targetPath.toFile().listFiles();
         if (fileList == null) {
             dos.writeLong(0);
             return;

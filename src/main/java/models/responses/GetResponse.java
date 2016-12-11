@@ -14,7 +14,7 @@ public class GetResponse {
         this.is = is;
     }
 
-    public void toFile(String filePath) {
+    public void toFile(String filePath) throws FTPException {
         try (FileOutputStream fileStream = new FileOutputStream(filePath)) {
             long size = is.readLong();
             if (size > 0) {

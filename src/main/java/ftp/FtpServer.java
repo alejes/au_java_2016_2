@@ -1,7 +1,9 @@
 package ftp;
 
-public interface FtpServer {
-    void serverStart();
+import java.io.IOException;
 
-    void serverStop();
+public interface FtpServer {
+    void serverStart() throws IOException;
+
+    void serverStop() throws IOException;
 }

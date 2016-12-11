@@ -14,7 +14,7 @@ public abstract class Command {
         path = dis.readUTF();
     }
 
-    public static Command build(DataInputStream dis) throws IOException {
+    public static Command build(DataInputStream dis) throws IOException, FTPException {
         int commandId = dis.readInt();
         switch (commandId) {
             case 1:
@@ -26,5 +26,5 @@ public abstract class Command {
         }
     }
 
-    public abstract void evaluateCommand(DataOutputStream os) throws IOException;
+    public abstract void evaluateCommand(DataOutputStream os) throws IOException, FTPException;
 }

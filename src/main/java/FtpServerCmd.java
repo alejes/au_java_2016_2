@@ -1,9 +1,10 @@
 import ftp.FtpServer;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 public class FtpServerCmd {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         FtpServer ftp = new FtpServerImpl();
         String mode;
         Scanner s = new Scanner(System.in);

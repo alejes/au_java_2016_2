@@ -9,12 +9,13 @@ import org.junit.runners.MethodSorters;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Optional;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.*;
 
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -73,11 +74,11 @@ public class FtpTests {
             ftpServer.serverStart();
             ftpClient.connect();
             ListResponse get = ftpClient.executeList(new ListRequest("./src/test/resources"));
-            assertEquals(">\\src\\test\\resources\\listDir\n", get.toString());
+            assertEquals(">\\src\\test\\resources\\listDir", get.toString());
             get = ftpClient.executeList(new ListRequest("./src/test/resources/listDir"));
             assertEquals("\\src\\test\\resources\\listDir\\emptyFile.txt\n" +
                     "\\src\\test\\resources\\listDir\\file1.txt\n" +
-                    "\\src\\test\\resources\\listDir\\file2.txt\n" +
+                    "\\src\\test\\resources\\listDir\\file2.txt" +
                     "", get.toString());
         } finally {
             ftpClient.disconnect();
@@ -95,27 +96,28 @@ public class FtpTests {
             ftpClient.connect();
             GetResponse get = ftpClient.executeGet(new GetRequest("."));
             get.toFile("testFile.txt");
-            Optional<String> allLines = Files.readAllLines(Paths.get("testFile.txt")).stream().reduce((x, y) -> x + "\r\n" + y);
-            assertFalse(allLines.isPresent());
+            List<String> allLines = Files.readAllLines(Paths.get("testFile.txt"));
+            assertTrue(allLines.isEmpty());
+
 
             get = ftpClient.executeGet(new GetRequest("./src/test/resources/listDir/file1.txt"));
             get.toFile("testFile.txt");
-            allLines = Files.readAllLines(Paths.get("testFile.txt")).stream().reduce((x, y) -> x + "\r\n" + y);
-            assertTrue(allLines.isPresent());
-            assertEquals("frefre\r\n" +
-                    "frefref\r\n" +
-                    "refrefre\r\n" +
-                    "frefre", allLines.get());
+            allLines = Files.readAllLines(Paths.get("testFile.txt"));
+            assertFalse(allLines.isEmpty());
+            assertThat(Arrays.asList("frefre",
+                    "frefref",
+                    "refrefre",
+                    "frefre"), is(allLines));
             get = ftpClient.executeGet(new GetRequest("./src/test/resources/listDir/file2.txt"));
             get.toFile("testFile.txt");
-            allLines = Files.readAllLines(Paths.get("testFile.txt")).stream().reduce((x, y) -> x + "\r\n" + y);
-            assertTrue(allLines.isPresent());
-            assertEquals("9", allLines.get());
+            allLines = Files.readAllLines(Paths.get("testFile.txt"));
+            assertFalse(allLines.isEmpty());
+            assertThat(Collections.singletonList("9"), is(allLines));
 
             get = ftpClient.executeGet(new GetRequest("./src/test/resources/listDir/emptyFile.txt"));
             get.toFile("testFile.txt");
-            allLines = Files.readAllLines(Paths.get("testFile.txt")).stream().reduce((x, y) -> x + "\r\n" + y);
-            assertFalse(allLines.isPresent());
+            allLines = Files.readAllLines(Paths.get("testFile.txt"));
+            assertTrue(allLines.isEmpty());
 
 
         } finally {

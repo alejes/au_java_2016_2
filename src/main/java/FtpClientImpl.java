@@ -27,7 +27,7 @@ public class FtpClientImpl implements FtpClient {
     }
 
     @Override
-    public void connect() {
+    public void connect() throws FTPException {
         try {
             socket = new Socket();
             socket.connect(new InetSocketAddress(serverHost, serverPort), 5000);
@@ -37,27 +37,23 @@ public class FtpClientImpl implements FtpClient {
     }
 
     @Override
-    public void disconnect() {
+    public void disconnect() throws FTPException {
         checkActiveConnection();
         try {
-            if (socket != null) {
-                socket.close();
-            }
+            socket.close();
         } catch (IOException e) {
             throw new FTPException("IOException: ", e);
         }
     }
 
     @Override
-    public ListResponse executeList(ListRequest request) {
+    public ListResponse executeList(ListRequest request) throws FTPException {
         checkActiveConnection();
         try {
-            OutputStream os = socket.getOutputStream();
-            DataOutputStream dos = new DataOutputStream(os);
+            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+            DataInputStream dis = new DataInputStream(socket.getInputStream());
             request.dump(dos);
-            os.flush();
-            InputStream is = socket.getInputStream();
-            DataInputStream dis = new DataInputStream(is);
+            dos.flush();
             int itemsCount = dis.readInt();
             List<FtpFile> items = new ArrayList<>();
             for (int i = 0; i < itemsCount; ++i) {
@@ -73,7 +69,7 @@ public class FtpClientImpl implements FtpClient {
     }
 
     @Override
-    public GetResponse executeGet(GetRequest request) {
+    public GetResponse executeGet(GetRequest request) throws FTPException {
         checkActiveConnection();
         try {
             OutputStream os = socket.getOutputStream();
@@ -88,7 +84,7 @@ public class FtpClientImpl implements FtpClient {
         }
     }
 
-    private void checkActiveConnection() {
+    private void checkActiveConnection() throws FTPException {
         if ((socket == null) || socket.isClosed()) {
             throw new FTPException("You are not connected to server");
         }

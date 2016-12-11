@@ -1,3 +1,4 @@
+import exceptions.FTPException;
 import ftp.FtpClient;
 import models.requests.GetRequest;
 import models.requests.ListRequest;
@@ -7,7 +8,7 @@ import models.responses.ListResponse;
 import java.util.Scanner;
 
 public class FtpClientCmd {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FTPException {
         FtpClient ftp = new FtpClientImpl();
         String mode;
         Scanner s = new Scanner(System.in);

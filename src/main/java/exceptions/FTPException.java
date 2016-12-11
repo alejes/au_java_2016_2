@@ -1,6 +1,6 @@
 package exceptions;
 
-public class FTPException extends RuntimeException {
+public class FTPException extends Exception {
 
     public FTPException(String str) {
         super(str);
