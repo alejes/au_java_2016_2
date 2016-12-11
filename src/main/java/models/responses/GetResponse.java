@@ -32,7 +32,7 @@ public class GetResponse {
         } catch (FileNotFoundException e) {
             throw new FTPException("Cant found target file to save", e);
         } catch (IOException e) {
-            throw new FTPException("IOException", e);
+            throw new FTPException("IOException!", e);
         }
     }
 
