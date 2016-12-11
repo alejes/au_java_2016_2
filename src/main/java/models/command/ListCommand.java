@@ -3,6 +3,7 @@ package models.command;
 import exceptions.FTPException;
 import models.FtpFile;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -13,14 +14,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ListCommand extends Command {
-    protected ListCommand(String path) {
-        super(path);
+    protected ListCommand(DataInputStream dis) throws IOException {
+        super(dis);
     }
 
     @Override
     public void evaluateCommand(DataOutputStream dos) throws IOException {
-        Path targetPath = Paths.get(System.getProperty("user.dir")).resolve(path).normalize().toAbsolutePath();
         Path basePath = Paths.get(System.getProperty("user.dir"));
+        Path targetPath = basePath.resolve(path).normalize().toAbsolutePath();
 
         if (!targetPath.startsWith(basePath)) {
             throw new FTPException("You cant read outside root directory");

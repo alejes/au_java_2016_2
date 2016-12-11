@@ -1,6 +1,9 @@
 package models.requests;
 
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 public class GetRequest {
     private final String path;
 
@@ -13,7 +16,9 @@ public class GetRequest {
         return "2 " + path;
     }
 
-    public byte[] toByteArray(){
-        return toString().getBytes();
+    public void dump(DataOutputStream dos) throws IOException {
+                dos.writeInt(2);
+                dos.writeUTF(path);
     }
+
 }

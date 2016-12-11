@@ -6,10 +6,7 @@ import models.requests.ListRequest;
 import models.responses.GetResponse;
 import models.responses.ListResponse;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -56,7 +53,8 @@ public class FtpClientImpl implements FtpClient {
         checkActiveConnection();
         try {
             OutputStream os = socket.getOutputStream();
-            os.write(request.toByteArray());
+            DataOutputStream dos = new DataOutputStream(os);
+            request.dump(dos);
             os.flush();
             InputStream is = socket.getInputStream();
             DataInputStream dis = new DataInputStream(is);
@@ -79,7 +77,8 @@ public class FtpClientImpl implements FtpClient {
         checkActiveConnection();
         try {
             OutputStream os = socket.getOutputStream();
-            os.write(request.toByteArray());
+            DataOutputStream dos = new DataOutputStream(os);
+            request.dump(dos);
             os.flush();
             InputStream is = socket.getInputStream();
             DataInputStream ftpStream = new DataInputStream(is);

@@ -18,7 +18,6 @@ public class GetResponse {
         try (FileOutputStream fileStream = new FileOutputStream(filePath)) {
             long size = is.readLong();
             if (size > 0) {
-                char delimiter = is.readChar();
                 byte[] byteBuffer = new byte[4096];
                 long readed = 0;
                 while (readed < size) {

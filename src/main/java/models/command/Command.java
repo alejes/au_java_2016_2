@@ -3,27 +3,26 @@ package models.command;
 
 import exceptions.FTPException;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
 public abstract class Command {
     protected final String path;
 
-    protected Command(String path) {
-        this.path = path;
+    protected Command(DataInputStream  dis) throws IOException {
+        path = dis.readUTF();
     }
 
-    public static Command build(String request) {
-        if (request.length() < 3) {
-            throw new FTPException("Wrong request: " + request);
-        }
-        switch (request.charAt(0)) {
-            case '1':
-                return new ListCommand(request.substring(2));
-            case '2':
-                return new GetCommand(request.substring(2));
+    public static Command build(DataInputStream dis) throws IOException {
+        int commandId = dis.readInt();
+        switch (commandId) {
+            case 1:
+                return new ListCommand(dis);
+            case 2:
+                return new GetCommand(dis);
             default:
-                throw new FTPException("Wrong request: " + request);
+                throw new FTPException("Wrong request: " + commandId);
         }
     }
 

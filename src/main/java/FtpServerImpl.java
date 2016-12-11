@@ -71,12 +71,11 @@ public class FtpServerImpl implements FtpServer {
                 InputStream is = socket.getInputStream();
                 OutputStream os = socket.getOutputStream();
                 while (socket.isConnected() && !socket.isInputShutdown()) {
-                    int bytesRead = is.read(requestBytes);
-                    if (bytesRead < 0) {
+                    DataInputStream dis = new DataInputStream(is);
+                    if (dis.available() <= 0){
                         continue;
                     }
-                    String request = new String(requestBytes).substring(0, bytesRead);
-                    Command cmd = Command.build(request);
+                    Command cmd = Command.build(dis);
                     try {
                         DataOutputStream dos = new DataOutputStream(os);
                         cmd.evaluateCommand(dos);
