@@ -106,15 +106,7 @@ public class TorrentFile {
     }
 
     public String toString(boolean inLocalList) {
-        String result = getFileId() + "\t" + getName() + "\t" + getSize();
-        if (!inLocalList) {
-            result += "\t" + "[-]";
-        } else if (isDownload()) {
-            result += "\t" + "[OK]";
-        } else {
-            result += "\t" + "[" + getCountPieces() + "/" + getTotalPieces() + "]";
-        }
-        return result;
+        return toString(inLocalList, true);
     }
 
     public String toString(boolean inLocalList, boolean showProgress) {
