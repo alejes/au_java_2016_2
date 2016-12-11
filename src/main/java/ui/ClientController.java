@@ -42,7 +42,6 @@ public class ClientController implements Initializable {
     public void setupScene(Stage stage, TorrentClient tc, BorderPane root) {
 
         final FileChooser fileChooser = new FileChooser();
-        final Button openButton = new Button("Open Image");
 
         upload.setOnAction(
                 e -> {
