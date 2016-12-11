@@ -1,3 +1,5 @@
+package client;
+
 import exceptions.TorrentException;
 import models.TorrentFile;
 import models.TorrentPeer;
@@ -59,16 +61,19 @@ public class TorrentClientImpl implements TorrentClient {
         }
 
         int fileId = uploadResponse.getFileId();
-        tcs.getOwnFiles().put(fileId, new TorrentFile(fileId, file.getName(), file.length(), true));
+        tcs.getOwnFiles().put(fileId, new TorrentFile(fileId, file.getPath(), file.length(), true));
     }
 
     private boolean sendServerRequest(Request request, Response response) {
         try (Socket socket = new Socket()) {
-            socket.connect(new InetSocketAddress(serverHost, getServerPort()), 5000);
-            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-            DataInputStream dis = new DataInputStream(socket.getInputStream());
-            request.writeToDataOutputStream(dos);
-            response.readFromDataInputStream(dis);
+            socket.connect(new InetSocketAddress(serverHost, getServerPort()), 500);
+            try (
+                    DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                    DataInputStream dis = new DataInputStream(socket.getInputStream())
+            ) {
+                request.writeToDataOutputStream(dos);
+                response.readFromDataInputStream(dis);
+            }
         } catch (IOException e) {
             return false;
         }
@@ -78,10 +83,13 @@ public class TorrentClientImpl implements TorrentClient {
     private boolean sendClientRequest(Request request, Response response, byte[] targetIp, short targetPort) {
         try (Socket socket = new Socket()) {
             socket.connect(new InetSocketAddress(InetAddress.getByAddress(targetIp), Short.MAX_VALUE - targetPort), 5000);
-            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-            DataInputStream dis = new DataInputStream(socket.getInputStream());
-            request.writeToDataOutputStream(dos);
-            response.readFromDataInputStream(dis);
+            try (
+                    DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                    DataInputStream dis = new DataInputStream(socket.getInputStream())
+            ) {
+                request.writeToDataOutputStream(dos);
+                response.readFromDataInputStream(dis);
+            }
         } catch (IOException e) {
             return false;
         }
@@ -92,15 +100,43 @@ public class TorrentClientImpl implements TorrentClient {
     public void close() {
         if (!shutdown) {
             shutdown = true;
+            TorrentException exception = new TorrentException("InterruptException");
+            try {
+                tcs.getServer().close();
+            } catch (IOException e) {
+                exception.addSuppressed(e);
+            }
             updateThread.interrupt();
             downloadThread.interrupt();
             localServerThread.interrupt();
             try {
+                updateThread.join();
+            } catch (InterruptedException e) {
+                exception.addSuppressed(e);
+            }
+            try {
+                downloadThread.join();
+            } catch (InterruptedException e) {
+                exception.addSuppressed(e);
+            }
+            try {
+                localServerThread.join();
+            } catch (InterruptedException e) {
+                exception.addSuppressed(e);
+            }
+            try {
                 tcs.getServer().close();
             } catch (IOException e) {
-                throw new TorrentException("IOException", e);
-            } finally {
+                exception.addSuppressed(e);
+            }
+            try {
                 tcs.saveState();
+            } catch (TorrentException e) {
+                exception.addSuppressed(e);
+            } finally {
+                if (exception.getSuppressed().length > 0) {
+                    throw exception;
+                }
             }
         }
     }
@@ -110,11 +146,10 @@ public class TorrentClientImpl implements TorrentClient {
         Request updateRequest = new UpdateRequest(tcs);
         Response updateResponse = new UpdateResponse();
         try {
-            sendServerRequest(updateRequest, updateResponse);
+            return sendServerRequest(updateRequest, updateResponse);
         } catch (TorrentException e) {
             return false;
         }
-        return true;
     }
 
     @Override

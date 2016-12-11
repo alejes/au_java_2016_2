@@ -27,7 +27,9 @@ public class GetCommand implements Command {
                 raf.seek(partId * targetFile.getPieceSize());
                 byte[] content = new byte[targetFile.getPieceSize()];
                 int readed = raf.read(content);
-                dos.write(content, 0, readed);
+                if (readed > 0) {
+                    dos.write(content, 0, readed);
+                }
             }
         }
     }

@@ -1,5 +1,7 @@
+import client.TorrentClientImpl;
 import models.torrent.TorrentClient;
 import org.junit.Test;
+import server.TorrentServerCmd;
 
 import java.io.File;
 import java.nio.file.Files;

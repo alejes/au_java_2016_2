@@ -1,3 +1,5 @@
+package server;
+
 import exceptions.TorrentException;
 import models.torrent.TorrentServer;
 

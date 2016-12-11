@@ -1,3 +1,5 @@
+package client;
+
 import models.TorrentFile;
 import models.torrent.TorrentClient;
 

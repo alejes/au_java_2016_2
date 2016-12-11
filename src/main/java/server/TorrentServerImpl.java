@@ -1,3 +1,5 @@
+package server;
+
 import models.commands.Command;
 import models.commands.server.ServerCommandBuilder;
 import models.torrent.TorrentServer;

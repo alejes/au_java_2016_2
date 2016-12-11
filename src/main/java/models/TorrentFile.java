@@ -45,7 +45,6 @@ public class TorrentFile {
         }
     }
 
-
     public String getName() {
         return name;
     }
@@ -114,6 +113,20 @@ public class TorrentFile {
             result += "\t" + "[OK]";
         } else {
             result += "\t" + "[" + getCountPieces() + "/" + getTotalPieces() + "]";
+        }
+        return result;
+    }
+
+    public String toString(boolean inLocalList, boolean showProgress) {
+        String result = getFileId() + "\t" + getName() + "\t" + getSize();
+        if (showProgress) {
+            if (!inLocalList) {
+                result += "\t" + "[-]";
+            } else if (isDownload()) {
+                result += "\t" + "[OK]";
+            } else {
+                result += "\t" + "[" + getCountPieces() + "/" + getTotalPieces() + "]";
+            }
         }
         return result;
     }
