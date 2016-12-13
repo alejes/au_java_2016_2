@@ -11,7 +11,7 @@ import models.torrent.TorrentClient;
 import java.io.IOException;
 
 public class GuiClient extends Application {
-    private static final String serverHost = "127.0.0.1";
+    private static final String SERVER_HOST = "127.0.0.1";
     private static TorrentClient tc;
 
 
@@ -24,7 +24,7 @@ public class GuiClient extends Application {
         if (args.length > 1) {
             cleanState = args[1].equals("cleanState");
         }
-        tc = new TorrentClientImpl(serverHost, clientId, cleanState);
+        tc = new TorrentClientImpl(SERVER_HOST, clientId, cleanState);
         launch(args);
     }
 
