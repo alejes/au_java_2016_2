@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.Scanner;
 
 public class TorrentClientCmd {
-    private static final String serverHost = "127.0.0.1";
+    private static final String SERVER_HOST = "127.0.0.1";
 
     public static void main(String[] args) {
         int clientId = 0;
@@ -21,7 +21,7 @@ public class TorrentClientCmd {
         if (args.length > 1) {
             cleanState = args[1].equals("cleanState");
         }
-        try (TorrentClient tc = new TorrentClientImpl(serverHost, clientId, cleanState)) {
+        try (TorrentClient tc = new TorrentClientImpl(SERVER_HOST, clientId, cleanState)) {
             Scanner scr = new Scanner(System.in);
             boolean activeConnection = true;
             while (activeConnection) {
