@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.*?>
+<?import javafx.scene.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.collections.FXCollections?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="204.0"
+            prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ui.MainController">
+    <left>
+        <fx:define>
+            <ToggleGroup fx:id="archGroup"/>
+        </fx:define>
+        <VBox prefHeight="400.0" prefWidth="260.0" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="Architecture:"/>
+                <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0"
+                             text="TCP:PermanentConnection+new Thread" toggleGroup="$archGroup"/>
+                <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0"
+                             text="TCP:PermanentConnection+cache Pool" toggleGroup="$archGroup"/>
+                <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0"
+                             text="TCP:PermanentConnection+non Blocking" toggleGroup="$archGroup"/>
+                <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0"
+                             text="TCP:NewConnection+Single Thread" toggleGroup="$archGroup"/>
+                <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" text="UDP:New Thread"
+                             toggleGroup="$archGroup"/>
+                <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" text="UDP:Fixed Pool"
+                             toggleGroup="$archGroup"/>
+                <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" text="UDP:Async"
+                             toggleGroup="$archGroup"/>
+            </children>
+        </VBox>
+    </left>
+    <right>
+        <VBox prefHeight="400.0" prefWidth="297.0" BorderPane.alignment="CENTER">
+            <children>
+                <HBox prefHeight="31.0" prefWidth="297.0">
+                    <children>
+                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="X="/>
+                        <TextField promptText="X value"/>
+                    </children>
+                </HBox>
+                <HBox prefHeight="31.0" prefWidth="297.0">
+                    <children>
+                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="Changed Value"/>
+                        <ChoiceBox prefWidth="150.0" value="N">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <String fx:value="N"/>
+                                    <String fx:value="M"/>
+                                    <String fx:value="Δ"/>
+                                </FXCollections>
+                            </items>
+                        </ChoiceBox>
+                    </children>
+                </HBox>
+                <HBox prefHeight="31.0" prefWidth="297.0">
+                    <children>
+                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="From="/>
+                        <TextField promptText="From value"/>
+                    </children>
+                </HBox>
+                <HBox prefHeight="31.0" prefWidth="297.0">
+                    <children>
+                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="To="/>
+                        <TextField promptText="To value"/>
+                    </children>
+                </HBox>
+                <HBox prefHeight="31.0" prefWidth="297.0">
+                    <children>
+                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="Step="/>
+                        <TextField promptText="Step value"/>
+                    </children>
+                </HBox>
+                <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" text="Start"/>
+            </children>
+        </VBox>
+    </right>
+</BorderPane>

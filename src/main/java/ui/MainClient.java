@@ -1,0 +1,29 @@
+package ui;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+
+public class MainClient extends Application {
+    private static final String SERVER_HOST = "127.0.0.1";
+
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("MainWindow.fxml"));
+        BorderPane root = loader.load();
+        primaryStage.setTitle("TorrentClientUI");
+        primaryStage.setScene(new Scene(root, 600, 204));
+        MainController controller = loader.getController();
+        controller.setupScene(primaryStage, root);
+        primaryStage.show();
+    }
+}
