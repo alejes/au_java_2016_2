@@ -10,6 +10,7 @@ import java.io.IOException;
 
 public class MainClient extends Application {
     private static final String SERVER_HOST = "127.0.0.1";
+    private static final String CLIENT_HOST = "127.0.0.1";
 
 
     public static void main(String[] args) {
@@ -20,7 +21,7 @@ public class MainClient extends Application {
     public void start(Stage primaryStage) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("MainWindow.fxml"));
         BorderPane root = loader.load();
-        primaryStage.setTitle("TorrentClientUI");
+        primaryStage.setTitle("Performance Measure");
         primaryStage.setScene(new Scene(root, 600, 204));
         MainController controller = loader.getController();
         controller.setupScene(primaryStage, root);

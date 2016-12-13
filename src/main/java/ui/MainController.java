@@ -27,6 +27,8 @@ import java.util.ResourceBundle;
 
 
 public class MainController implements Initializable{
+    @FXML
+    Button startButton;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
     }
