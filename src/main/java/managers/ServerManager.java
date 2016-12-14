@@ -52,8 +52,8 @@ public class ServerManager {
                     try (DataInputStream dis = new DataInputStream(socket.getInputStream());
                          DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
                         ServerInitMessage serverInit = ServerInitMessage.parseDelimitedFrom(dis);
-                        System.out.println(serverInit.getStategy().toString());
-                        Server srv = ServerBuilder.buildServer(serverInit.getStategy());
+                        System.out.println(serverInit.getStrategy().toString());
+                        Server srv = ServerBuilder.buildServer(serverInit.getStrategy());
                         Thread t = new Thread(srv);
                         t.start();
                         srv.getServerData().writeDelimitedTo(dos);

@@ -1,6 +1,8 @@
 package clients;
 
 
-public interface Client extends Runnable{
+import proto.ClientResponseStatMessageOuterClass.ClientResponseStatMessage;
 
+public abstract class Client implements Runnable {
+    public abstract ClientResponseStatMessage collectStatistic();
 }

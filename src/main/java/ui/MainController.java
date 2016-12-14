@@ -10,6 +10,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import managers.ServerManager;
 import org.controlsfx.control.Notifications;
+import proto.ClientInitMessageOuterClass.ClientInitMessage;
+import proto.ClientResponseStatMessageOuterClass.ClientResponseStatMessage;
 import proto.ServerDataOuterClass.ServerData;
 import proto.ServerInitMessageOuterClass.ServerInitMessage;
 import proto.ServerRequestStatMessageOuterClass.ServerRequestStatMessage;
@@ -25,12 +27,12 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import static managers.ClientManager.CLIENT_MANAGER_HOST;
+import static managers.ClientManager.CLIENT_MANAGER_PORT;
 import static managers.ServerManager.SERVER_MANAGER_HOST;
 
 
 public class MainController implements Initializable {
-    private static final String CLIENT_MANAGER_HOST = "127.0.0.1";
-    private static final int CLIENT_MANAGER_PORT = 50789;
     @FXML
     private Button startButton;
     @FXML
@@ -52,39 +54,52 @@ public class MainController implements Initializable {
 
     public void setupScene(Stage stage, BorderPane root) {
         startButton.setOnAction(e -> {
-            initializeServer();
+            initializeServerAndClient();
         });
     }
 
-    private boolean initializeServer() {
-        try (Socket socket = new Socket()) {
-            socket.connect(new InetSocketAddress(InetAddress.getByName(SERVER_MANAGER_HOST), ServerManager.SERVER_MANAGER_PORT), 5000);
+    private boolean initializeServerAndClient() {
+        try (Socket clientSocket = new Socket();
+             Socket serverSocket = new Socket()) {
+            serverSocket.connect(new InetSocketAddress(InetAddress.getByName(SERVER_MANAGER_HOST), ServerManager.SERVER_MANAGER_PORT), 5000);
+            clientSocket.connect(new InetSocketAddress(InetAddress.getByName(CLIENT_MANAGER_HOST), CLIENT_MANAGER_PORT), 5000);
             try (
-                    DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-                    DataInputStream dis = new DataInputStream(socket.getInputStream())
+                    DataOutputStream serverDos = new DataOutputStream(serverSocket.getOutputStream());
+                    DataOutputStream clientDos = new DataOutputStream(clientSocket.getOutputStream());
+                    DataInputStream serverDis = new DataInputStream(serverSocket.getInputStream());
+                    DataInputStream clientDis = new DataInputStream(clientSocket.getInputStream())
             ) {
                 TestStrategy targetStrategy = TestStrategy.forNumber(Integer.valueOf(archGroup.getSelectedToggle().getUserData().toString()));
 
-                ServerInitMessage serverInit = ServerInitMessage.newBuilder()
-                        .setStategy(targetStrategy)
-                        .build();
-                serverInit.writeDelimitedTo(dos);
-                dos.flush();
-                ServerData serverData = ServerData.parseDelimitedFrom(dis);
+                ServerInitMessage.newBuilder()
+                        .setStrategy(targetStrategy)
+                        .build()
+                        .writeDelimitedTo(serverDos);
+                serverDos.flush();
+                ServerData serverData = ServerData.parseDelimitedFrom(serverDis);
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                ClientInitMessage.newBuilder()
+                        .setStrategy(targetStrategy)
+                        .setServer(serverData)
+                        .build()
+                        .writeDelimitedTo(clientDos);
+                clientDos.flush();
 
+                ClientResponseStatMessage clientResponseStatMessage = ClientResponseStatMessage.parseDelimitedFrom(clientDis);
 
-                ServerRequestStatMessage stopMessage = ServerRequestStatMessage.newBuilder().build();
-                stopMessage.writeDelimitedTo(dos);
-                dos.flush();
+                ServerRequestStatMessage.newBuilder()
+                        .build()
+                        .writeDelimitedTo(serverDos);
+                serverDos.flush();
 
-                ServerResponseStatMessage serverResponseStatMessage = ServerResponseStatMessage.parseDelimitedFrom(dis);
+                ServerResponseStatMessage serverResponseStatMessage = ServerResponseStatMessage.parseDelimitedFrom(serverDis);
                 System.out.println(serverResponseStatMessage.getClientProcessingTime());
                 System.out.println(serverResponseStatMessage.getQueryProcessingTime());
+                System.out.println(clientResponseStatMessage.getAverageClientTime());
 
             }
         } catch (IOException exc) {

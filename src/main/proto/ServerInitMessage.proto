@@ -5,5 +5,5 @@ package proto;
 import "TestStrategy.proto";
 
 message ServerInitMessage {
-    TestStrategy stategy = 1;
+    TestStrategy strategy = 1;
 }
