@@ -3,6 +3,7 @@ syntax = "proto3";
 package proto;
 
 import "TestStrategy.proto";
+import "ServerData.proto";
 
 message ClientInitMessage {
     TestStrategy strategy = 1;
@@ -10,11 +11,5 @@ message ClientInitMessage {
     uint32 M = 3;
     uint32 delta = 4;
     uint32 X = 5;
-
-    message ServerData {
-        string serverIp = 1;
-        uint32 serverPort = 2;
-    }
-
     ServerData server = 6;
 }

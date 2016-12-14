@@ -10,7 +10,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import managers.ServerManager;
 import org.controlsfx.control.Notifications;
+import proto.ServerDataOuterClass.ServerData;
 import proto.ServerInitMessageOuterClass.ServerInitMessage;
+import proto.ServerRequestStatMessageOuterClass.ServerRequestStatMessage;
+import proto.ServerResponseStatMessageOuterClass.ServerResponseStatMessage;
 import proto.TestStrategyOuterClass.TestStrategy;
 
 import java.io.DataInputStream;
@@ -22,9 +25,10 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import static managers.ServerManager.SERVER_MANAGER_HOST;
+
 
 public class MainController implements Initializable {
-    public static final String SERVER_MANAGER_HOST = "127.0.0.1";
     private static final String CLIENT_MANAGER_HOST = "127.0.0.1";
     private static final int CLIENT_MANAGER_PORT = 50789;
     @FXML
@@ -64,7 +68,23 @@ public class MainController implements Initializable {
                 ServerInitMessage serverInit = ServerInitMessage.newBuilder()
                         .setStategy(targetStrategy)
                         .build();
-                serverInit.writeTo(dos);
+                serverInit.writeDelimitedTo(dos);
+                dos.flush();
+                ServerData serverData = ServerData.parseDelimitedFrom(dis);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
+                ServerRequestStatMessage stopMessage = ServerRequestStatMessage.newBuilder().build();
+                stopMessage.writeDelimitedTo(dos);
+                dos.flush();
+
+                ServerResponseStatMessage serverResponseStatMessage = ServerResponseStatMessage.parseDelimitedFrom(dis);
+                System.out.println(serverResponseStatMessage.getClientProcessingTime());
+                System.out.println(serverResponseStatMessage.getQueryProcessingTime());
 
             }
         } catch (IOException exc) {

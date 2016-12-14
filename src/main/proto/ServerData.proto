@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package proto;
+
+message ServerData {
+    string serverIp = 1;
+    uint32 serverPort = 2;
+}
