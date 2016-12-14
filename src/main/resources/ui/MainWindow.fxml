@@ -19,20 +19,20 @@
         <VBox prefHeight="400.0" prefWidth="260.0" BorderPane.alignment="CENTER">
             <children>
                 <Label text="Architecture:"/>
+                <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" selected="true"
+                             text="TCP:PermanentConnection+new Thread" toggleGroup="$archGroup" userData="0"/>
                 <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0"
-                             text="TCP:PermanentConnection+new Thread" toggleGroup="$archGroup"/>
+                             text="TCP:PermanentConnection+cache Pool" toggleGroup="$archGroup" userData="1"/>
                 <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0"
-                             text="TCP:PermanentConnection+cache Pool" toggleGroup="$archGroup"/>
+                             text="TCP:PermanentConnection+non Blocking" toggleGroup="$archGroup" userData="2"/>
                 <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0"
-                             text="TCP:PermanentConnection+non Blocking" toggleGroup="$archGroup"/>
-                <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0"
-                             text="TCP:NewConnection+Single Thread" toggleGroup="$archGroup"/>
+                             text="TCP:NewConnection+Single Thread" toggleGroup="$archGroup" userData="3"/>
                 <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" text="TCP:Async"
-                             toggleGroup="$archGroup"/>
+                             toggleGroup="$archGroup" userData="4"/>
                 <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" text="UDP:New Thread"
-                             toggleGroup="$archGroup"/>
+                             toggleGroup="$archGroup" userData="5"/>
                 <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" text="UDP:Fixed Pool"
-                             toggleGroup="$archGroup"/>
+                             toggleGroup="$archGroup" userData="6"/>
             </children>
         </VBox>
     </left>

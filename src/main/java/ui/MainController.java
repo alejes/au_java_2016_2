@@ -8,8 +8,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import managers.ServerManager;
 import org.controlsfx.control.Notifications;
-import proto.ClientInitMessageOuterClass;
+import proto.ServerInitMessageOuterClass.ServerInitMessage;
+import proto.TestStrategyOuterClass.TestStrategy;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -22,8 +24,7 @@ import java.util.ResourceBundle;
 
 
 public class MainController implements Initializable {
-    private static final String SERVER_MANAGER_HOST = "127.0.0.1";
-    private static final int SERVER_MANAGER_PORT = 50028;
+    public static final String SERVER_MANAGER_HOST = "127.0.0.1";
     private static final String CLIENT_MANAGER_HOST = "127.0.0.1";
     private static final int CLIENT_MANAGER_PORT = 50789;
     @FXML
@@ -51,14 +52,20 @@ public class MainController implements Initializable {
         });
     }
 
-    private boolean initializeServer(){
+    private boolean initializeServer() {
         try (Socket socket = new Socket()) {
-            socket.connect(new InetSocketAddress(InetAddress.getByName(SERVER_MANAGER_HOST), SERVER_MANAGER_PORT), 5000);
+            socket.connect(new InetSocketAddress(InetAddress.getByName(SERVER_MANAGER_HOST), ServerManager.SERVER_MANAGER_PORT), 5000);
             try (
                     DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
                     DataInputStream dis = new DataInputStream(socket.getInputStream())
             ) {
-                //ClientInitMessageOuterClass.ClientInitMessage
+                TestStrategy targetStrategy = TestStrategy.forNumber(Integer.valueOf(archGroup.getSelectedToggle().getUserData().toString()));
+
+                ServerInitMessage serverInit = ServerInitMessage.newBuilder()
+                        .setStategy(targetStrategy)
+                        .build();
+                serverInit.writeTo(dos);
+
             }
         } catch (IOException exc) {
             Notifications.create()
