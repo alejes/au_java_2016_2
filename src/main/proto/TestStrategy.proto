@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package proto;
+
+enum TestStrategy {
+    TCP_PERMANENT_CONNECTION_NEW_THREAD = 0;
+    TCP_PERMANENT_CONNECTION_CACHE = 1;
+    TCP_PERMANENT_CONNECTION_NON_BLOCK = 2;
+    TCP_NEW_CONNECTION_SINGLE_THREAD = 3;
+    TCP_ASYNC = 4;
+    UDP_NEW_THREAD = 5;
+    UDP_FIXED_POOL = 6;
+}

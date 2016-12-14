@@ -1,37 +1,73 @@
 package ui;
 
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.controlsfx.control.Notifications;
-import org.controlsfx.control.StatusBar;
+import proto.ClientInitMessageOuterClass;
 
-import java.io.File;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
 
-public class MainController implements Initializable{
+public class MainController implements Initializable {
+    private static final String SERVER_MANAGER_HOST = "127.0.0.1";
+    private static final int SERVER_MANAGER_PORT = 50028;
+    private static final String CLIENT_MANAGER_HOST = "127.0.0.1";
+    private static final int CLIENT_MANAGER_PORT = 50789;
     @FXML
-    Button startButton;
+    private Button startButton;
+    @FXML
+    private TextField fromRange;
+    @FXML
+    private TextField toRange;
+    @FXML
+    private TextField stepRange;
+    @FXML
+    private TextField parameterX;
+    @FXML
+    private ChoiceBox parameterChanged;
+    @FXML
+    private ToggleGroup archGroup;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
     }
 
-    public void setupScene(Stage stage, BorderPane root) {}
+    public void setupScene(Stage stage, BorderPane root) {
+        startButton.setOnAction(e -> {
+            initializeServer();
+        });
+    }
+
+    private boolean initializeServer(){
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(InetAddress.getByName(SERVER_MANAGER_HOST), SERVER_MANAGER_PORT), 5000);
+            try (
+                    DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                    DataInputStream dis = new DataInputStream(socket.getInputStream())
+            ) {
+                //ClientInitMessageOuterClass.ClientInitMessage
+            }
+        } catch (IOException exc) {
+            Notifications.create()
+                    .title("Perfomance Architectire")
+                    .text("Server manager initialize failed: " + exc.getMessage())
+                    .showError();
+            return false;
+        }
+        return true;
+    }
+
 }

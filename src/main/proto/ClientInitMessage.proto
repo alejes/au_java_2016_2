@@ -1,15 +1,20 @@
 syntax = "proto3";
 
+package proto;
+
+import "TestStrategy.proto";
+
 message ClientInitMessage {
-    required uint32 N = 1;
-    required uint32 M = 2;
-    required uint32 delta = 3;
-    required uint32 X = 4;
+    TestStrategy strategy = 1;
+    uint32 N = 2;
+    uint32 M = 3;
+    uint32 delta = 4;
+    uint32 X = 5;
 
     message ServerData {
-        required string serverIp = 1;
-        required uint32 serverPort = 2;
+        string serverIp = 1;
+        uint32 serverPort = 2;
     }
 
-    required ServerData server = 5;
+    ServerData server = 6;
 }

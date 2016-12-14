@@ -9,10 +9,6 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class MainClient extends Application {
-    private static final String SERVER_HOST = "127.0.0.1";
-    private static final String CLIENT_HOST = "127.0.0.1";
-
-
     public static void main(String[] args) {
         launch(args);
     }

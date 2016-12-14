@@ -27,11 +27,11 @@
                              text="TCP:PermanentConnection+non Blocking" toggleGroup="$archGroup"/>
                 <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0"
                              text="TCP:NewConnection+Single Thread" toggleGroup="$archGroup"/>
+                <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" text="TCP:Async"
+                             toggleGroup="$archGroup"/>
                 <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" text="UDP:New Thread"
                              toggleGroup="$archGroup"/>
                 <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" text="UDP:Fixed Pool"
-                             toggleGroup="$archGroup"/>
-                <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" text="UDP:Async"
                              toggleGroup="$archGroup"/>
             </children>
         </VBox>
@@ -42,13 +42,13 @@
                 <HBox prefHeight="31.0" prefWidth="297.0">
                     <children>
                         <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="X="/>
-                        <TextField promptText="X value"/>
+                        <TextField fx:id="parameterX" promptText="X value"/>
                     </children>
                 </HBox>
                 <HBox prefHeight="31.0" prefWidth="297.0">
                     <children>
                         <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="Changed Value"/>
-                        <ChoiceBox prefWidth="150.0" value="N">
+                        <ChoiceBox fx:id="parameterChanged" prefWidth="150.0" value="N">
                             <items>
                                 <FXCollections fx:factory="observableArrayList">
                                     <String fx:value="N"/>

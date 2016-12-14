@@ -48,3 +48,32 @@ dependencies {
 
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
+
+
+
+
+protobuf {
+    // Configure the protoc executable
+    generatedFilesBaseDir = 'generated-sources'
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.0.0'
+        generatedFilesBaseDir = generatedFilesBaseDir
+    }
+    generateProtoTasks {
+        all()*.each {task ->
+            task.generateDescriptorSet = true
+        }
+    }
+}
+
+clean {
+    delete protobuf.generatedFilesBaseDir
+}
+
+idea {
+    module {
+        sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java");
+        // If you have additional sourceSets and/or codegen plugins, add all of them
+        sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/grpc");
+    }
+}
