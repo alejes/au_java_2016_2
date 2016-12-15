@@ -48,6 +48,7 @@ public class ClientManager {
         @Override
         public void run() {
             while (!Thread.interrupted()) {
+                System.out.println("waiting user on client");
                 try (Socket socket = sc.accept()) {
                     try (DataInputStream dis = new DataInputStream(socket.getInputStream());
                          DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {

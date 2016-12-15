@@ -23,9 +23,9 @@ public abstract class Server implements Runnable {
                 .build();
     }
 
-    protected abstract void stopServer() throws InterruptedException;
+    protected abstract void stopServer() throws InterruptedException, IOException;
 
-    public ServerResponseStatMessage stopAndCollectStatistic() throws InterruptedException {
+    public ServerResponseStatMessage stopAndCollectStatistic() throws InterruptedException, IOException {
         stopServer();
         return ServerResponseStatMessage.newBuilder()
                 .setQueryProcessingTime(queryProcessingTime)

@@ -1,7 +1,5 @@
 package servers;
 
-import exceptions.PerformanceArchitectureException;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -22,17 +20,21 @@ public class TcpPermanentConnectionNewThread extends Server {
     }
 
     @Override
-    protected void stopServer() throws InterruptedException {
+    protected void stopServer() throws InterruptedException, IOException {
+        shutdown = true;
+        serverSocket.close();
+        serverSocket = null;
         for (Thread t : threads) {
             t.interrupt();
             t.join();
         }
+        System.out.println("server stops");
     }
 
     @Override
     public void run() {
         try {
-            while (!Thread.interrupted()) {
+            while (!Thread.interrupted() && !shutdown) {
                 Socket socket = serverSocket.accept();
                 ServerWorker sw = new ServerWorker(socket);
                 Thread t = new Thread(sw);
@@ -47,6 +49,9 @@ public class TcpPermanentConnectionNewThread extends Server {
         } catch (IOException e) {
             Logger log = Logger.getLogger(Server.class.getName());
             log.log(Level.SEVERE, e.getMessage(), e);
+        }
+        finally {
+            System.out.println("server evaluator stop");
         }
     }
 
