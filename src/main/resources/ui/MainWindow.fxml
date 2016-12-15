@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.collections.FXCollections?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="204.0"
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="225.0"
             prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="ui.MainController">
     <left>
@@ -41,8 +41,26 @@
             <children>
                 <HBox prefHeight="31.0" prefWidth="297.0">
                     <children>
-                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="X="/>
+                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="X(requests)="/>
                         <TextField fx:id="parameterX" promptText="X value" text="5"/>
+                    </children>
+                </HBox>
+                <HBox prefHeight="31.0" prefWidth="297.0">
+                    <children>
+                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="N (arr elems)="/>
+                        <TextField fx:id="parameterN" promptText="N value" text="1000"/>
+                    </children>
+                </HBox>
+                <HBox prefHeight="31.0" prefWidth="297.0">
+                    <children>
+                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="M(clients count)="/>
+                        <TextField fx:id="parameterM" promptText="M value" text="5"/>
+                    </children>
+                </HBox>
+                <HBox prefHeight="31.0" prefWidth="297.0">
+                    <children>
+                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="∆(delay)="/>
+                        <TextField fx:id="parameterDelta" promptText="∆ value" text="5"/>
                     </children>
                 </HBox>
                 <HBox prefHeight="31.0" prefWidth="297.0">

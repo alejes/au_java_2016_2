@@ -18,7 +18,7 @@ public class MainClient extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("MainWindow.fxml"));
         BorderPane root = loader.load();
         primaryStage.setTitle("Performance Measure");
-        primaryStage.setScene(new Scene(root, 600, 204));
+        primaryStage.setScene(new Scene(root, 600, 225));
         MainController controller = loader.getController();
         controller.setupScene(primaryStage, root);
         primaryStage.show();

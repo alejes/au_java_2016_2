@@ -44,6 +44,12 @@ public class MainController implements Initializable {
     @FXML
     private TextField parameterX;
     @FXML
+    private TextField parameterN;
+    @FXML
+    private TextField parameterM;
+    @FXML
+    private TextField parameterDelta;
+    @FXML
     private ChoiceBox parameterChanged;
     @FXML
     private ToggleGroup archGroup;
@@ -57,8 +63,12 @@ public class MainController implements Initializable {
             final int fromRange = Integer.valueOf(fromRangeField.getText());
             final int toRange = Integer.valueOf(toRangeField.getText());
             final int stepRange = Integer.valueOf(stepRangeField.getText());
+            final int N = Integer.valueOf(parameterN.getText());
+            final int X = Integer.valueOf(parameterX.getText());
+            final int M = Integer.valueOf(parameterM.getText());
+            final int Delta = Integer.valueOf(parameterDelta.getText());
 
-            initializeServerAndClient(fromRange, 10, 5);
+            initializeServerAndClient(fromRange, M, Delta);
         });
     }
 

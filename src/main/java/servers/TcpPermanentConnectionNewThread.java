@@ -49,8 +49,7 @@ public class TcpPermanentConnectionNewThread extends Server {
         } catch (IOException e) {
             Logger log = Logger.getLogger(Server.class.getName());
             log.log(Level.SEVERE, e.getMessage(), e);
-        }
-        finally {
+        } finally {
             System.out.println("server evaluator stop");
         }
     }
@@ -67,24 +66,28 @@ public class TcpPermanentConnectionNewThread extends Server {
             System.out.println("Server worker starts");
             try (DataInputStream dis = new DataInputStream(socket.getInputStream());
                  DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
+                int retryCount = dis.readInt();
                 int arrayLength = dis.readInt();
-                int[] array = new int[arrayLength];
 
-                for (int i = 0; i < arrayLength; ++i) {
-                    array[i] = dis.readInt();
-                }
-                dos.flush();
-                for (int i = 0; i < arrayLength; ++i) {
-                    for (int j = 0; j < arrayLength; ++j) {
-                        if (array[i] > array[j]) {
-                            int temp = array[i];
-                            array[i] = array[j];
-                            array[j] = temp;
+                for (int retryId = 0; retryId < retryCount; ++retryId) {
+                    int[] array = new int[arrayLength];
+
+                    for (int i = 0; i < arrayLength; ++i) {
+                        array[i] = dis.readInt();
+                    }
+                    dos.flush();
+                    for (int i = 0; i < arrayLength; ++i) {
+                        for (int j = 0; j < arrayLength; ++j) {
+                            if (array[i] > array[j]) {
+                                int temp = array[i];
+                                array[i] = array[j];
+                                array[j] = temp;
+                            }
                         }
                     }
-                }
-                for (int val : array) {
-                    dos.writeInt(val);
+                    for (int val : array) {
+                        dos.writeInt(val);
+                    }
                 }
             } catch (IOException e) {
                 Logger log = Logger.getLogger(Server.class.getName());

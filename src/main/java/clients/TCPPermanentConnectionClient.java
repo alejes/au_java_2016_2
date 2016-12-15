@@ -1,5 +1,7 @@
 package clients;
 
+import org.omg.PortableServer.THREAD_POLICY_ID;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -22,14 +24,23 @@ public class TCPPermanentConnectionClient extends Client {
                      new Socket(initMessage.getServer().getServerIp(), initMessage.getServer().getServerPort())) {
             try (DataInputStream dis = new DataInputStream(socket.getInputStream());
                  DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
+                dos.writeInt(initMessage.getX());
                 dos.writeInt(array.length);
-                for (int val : array) {
-                    dos.writeInt(val);
+                for (int requestId = 0; requestId < initMessage.getX(); ++requestId) {
+                    for (int val : array) {
+                        dos.writeInt(val);
+                    }
+                    dos.flush();
+                    for (int i = 0; i < array.length; ++i) {
+                        array[i] = dis.readInt();
+                    }
+                    if (requestId < initMessage.getX() - 1) {
+                        Thread.sleep(initMessage.getDelta());
+                    }
                 }
-                dos.flush();
-                for (int i = 0; i < array.length; ++i) {
-                    array[i] = dis.readInt();
-                }
+            } catch (InterruptedException e) {
+                Logger log = Logger.getLogger(Client.class.getName());
+                log.log(Level.SEVERE, e.getMessage(), e);
             }
 
         } catch (IOException e) {
