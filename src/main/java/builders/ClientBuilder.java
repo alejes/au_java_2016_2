@@ -11,11 +11,9 @@ public class ClientBuilder {
     public static Client buildClient(TestStrategy ts) throws IOException {
         switch (ts) {
             case TCP_PERMANENT_CONNECTION_NEW_THREAD:
-                return new TCPPermanentConnectionClient();
             case TCP_PERMANENT_CONNECTION_CACHE:
-                break;
             case TCP_PERMANENT_CONNECTION_NON_BLOCK:
-                break;
+                return new TCPPermanentConnectionClient();
             case TCP_NEW_CONNECTION_SINGLE_THREAD:
                 break;
             case TCP_ASYNC:
@@ -25,7 +23,7 @@ public class ClientBuilder {
             case UDP_FIXED_POOL:
                 break;
             case UNRECOGNIZED:
-                break;
+                throw new UnexpectedException("w");
         }
         throw new UnexpectedException("w");
     }

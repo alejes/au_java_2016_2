@@ -68,7 +68,24 @@ public class MainController implements Initializable {
             final int M = Integer.valueOf(parameterM.getText());
             final int Delta = Integer.valueOf(parameterDelta.getText());
 
-            initializeServerAndClient(fromRange, M, Delta);
+            for (int changedValue = fromRange; changedValue < toRange; changedValue+=stepRange) {
+                switch (parameterChanged.getValue().toString()) {
+                    case "M":
+                        initializeServerAndClient(N, changedValue, Delta);
+                        break;
+                    case "N":
+                        initializeServerAndClient(changedValue, M, Delta);
+                        break;
+                    case "∆":
+                        initializeServerAndClient(N, M, changedValue);
+                        break;
+                    default:
+                        Notifications.create()
+                                .title("Perfomance Architectire")
+                                .text("Unknown parameter type")
+                                .showError();
+                }
+            }
         });
     }
 
