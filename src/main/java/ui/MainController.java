@@ -36,11 +36,11 @@ public class MainController implements Initializable {
     @FXML
     private Button startButton;
     @FXML
-    private TextField fromRange;
+    private TextField fromRangeField;
     @FXML
-    private TextField toRange;
+    private TextField toRangeField;
     @FXML
-    private TextField stepRange;
+    private TextField stepRangeField;
     @FXML
     private TextField parameterX;
     @FXML
@@ -54,11 +54,15 @@ public class MainController implements Initializable {
 
     public void setupScene(Stage stage, BorderPane root) {
         startButton.setOnAction(e -> {
-            initializeServerAndClient();
+            final int fromRange = Integer.valueOf(fromRangeField.getText());
+            final int toRange = Integer.valueOf(toRangeField.getText());
+            final int stepRange = Integer.valueOf(stepRangeField.getText());
+
+            initializeServerAndClient(fromRange, 10, 5);
         });
     }
 
-    private boolean initializeServerAndClient() {
+    private boolean initializeServerAndClient(int N, int M, int Delta) {
         try (Socket clientSocket = new Socket();
              Socket serverSocket = new Socket()) {
             serverSocket.connect(new InetSocketAddress(InetAddress.getByName(SERVER_MANAGER_HOST), ServerManager.SERVER_MANAGER_PORT), 5000);
@@ -82,11 +86,17 @@ public class MainController implements Initializable {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+
                 ClientInitMessage.newBuilder()
                         .setStrategy(targetStrategy)
+                        .setX(Integer.valueOf(parameterX.getText()))
+                        .setN(N)
+                        .setM(M)
+                        .setDelta(Delta)
                         .setServer(serverData)
                         .build()
                         .writeDelimitedTo(clientDos);
+
                 clientDos.flush();
 
                 ClientResponseStatMessage clientResponseStatMessage = ClientResponseStatMessage.parseDelimitedFrom(clientDis);

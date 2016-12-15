@@ -42,7 +42,7 @@
                 <HBox prefHeight="31.0" prefWidth="297.0">
                     <children>
                         <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="X="/>
-                        <TextField fx:id="parameterX" promptText="X value"/>
+                        <TextField fx:id="parameterX" promptText="X value" text="5"/>
                     </children>
                 </HBox>
                 <HBox prefHeight="31.0" prefWidth="297.0">
@@ -62,19 +62,19 @@
                 <HBox prefHeight="31.0" prefWidth="297.0">
                     <children>
                         <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="From="/>
-                        <TextField fx:id="fromRange" promptText="From value"/>
+                        <TextField fx:id="fromRangeField" promptText="From value" text="200"/>
                     </children>
                 </HBox>
                 <HBox prefHeight="31.0" prefWidth="297.0">
                     <children>
                         <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="To="/>
-                        <TextField fx:id="toRange" promptText="To value"/>
+                        <TextField fx:id="toRangeField" promptText="To value" text="500"/>
                     </children>
                 </HBox>
                 <HBox prefHeight="31.0" prefWidth="297.0">
                     <children>
                         <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="Step="/>
-                        <TextField fx:id="stepRange" promptText="Step value"/>
+                        <TextField fx:id="stepRangeField" promptText="Step value" text="25"/>
                     </children>
                 </HBox>
                 <Button fx:id="startButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" text="Start"/>
