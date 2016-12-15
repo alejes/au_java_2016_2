@@ -1,7 +1,7 @@
 package builders;
 
 import clients.Client;
-import clients.TcpPermanentConnectionNewThread;
+import clients.TCPPermanentConnectionClient;
 import proto.TestStrategyOuterClass.TestStrategy;
 
 import java.io.IOException;
@@ -11,7 +11,7 @@ public class ClientBuilder {
     public static Client buildClient(TestStrategy ts) throws IOException {
         switch (ts) {
             case TCP_PERMANENT_CONNECTION_NEW_THREAD:
-                return new TcpPermanentConnectionNewThread();
+                return new TCPPermanentConnectionClient();
             case TCP_PERMANENT_CONNECTION_CACHE:
                 break;
             case TCP_PERMANENT_CONNECTION_NON_BLOCK:
