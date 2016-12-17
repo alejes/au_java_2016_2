@@ -18,13 +18,12 @@ import proto.ServerRequestStatMessageOuterClass.ServerRequestStatMessage;
 import proto.ServerResponseStatMessageOuterClass.ServerResponseStatMessage;
 import proto.TestStrategyOuterClass.TestStrategy;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 import static managers.ClientManager.CLIENT_MANAGER_HOST;
@@ -68,28 +67,35 @@ public class MainController implements Initializable {
             final int M = Integer.valueOf(parameterM.getText());
             final int Delta = Integer.valueOf(parameterDelta.getText());
 
-            for (int changedValue = fromRange; changedValue < toRange; changedValue+=stepRange) {
-                switch (parameterChanged.getValue().toString()) {
-                    case "M":
-                        initializeServerAndClient(N, changedValue, Delta);
-                        break;
-                    case "N":
-                        initializeServerAndClient(changedValue, M, Delta);
-                        break;
-                    case "∆":
-                        initializeServerAndClient(N, M, changedValue);
-                        break;
-                    default:
-                        Notifications.create()
-                                .title("Perfomance Architectire")
-                                .text("Unknown parameter type")
-                                .showError();
+            try (PrintWriter out = new PrintWriter(new Date().getTime() + ".log.txt")) {
+                for (int changedValue = fromRange; changedValue < toRange; changedValue += stepRange) {
+                    switch (parameterChanged.getValue().toString()) {
+                        case "M":
+                            initializeServerAndClient(N, changedValue, Delta, out);
+                            break;
+                        case "N":
+                            initializeServerAndClient(changedValue, M, Delta, out);
+                            break;
+                        case "∆":
+                            initializeServerAndClient(N, M, changedValue, out);
+                            break;
+                        default:
+                            Notifications.create()
+                                    .title("Perfomance Architectire")
+                                    .text("Unknown parameter type")
+                                    .showError();
+                    }
                 }
+            } catch (IOException e1) {
+                Notifications.create()
+                        .title("Perfomance Architectire")
+                        .text("Cannot write to file: " + e1.getMessage())
+                        .showError();
             }
         });
     }
 
-    private boolean initializeServerAndClient(int N, int M, int Delta) {
+    private boolean initializeServerAndClient(int N, int M, int Delta, PrintWriter out) {
         try (Socket clientSocket = new Socket();
              Socket serverSocket = new Socket()) {
             serverSocket.connect(new InetSocketAddress(InetAddress.getByName(SERVER_MANAGER_HOST), ServerManager.SERVER_MANAGER_PORT), 5000);
@@ -134,10 +140,8 @@ public class MainController implements Initializable {
                 serverDos.flush();
 
                 ServerResponseStatMessage serverResponseStatMessage = ServerResponseStatMessage.parseDelimitedFrom(serverDis);
-                System.out.println(serverResponseStatMessage.getClientProcessingTime());
-                System.out.println(serverResponseStatMessage.getQueryProcessingTime());
-                System.out.println(clientResponseStatMessage.getAverageClientTime());
 
+                out.println(serverResponseStatMessage.getClientProcessingTime() + " " + serverResponseStatMessage.getQueryProcessingTime() + " " + clientResponseStatMessage.getAverageClientTime());
             }
         } catch (IOException exc) {
             Notifications.create()
