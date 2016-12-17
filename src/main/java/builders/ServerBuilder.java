@@ -2,6 +2,7 @@ package builders;
 
 import proto.TestStrategyOuterClass.TestStrategy;
 import servers.Server;
+import servers.TcpPermanentConnectionCache;
 import servers.TcpPermanentConnectionNewThread;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ public class ServerBuilder {
             case TCP_PERMANENT_CONNECTION_NEW_THREAD:
                 return new TcpPermanentConnectionNewThread();
             case TCP_PERMANENT_CONNECTION_CACHE:
-                break;
+                return new TcpPermanentConnectionCache();
             case TCP_PERMANENT_CONNECTION_NON_BLOCK:
                 break;
             case TCP_NEW_CONNECTION_SINGLE_THREAD:
