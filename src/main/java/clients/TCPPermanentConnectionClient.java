@@ -18,8 +18,8 @@ public class TCPPermanentConnectionClient extends Client {
     @Override
     public void run() {
         long start, end;
-        System.out.println("try connect to " + initMessage.getServer().getServerIp() + ":" + initMessage.getServer().getServerPort());
-        start = System.currentTimeMillis();
+        //System.out.println("try connect to " + initMessage.getServer().getServerIp() + ":" + initMessage.getServer().getServerPort());
+        start = System.nanoTime();
         try (Socket socket =
                      new Socket(initMessage.getServer().getServerIp(), initMessage.getServer().getServerPort())) {
             try (DataInputStream dis = new DataInputStream(socket.getInputStream());
@@ -34,7 +34,7 @@ public class TCPPermanentConnectionClient extends Client {
                     for (int i = 0; i < array.length; ++i) {
                         array[i] = dis.readInt();
                     }
-                    if (requestId < initMessage.getX() - 1) {
+                    if ((requestId < initMessage.getX() - 1) && (initMessage.getDelta() > 0)) {
                         Thread.sleep(initMessage.getDelta());
                     }
                 }
@@ -48,8 +48,8 @@ public class TCPPermanentConnectionClient extends Client {
             log.log(Level.SEVERE, e.getMessage(), e);
         }
 
-        end = System.currentTimeMillis();
-        System.out.println("client end");
-        averageClientTime = end - start;
+        end = System.nanoTime();
+        //System.out.println("client end");
+        averageClientTime = 1.0 * (end - start) / 1_000_000;
     }
 }

@@ -66,18 +66,34 @@ public class MainController implements Initializable {
             final int X = Integer.valueOf(parameterX.getText());
             final int M = Integer.valueOf(parameterM.getText());
             final int Delta = Integer.valueOf(parameterDelta.getText());
+            final TestStrategy targetStrategy = TestStrategy.forNumber(Integer.valueOf(archGroup.getSelectedToggle().getUserData().toString()));
+            if (targetStrategy == null) {
+                Notifications.create()
+                        .title("Perfomance Architectire")
+                        .text("Unknown strategy")
+                        .showError();
+                return;
+            }
 
             try (PrintWriter out = new PrintWriter(new Date().getTime() + ".log.txt")) {
-                for (int changedValue = fromRange; changedValue < toRange; changedValue += stepRange) {
+                out.println("Strategy: " + targetStrategy.name());
+                out.println("X = " + parameterX.getText());
+                out.println("N = " + N);
+                out.println("M = " + M);
+                out.println("∆ = " + Delta);
+                out.println(parameterChanged.getValue().toString() + " from " + fromRange + " to " + toRange + " by " + stepRange);
+
+                for (int changedValue = fromRange; changedValue <= toRange; changedValue += stepRange) {
+                    out.print("parameter = " + changedValue + " ");
                     switch (parameterChanged.getValue().toString()) {
                         case "M":
-                            initializeServerAndClient(N, changedValue, Delta, out);
+                            initializeServerAndClient(targetStrategy, N, changedValue, Delta, out);
                             break;
                         case "N":
-                            initializeServerAndClient(changedValue, M, Delta, out);
+                            initializeServerAndClient(targetStrategy, changedValue, M, Delta, out);
                             break;
                         case "∆":
-                            initializeServerAndClient(N, M, changedValue, out);
+                            initializeServerAndClient(targetStrategy, N, M, changedValue, out);
                             break;
                         default:
                             Notifications.create()
@@ -95,7 +111,7 @@ public class MainController implements Initializable {
         });
     }
 
-    private boolean initializeServerAndClient(int N, int M, int Delta, PrintWriter out) {
+    private boolean initializeServerAndClient(TestStrategy targetStrategy, int N, int M, int Delta, PrintWriter out) {
         try (Socket clientSocket = new Socket();
              Socket serverSocket = new Socket()) {
             serverSocket.connect(new InetSocketAddress(InetAddress.getByName(SERVER_MANAGER_HOST), ServerManager.SERVER_MANAGER_PORT), 5000);
@@ -106,8 +122,6 @@ public class MainController implements Initializable {
                     DataInputStream serverDis = new DataInputStream(serverSocket.getInputStream());
                     DataInputStream clientDis = new DataInputStream(clientSocket.getInputStream())
             ) {
-                TestStrategy targetStrategy = TestStrategy.forNumber(Integer.valueOf(archGroup.getSelectedToggle().getUserData().toString()));
-
                 ServerInitMessage.newBuilder()
                         .setStrategy(targetStrategy)
                         .build()
@@ -141,7 +155,9 @@ public class MainController implements Initializable {
 
                 ServerResponseStatMessage serverResponseStatMessage = ServerResponseStatMessage.parseDelimitedFrom(serverDis);
 
-                out.println(serverResponseStatMessage.getClientProcessingTime() + " " + serverResponseStatMessage.getQueryProcessingTime() + " " + clientResponseStatMessage.getAverageClientTime());
+                out.println("; ClientProcessingTime = " + serverResponseStatMessage.getClientProcessingTime() +
+                        "; QueryProcessingTime= " + serverResponseStatMessage.getQueryProcessingTime() +
+                        "; AverageClientTime = " + clientResponseStatMessage.getAverageClientTime());
             }
         } catch (IOException exc) {
             Notifications.create()

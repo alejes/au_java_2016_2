@@ -8,10 +8,10 @@ import java.util.Random;
 
 public abstract class Client implements Runnable {
     protected ClientInitMessage initMessage;
-    protected long averageClientTime;
+    protected double averageClientTime;
     protected int[] array;
 
-    public long getAverageClientTime() {
+    public double getAverageClientTime() {
         return averageClientTime;
     }
 

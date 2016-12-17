@@ -48,12 +48,12 @@ public class ClientManager {
         @Override
         public void run() {
             while (!Thread.interrupted()) {
-                System.out.println("waiting user on client");
+                //System.out.println("waiting user on client");
                 try (Socket socket = sc.accept()) {
                     try (DataInputStream dis = new DataInputStream(socket.getInputStream());
                          DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
                         ClientInitMessage clientInit = ClientInitMessage.parseDelimitedFrom(dis);
-                        System.out.println(clientInit.getStrategy());
+                        //System.out.println(clientInit.getStrategy());
                         Thread[] clientsThreads = new Thread[clientInit.getM()];
                         Client[] clients = new Client[clientInit.getM()];
                         for (int i = 0; i < clientInit.getM(); ++i) {
@@ -65,12 +65,13 @@ public class ClientManager {
                         for (Thread client : clientsThreads) {
                             client.join();
                         }
-                        long totalTime = 0;
+                        double totalTime = 0;
                         for (Client client : clients) {
                             totalTime += client.getAverageClientTime();
                         }
+
                         ClientResponseStatMessageOuterClass.ClientResponseStatMessage.newBuilder()
-                                .setAverageClientTime(totalTime / clientInit.getM())
+                                .setAverageClientTime(totalTime / clients.length)
                                 .build()
                                 .writeDelimitedTo(dos);
                         dos.flush();

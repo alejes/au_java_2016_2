@@ -3,6 +3,6 @@ syntax = "proto3";
 package proto;
 
 message ServerResponseStatMessage {
-    uint64 queryProcessingTime = 1;
-    uint64 clientProcessingTime = 2;
+    double queryProcessingTime = 1;
+    double clientProcessingTime = 2;
 }

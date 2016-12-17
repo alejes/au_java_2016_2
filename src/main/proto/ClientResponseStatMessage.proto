@@ -3,5 +3,5 @@ syntax = "proto3";
 package proto;
 
 message ClientResponseStatMessage {
-    uint64 averageClientTime = 1;
+    double averageClientTime = 1;
 }
