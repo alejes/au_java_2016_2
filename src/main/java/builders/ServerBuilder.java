@@ -1,10 +1,7 @@
 package builders;
 
 import proto.TestStrategyOuterClass.TestStrategy;
-import servers.Server;
-import servers.TcpPermanentConnectionCache;
-import servers.TcpPermanentConnectionNewThread;
-import servers.TcpPermanentConnectionNonBlock;
+import servers.*;
 
 import java.io.IOException;
 import java.rmi.UnexpectedException;
@@ -19,7 +16,7 @@ public class ServerBuilder {
             case TCP_PERMANENT_CONNECTION_NON_BLOCK:
                 return new TcpPermanentConnectionNonBlock();
             case TCP_NEW_CONNECTION_SINGLE_THREAD:
-                break;
+                return new TcpSingleThread();
             case TCP_ASYNC:
                 break;
             case UDP_NEW_THREAD:

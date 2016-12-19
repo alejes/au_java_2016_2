@@ -1,6 +1,7 @@
 package builders;
 
 import clients.Client;
+import clients.TCPNewConnectionClient;
 import clients.TCPPermanentConnectionClient;
 import proto.TestStrategyOuterClass.TestStrategy;
 
@@ -15,7 +16,7 @@ public class ClientBuilder {
             case TCP_PERMANENT_CONNECTION_NON_BLOCK:
                 return new TCPPermanentConnectionClient();
             case TCP_NEW_CONNECTION_SINGLE_THREAD:
-                break;
+                return new TCPNewConnectionClient();
             case TCP_ASYNC:
                 break;
             case UDP_NEW_THREAD:
