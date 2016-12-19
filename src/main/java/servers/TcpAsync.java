@@ -37,7 +37,8 @@ public class TcpAsync extends Server {
             totalClientProcessingTime += sw.localTotalClientProcessingTime;
             totalQueryProcessingTime += sw.localTotalQueryProcessingTime;
         }
-        totalClientProcessingTime = workers.size();
+        totalClientsQueries = workers.size();
+        workers.clear();
     }
 
     @Override
@@ -45,7 +46,6 @@ public class TcpAsync extends Server {
         channel.accept(null, new CompletionHandler<AsynchronousSocketChannel, Void>() {
             public void completed(AsynchronousSocketChannel clientChannel, Void att) {
                 channel.accept(null, this);
-                System.out.println("new accept");
                 ServerWorker serverWorker = new ServerWorker();
                 workers.add(serverWorker);
                 serverWorker.registerReadHeader(clientChannel);
@@ -79,7 +79,6 @@ public class TcpAsync extends Server {
                     } else {
                         source.flip();
                         arrayLength = source.getInt();
-                        System.out.println("arrayLength" + arrayLength);
                         array = new int[arrayLength];
                         source = ByteBuffer.allocate(arrayLength * Integer.BYTES);
                         registerRead(clientChannel);
@@ -94,14 +93,13 @@ public class TcpAsync extends Server {
             });
         }
 
-        public void registerRead(AsynchronousSocketChannel clientChannel) {
+        private void registerRead(AsynchronousSocketChannel clientChannel) {
             clientChannel.read(source, this, new CompletionHandler<Integer, ServerWorker>() {
                 @Override
                 public void completed(Integer result, ServerWorker attachment) {
                     if (source.hasRemaining()) {
                         clientChannel.read(source, attachment, this);
                     } else {
-                        System.out.println("read eneded");
                         source.flip();
                         for (int i = 0; i < arrayLength; ++i) {
                             array[i] = source.getInt();
@@ -135,14 +133,13 @@ public class TcpAsync extends Server {
             });
         }
 
-        public void registerWrite(AsynchronousSocketChannel clientChannel) {
+        private void registerWrite(AsynchronousSocketChannel clientChannel) {
             clientChannel.write(source, this, new CompletionHandler<Integer, ServerWorker>() {
                 @Override
                 public void completed(Integer result, ServerWorker attachment) {
                     if (source.hasRemaining()) {
                         clientChannel.write(source, attachment, this);
                     } else {
-                        System.out.println("write eneded");
                         localTotalQueryProcessingTime = System.nanoTime() - startAllTime;
                     }
                 }
