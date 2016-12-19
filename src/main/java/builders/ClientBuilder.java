@@ -16,9 +16,8 @@ public class ClientBuilder {
             case TCP_PERMANENT_CONNECTION_NON_BLOCK:
                 return new TCPPermanentConnectionClient();
             case TCP_NEW_CONNECTION_SINGLE_THREAD:
-                return new TCPNewConnectionClient();
             case TCP_ASYNC:
-                break;
+                return new TCPNewConnectionClient();
             case UDP_NEW_THREAD:
                 break;
             case UDP_FIXED_POOL:

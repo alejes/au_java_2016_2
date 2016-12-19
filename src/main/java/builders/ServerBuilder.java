@@ -18,7 +18,7 @@ public class ServerBuilder {
             case TCP_NEW_CONNECTION_SINGLE_THREAD:
                 return new TcpSingleThread();
             case TCP_ASYNC:
-                break;
+                return new TcpAsync();
             case UDP_NEW_THREAD:
                 break;
             case UDP_FIXED_POOL:

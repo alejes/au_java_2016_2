@@ -37,7 +37,7 @@ public class TcpPermanentConnectionNonBlock extends Server {
     @Override
     protected void stopServer() throws InterruptedException, IOException {
         shutdown = true;
-        channel.socket().close();
+        channel.close();
         channel = null;
         executorService.shutdown();
         executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);

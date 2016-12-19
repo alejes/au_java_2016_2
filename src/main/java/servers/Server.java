@@ -18,9 +18,9 @@ public abstract class Server implements Runnable {
     protected Server() throws IOException {
     }
 
-    public abstract int getPort();
+    public abstract int getPort() throws IOException;
 
-    public ServerData getServerData() {
+    public ServerData getServerData() throws IOException {
         //System.out.println("Server port=" + serverSocket.getLocalPort());
         return ServerData.newBuilder().setServerIp(ServerManager.SERVER_MANAGER_HOST)
                 .setServerPort(getPort())
