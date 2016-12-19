@@ -113,7 +113,6 @@ public class TcpPermanentConnectionCache extends Server {
                     }
                     dos.flush();
                     long timeThisQuery = System.nanoTime() - startAllTime;
-                    //System.out.println(allSortTime);
                     localTotalClientProcessingTime += timeSort;
                     localTotalQueryProcessingTime += timeThisQuery;
                 }
@@ -121,7 +120,6 @@ public class TcpPermanentConnectionCache extends Server {
                 Logger log = Logger.getLogger(Server.class.getName());
                 log.log(Level.SEVERE, e.getMessage(), e);
             }
-            //System.out.println("Server worker ends");
         }
     }
 }

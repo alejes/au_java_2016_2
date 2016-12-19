@@ -2,7 +2,6 @@ package servers;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -47,7 +46,6 @@ public class TcpPermanentConnectionNonBlock extends Server {
             totalQueryProcessingTime += sw.localTotalQueryProcessingTime;
             totalClientsQueries += sw.localTotalClientsQueries;
         }
-        //System.out.println("server stops");
     }
 
     @Override
@@ -55,25 +53,9 @@ public class TcpPermanentConnectionNonBlock extends Server {
         try {
             Selector selector = Selector.open();
 
-            SelectionKey selectionKey = channel.register(selector, SelectionKey.OP_ACCEPT);
-            LinkedList<Future<?>> waitedTasks = new LinkedList<>();
+            channel.register(selector, SelectionKey.OP_ACCEPT);
 
             while (!Thread.interrupted() && !shutdown) {
-
-                /*Iterator<Future<ServerWorker>> iterator = waitedTasks.iterator();
-
-                while (iterator.hasNext()) {
-                    Future<ServerWorker> next = iterator.next();
-                    if (next.isDone()) {
-                        System.out.println("new task evaluated");
-                        ServerWorker sw = next.get();
-                        sw.key.interestOps(sw.key.interestOps() & (~SelectionKey.OP_WRITE));
-                        *//*SocketChannel client = (SocketChannel) sw.key.channel();
-                        client.register(selector, SelectionKey.OP_WRITE);*//*
-                        iterator.remove();
-                    }
-                }*/
-
                 int readyChannels = selector.select(1);
                 if (readyChannels == 0) continue;
                 Set<SelectionKey> selectedKeys = selector.selectedKeys();
@@ -81,7 +63,6 @@ public class TcpPermanentConnectionNonBlock extends Server {
                 while (keyIterator.hasNext()) {
                     SelectionKey key = keyIterator.next();
                     if (key.isAcceptable()) {
-                        System.out.println("new accept");
                         SocketChannel client = channel.accept();
                         client.configureBlocking(false);
                         SelectionKey key2 = client.register(selector, SelectionKey.OP_READ);
@@ -89,22 +70,17 @@ public class TcpPermanentConnectionNonBlock extends Server {
                         workers.add(sw);
                         key2.attach(sw);
                     } else if (key.isReadable()) {
-                        //System.out.println("new read");
                         SocketChannel client = (SocketChannel) key.channel();
                         ServerWorker worker = (ServerWorker) key.attachment();
                         if (worker.read(client)) {
-                            System.out.println("read is finished");
                             key.interestOps(key.interestOps() & (~SelectionKey.OP_READ));
-                            Future<?> taskResult = executorService.submit(worker);
-                            waitedTasks.add(taskResult);
+                            worker.registerTask(executorService);
                         }
 
                     } else if (key.isWritable()) {
-                        System.out.println("new write");
                         SocketChannel client = (SocketChannel) key.channel();
                         ServerWorker worker = (ServerWorker) key.attachment();
                         if (worker.write(client)) {
-                            System.out.println("write is finished");
                             key.interestOps(key.interestOps() & (~SelectionKey.OP_WRITE));
                             if (worker.registerTryAndCheckContinue()) {
                                 key.interestOps(key.interestOps() | SelectionKey.OP_READ);
@@ -122,13 +98,12 @@ public class TcpPermanentConnectionNonBlock extends Server {
         } catch (IOException e) {
             Logger log = Logger.getLogger(Server.class.getName());
             log.log(Level.SEVERE, e.getMessage(), e);
-        } finally {
-            //System.out.println("server evaluator stop");
         }
     }
 
     private static class ServerWorker implements Runnable {
         private final SelectionKey key;
+        private final long startAllTime;
         public long localTotalClientProcessingTime = 0;
         public long localTotalQueryProcessingTime = 0;
         public int localTotalClientsQueries = 0;
@@ -137,27 +112,30 @@ public class TcpPermanentConnectionNonBlock extends Server {
         private int retryCount = 0;
         private int arrayLength = 0;
         private int[] array;
+        private long startSort = -1;
 
         public ServerWorker(SelectionKey key) {
-            /*if (!source.hasRemaining()) {
-                source.rewind();
-            }*/
+            startAllTime = System.nanoTime();
             this.key = key;
         }
 
+        public void registerTask(ExecutorService executorService) {
+            startSort = System.nanoTime();
+            executorService.submit(this);
+        }
+
         public boolean registerTryAndCheckContinue() {
+            startSort = System.nanoTime();
             return retryCount > 0;
         }
 
         public boolean read(SocketChannel client) throws IOException {
             client.read(source);
             if (!isInitialized) {
-                //System.out.println(source.position());
                 if (!source.hasRemaining()) {
                     source.flip();
                     retryCount = source.getInt();
                     arrayLength = source.getInt();
-                    System.out.println("retry=" + retryCount + ";arrayLength=" + arrayLength);
                     localTotalClientsQueries += retryCount;
                     array = new int[arrayLength];
                     isInitialized = true;
@@ -169,12 +147,11 @@ public class TcpPermanentConnectionNonBlock extends Server {
         }
 
         @Override
-        public void run()  {
+        public void run() {
             source.flip();
             for (int i = 0; i < arrayLength; ++i) {
                 array[i] = source.getInt();
             }
-            long startSort = System.nanoTime();
             for (int i = 0; i < arrayLength; ++i) {
                 for (int j = 0; j < arrayLength; ++j) {
                     if (array[i] > array[j]) {
@@ -198,8 +175,13 @@ public class TcpPermanentConnectionNonBlock extends Server {
 
         public boolean write(SocketChannel client) throws IOException {
             client.write(source);
-            System.out.println(source.position());
-            return !source.hasRemaining();
+            if (source.hasRemaining()) {
+                return false;
+            } else {
+                long timeThisQuery = System.nanoTime() - startAllTime;
+                localTotalQueryProcessingTime += timeThisQuery;
+                return true;
+            }
         }
     }
 }
