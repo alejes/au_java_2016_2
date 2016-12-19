@@ -4,6 +4,7 @@ import proto.TestStrategyOuterClass.TestStrategy;
 import servers.Server;
 import servers.TcpPermanentConnectionCache;
 import servers.TcpPermanentConnectionNewThread;
+import servers.TcpPermanentConnectionNonBlock;
 
 import java.io.IOException;
 import java.rmi.UnexpectedException;
@@ -16,7 +17,7 @@ public class ServerBuilder {
             case TCP_PERMANENT_CONNECTION_CACHE:
                 return new TcpPermanentConnectionCache();
             case TCP_PERMANENT_CONNECTION_NON_BLOCK:
-                break;
+                return new TcpPermanentConnectionNonBlock();
             case TCP_NEW_CONNECTION_SINGLE_THREAD:
                 break;
             case TCP_ASYNC:

@@ -3,6 +3,7 @@ package servers;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.logging.Logger;
 
 public class TcpPermanentConnectionCache extends Server {
     private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private ServerSocket serverSocket = new ServerSocket(0);
     private boolean shutdown = false;
     private List<Future> resultFutures = new ArrayList<>();
     private List<ServerWorker> workers = new ArrayList<>();
@@ -38,6 +40,11 @@ public class TcpPermanentConnectionCache extends Server {
             totalClientsQueries += sw.localTotalClientsQueries;
         }
         //System.out.println("server stops");
+    }
+
+    @Override
+    public int getPort() {
+        return serverSocket.getLocalPort();
     }
 
     @Override
@@ -88,6 +95,9 @@ public class TcpPermanentConnectionCache extends Server {
                         array[i] = dis.readInt();
                     }
                     long startSort = System.nanoTime();
+                    /*
+                    * we can export sort to external function but we dont want measure time for function calls
+                     */
                     for (int i = 0; i < arrayLength; ++i) {
                         for (int j = 0; j < arrayLength; ++j) {
                             if (array[i] > array[j]) {

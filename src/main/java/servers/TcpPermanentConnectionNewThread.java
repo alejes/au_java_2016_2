@@ -3,6 +3,7 @@ package servers;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
@@ -12,12 +13,18 @@ import java.util.logging.Logger;
 
 
 public class TcpPermanentConnectionNewThread extends Server {
+    private ServerSocket serverSocket = new ServerSocket(0);
     private boolean shutdown = false;
     private List<Thread> threads = new ArrayList<>();
     private List<ServerWorker> workers = new ArrayList<>();
 
     public TcpPermanentConnectionNewThread() throws IOException {
         super();
+    }
+
+    @Override
+    public int getPort() {
+        return serverSocket.getLocalPort();
     }
 
     @Override

@@ -11,7 +11,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import static proto.ServerDataOuterClass.ServerData;
 
 public abstract class Server implements Runnable {
-    protected ServerSocket serverSocket = new ServerSocket(0);
     protected long totalQueryProcessingTime = 0;
     protected int totalClientsQueries = 0;
     protected long totalClientProcessingTime = 0;
@@ -19,10 +18,12 @@ public abstract class Server implements Runnable {
     protected Server() throws IOException {
     }
 
+    public abstract int getPort();
+
     public ServerData getServerData() {
         //System.out.println("Server port=" + serverSocket.getLocalPort());
         return ServerData.newBuilder().setServerIp(ServerManager.SERVER_MANAGER_HOST)
-                .setServerPort(serverSocket.getLocalPort())
+                .setServerPort(getPort())
                 .build();
     }
 
