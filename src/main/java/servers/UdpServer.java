@@ -12,7 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public abstract class UdpServer extends Server {
-    protected DatagramSocket serverSocket = new DatagramSocket( new InetSocketAddress("0.0.0.0", 0));
+    protected DatagramSocket serverSocket = new DatagramSocket(new InetSocketAddress(0));
 
     protected UdpServer() throws SocketException {
         serverSocket.setSendBufferSize(1 << 16);
@@ -43,7 +43,6 @@ public abstract class UdpServer extends Server {
 
         @Override
         public void run() {
-            byte[] buffer = new byte[packet.getLength()];
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream(packet.getLength());
             try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(packet.getData()));
                  DataOutputStream dos = new DataOutputStream(outputStream)) {
@@ -60,8 +59,9 @@ public abstract class UdpServer extends Server {
                     dos.writeInt(val);
                 }
                 dos.flush();
-                DatagramPacket result = new DatagramPacket(buffer, dos.size(), packet.getAddress(), packet.getPort());
+                DatagramPacket result = new DatagramPacket(outputStream.toByteArray(), dos.size(), packet.getAddress(), packet.getPort());
                 serverSocket.send(result);
+
                 long timeThisQuery = System.nanoTime() - startAllTime;
                 localTotalClientProcessingTime += timeSort;
                 localTotalQueryProcessingTime += timeThisQuery;
