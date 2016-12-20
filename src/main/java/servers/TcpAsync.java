@@ -30,9 +30,15 @@ public class TcpAsync extends TcpServer {
     @Override
     protected void stopServer() throws InterruptedException, IOException {
         super.stopServer();
-        for (ServerWorker sw : workers) {
-            totalClientProcessingTime += sw.localTotalClientProcessingTime;
-            totalQueryProcessingTime += sw.localTotalQueryProcessingTime;
+        try {
+            for (ServerWorker sw : workers) {
+                if (sw != null) {
+                    totalClientProcessingTime += sw.localTotalClientProcessingTime;
+                    totalQueryProcessingTime += sw.localTotalQueryProcessingTime;
+                }
+            }
+        }catch (NullPointerException e){
+            e.printStackTrace();;
         }
         totalClientsQueries = workers.size();
         workers.clear();
@@ -130,6 +136,12 @@ public class TcpAsync extends TcpServer {
                         clientChannel.write(source, attachment, this);
                     } else {
                         localTotalQueryProcessingTime = System.nanoTime() - startAllTime;
+                        try {
+                            clientChannel.close();
+                        } catch (IOException e) {
+                            Logger log = Logger.getLogger(Server.class.getName());
+                            log.log(Level.SEVERE, e.getMessage(), e);
+                        }
                     }
                 }
 

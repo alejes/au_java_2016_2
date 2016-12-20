@@ -103,7 +103,7 @@ public class MainController implements Initializable {
                         case "N":
                             initializeServerAndClient(targetStrategy, changedValue, M, Delta, clientProcessingTime, queryProcessingTime, averageClientTime, out);
                             break;
-                        case "∆":
+                        case "Δ":
                             initializeServerAndClient(targetStrategy, N, M, changedValue, clientProcessingTime, queryProcessingTime, averageClientTime, out);
                             break;
                         default:

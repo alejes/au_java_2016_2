@@ -15,6 +15,8 @@ import java.net.SocketException;
 import java.util.Arrays;
 
 public class ClientManager {
+    //public static final String CLIENT_MANAGER_HOST = "172.31.0.191";
+    //public static final String CLIENT_MANAGER_HOST = "127.0.0.1";
     public static final String CLIENT_MANAGER_HOST = "172.21.202.239";
     public static final int CLIENT_MANAGER_PORT = 50789;
     private final ServerSocket sc = new ServerSocket(CLIENT_MANAGER_PORT);

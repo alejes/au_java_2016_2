@@ -15,7 +15,7 @@ import java.net.Socket;
 import java.net.SocketException;
 
 public class ServerManager {
-    public static final String SERVER_MANAGER_HOST = "172.21.210.38";
+    public static final String SERVER_MANAGER_HOST = "172.21.203.104";
     public static final int SERVER_MANAGER_PORT = 50028;
     private final ServerSocket sc = new ServerSocket(SERVER_MANAGER_PORT);
     private final Thread serverThread;
