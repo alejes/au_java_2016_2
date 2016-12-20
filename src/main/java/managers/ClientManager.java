@@ -52,7 +52,6 @@ public class ClientManager {
                     try (DataInputStream dis = new DataInputStream(socket.getInputStream());
                          DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
                         ClientInitMessage clientInit = ClientInitMessage.parseDelimitedFrom(dis);
-                        //System.out.println(clientInit.getStrategy());
                         Thread[] clientsThreads = new Thread[clientInit.getM()];
                         Client[] clients = new Client[clientInit.getM()];
                         for (int i = 0; i < clientInit.getM(); ++i) {
