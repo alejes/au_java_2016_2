@@ -3,6 +3,7 @@ package builders;
 import clients.Client;
 import clients.TCPNewConnectionClient;
 import clients.TCPPermanentConnectionClient;
+import clients.UdpNewConnectionClient;
 import proto.TestStrategyOuterClass.TestStrategy;
 
 import java.io.IOException;
@@ -19,12 +20,9 @@ public class ClientBuilder {
             case TCP_ASYNC:
                 return new TCPNewConnectionClient();
             case UDP_NEW_THREAD:
-                break;
             case UDP_FIXED_POOL:
-                break;
-            case UNRECOGNIZED:
-                throw new UnexpectedException("w");
+                return new UdpNewConnectionClient();
         }
-        throw new UnexpectedException("w");
+        throw new UnexpectedException("Unrecognized client");
     }
 }

@@ -20,7 +20,7 @@ public class ServerBuilder {
             case TCP_ASYNC:
                 return new TcpAsync();
             case UDP_NEW_THREAD:
-                break;
+                return new UdpNewThread();
             case UDP_FIXED_POOL:
                 break;
             case UNRECOGNIZED:
