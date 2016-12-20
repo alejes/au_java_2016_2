@@ -2,7 +2,6 @@ package clients;
 
 
 import proto.ClientInitMessageOuterClass.ClientInitMessage;
-import proto.ClientResponseStatMessageOuterClass.ClientResponseStatMessage;
 
 import java.util.Random;
 

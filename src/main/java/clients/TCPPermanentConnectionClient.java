@@ -1,7 +1,5 @@
 package clients;
 
-import org.omg.PortableServer.THREAD_POLICY_ID;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -11,7 +9,7 @@ import java.util.logging.Logger;
 
 
 public class TCPPermanentConnectionClient extends Client {
-    public TCPPermanentConnectionClient() throws IOException {
+    public TCPPermanentConnectionClient() {
         super();
     }
 

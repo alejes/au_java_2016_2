@@ -20,7 +20,7 @@ public class MainClient extends Application {
         primaryStage.setTitle("Performance Measure");
         primaryStage.setScene(new Scene(root, 600, 225));
         MainController controller = loader.getController();
-        controller.setupScene(primaryStage, root);
+        controller.setupScene(root);
         primaryStage.show();
     }
 }

@@ -1,5 +1,7 @@
 package servers;
 
+import utils.ArrayAlgorithms;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -47,18 +49,7 @@ public class TcpSingleThread extends Server {
                         array[i] = dis.readInt();
                     }
                     long startSort = System.nanoTime();
-                    /*
-                    * we can export sort to external function but we dont want measure time for function calls
-                     */
-                    for (int i = 0; i < arrayLength; ++i) {
-                        for (int j = 0; j < arrayLength; ++j) {
-                            if (array[i] > array[j]) {
-                                int temp = array[i];
-                                array[i] = array[j];
-                                array[j] = temp;
-                            }
-                        }
-                    }
+                    ArrayAlgorithms.squareSort(array);
                     long timeSort = System.nanoTime() - startSort;
                     for (int val : array) {
                         dos.writeInt(val);

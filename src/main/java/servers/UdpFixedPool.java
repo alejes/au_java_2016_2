@@ -1,5 +1,7 @@
 package servers;
 
+import utils.ArrayAlgorithms;
+
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -18,8 +20,7 @@ public class UdpFixedPool extends Server {
             Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private DatagramSocket serverSocket = new DatagramSocket(0);
     private boolean shutdown = false;
-    private List<Thread> threads = new ArrayList<>();
-    private List<ServerWorker> workers = new ArrayList<>();
+    private final List<ServerWorker> workers = new ArrayList<>();
 
     public UdpFixedPool() throws IOException {
         super();
@@ -92,15 +93,7 @@ public class UdpFixedPool extends Server {
                     array[i] = dis.readInt();
                 }
                 long startSort = System.nanoTime();
-                for (int i = 0; i < arrayLength; ++i) {
-                    for (int j = 0; j < arrayLength; ++j) {
-                        if (array[i] > array[j]) {
-                            int temp = array[i];
-                            array[i] = array[j];
-                            array[j] = temp;
-                        }
-                    }
-                }
+                ArrayAlgorithms.squareSort(array);
                 long timeSort = System.nanoTime() - startSort;
                 for (int val : array) {
                     dos.writeInt(val);
@@ -116,7 +109,6 @@ public class UdpFixedPool extends Server {
                 Logger log = Logger.getLogger(Server.class.getName());
                 log.log(Level.SEVERE, e.getMessage(), e);
             }
-            //System.out.println("Server worker ends");
         }
     }
 }

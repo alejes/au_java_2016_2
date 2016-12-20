@@ -1,7 +1,11 @@
 package servers;
 
+import utils.ArrayAlgorithms;
+
 import java.io.*;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -11,8 +15,8 @@ import java.util.logging.Logger;
 public class UdpNewThread extends Server {
     private DatagramSocket serverSocket = new DatagramSocket(0);
     private boolean shutdown = false;
-    private List<Thread> threads = new ArrayList<>();
-    private List<ServerWorker> workers = new ArrayList<>();
+    private final List<Thread> threads = new ArrayList<>();
+    private final List<ServerWorker> workers = new ArrayList<>();
 
     public UdpNewThread() throws IOException {
         super();
@@ -89,16 +93,7 @@ public class UdpNewThread extends Server {
                     array[i] = dis.readInt();
                 }
                 long startSort = System.nanoTime();
-                System.out.println(arrayLength);
-                for (int i = 0; i < arrayLength; ++i) {
-                    for (int j = 0; j < arrayLength; ++j) {
-                        if (array[i] > array[j]) {
-                            int temp = array[i];
-                            array[i] = array[j];
-                            array[j] = temp;
-                        }
-                    }
-                }
+                ArrayAlgorithms.squareSort(array);
                 long timeSort = System.nanoTime() - startSort;
                 for (int val : array) {
                     dos.writeInt(val);
@@ -114,7 +109,6 @@ public class UdpNewThread extends Server {
                 Logger log = Logger.getLogger(Server.class.getName());
                 log.log(Level.SEVERE, e.getMessage(), e);
             }
-            //System.out.println("Server worker ends");
         }
     }
 }

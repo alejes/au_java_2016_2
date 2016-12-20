@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 
 
 public class TCPNewConnectionClient extends Client {
-    public TCPNewConnectionClient() throws IOException {
+    public TCPNewConnectionClient() {
         super();
     }
 

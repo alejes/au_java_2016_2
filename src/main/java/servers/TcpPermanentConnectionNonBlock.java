@@ -1,5 +1,7 @@
 package servers;
 
+import utils.ArrayAlgorithms;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
@@ -18,7 +20,7 @@ public class TcpPermanentConnectionNonBlock extends Server {
     private final ExecutorService executorService =
             Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private boolean shutdown = false;
-    private List<ServerWorker> workers = new ArrayList<>();
+    private final List<ServerWorker> workers = new ArrayList<>();
     private ServerSocketChannel channel;
 
 
@@ -151,15 +153,7 @@ public class TcpPermanentConnectionNonBlock extends Server {
             for (int i = 0; i < arrayLength; ++i) {
                 array[i] = source.getInt();
             }
-            for (int i = 0; i < arrayLength; ++i) {
-                for (int j = 0; j < arrayLength; ++j) {
-                    if (array[i] > array[j]) {
-                        int temp = array[i];
-                        array[i] = array[j];
-                        array[j] = temp;
-                    }
-                }
-            }
+            ArrayAlgorithms.squareSort(array);
             long timeSort = System.nanoTime() - startSort;
             localTotalClientProcessingTime += timeSort;
 

@@ -1,5 +1,7 @@
 package servers;
 
+import utils.ArrayAlgorithms;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -15,8 +17,8 @@ import java.util.logging.Logger;
 public class TcpPermanentConnectionNewThread extends Server {
     private ServerSocket serverSocket = new ServerSocket(0);
     private boolean shutdown = false;
-    private List<Thread> threads = new ArrayList<>();
-    private List<ServerWorker> workers = new ArrayList<>();
+    private final List<Thread> threads = new ArrayList<>();
+    private final List<ServerWorker> workers = new ArrayList<>();
 
     public TcpPermanentConnectionNewThread() throws IOException {
         super();
@@ -41,7 +43,6 @@ public class TcpPermanentConnectionNewThread extends Server {
             totalQueryProcessingTime += sw.localTotalQueryProcessingTime;
             totalClientsQueries += sw.localTotalClientsQueries;
         }
-        //System.out.println("server stops");
     }
 
     @Override
@@ -63,8 +64,6 @@ public class TcpPermanentConnectionNewThread extends Server {
         } catch (IOException e) {
             Logger log = Logger.getLogger(Server.class.getName());
             log.log(Level.SEVERE, e.getMessage(), e);
-        } finally {
-            //System.out.println("server evaluator stop");
         }
     }
 
@@ -80,7 +79,6 @@ public class TcpPermanentConnectionNewThread extends Server {
 
         @Override
         public void run() {
-            //System.out.println("Server worker starts");
             try (DataInputStream dis = new DataInputStream(socket.getInputStream());
                  DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
                 int retryCount = dis.readInt();
@@ -94,22 +92,13 @@ public class TcpPermanentConnectionNewThread extends Server {
                         array[i] = dis.readInt();
                     }
                     long startSort = System.nanoTime();
-                    for (int i = 0; i < arrayLength; ++i) {
-                        for (int j = 0; j < arrayLength; ++j) {
-                            if (array[i] > array[j]) {
-                                int temp = array[i];
-                                array[i] = array[j];
-                                array[j] = temp;
-                            }
-                        }
-                    }
+                    ArrayAlgorithms.squareSort(array);
                     long timeSort = System.nanoTime() - startSort;
                     for (int val : array) {
                         dos.writeInt(val);
                     }
                     dos.flush();
                     long timeThisQuery = System.nanoTime() - startAllTime;
-                    //System.out.println(allSortTime);
                     localTotalClientProcessingTime += timeSort;
                     localTotalQueryProcessingTime += timeThisQuery;
                 }
@@ -117,7 +106,6 @@ public class TcpPermanentConnectionNewThread extends Server {
                 Logger log = Logger.getLogger(Server.class.getName());
                 log.log(Level.SEVERE, e.getMessage(), e);
             }
-            //System.out.println("Server worker ends");
         }
     }
 }

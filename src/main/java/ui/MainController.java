@@ -7,7 +7,6 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
-import javafx.stage.Stage;
 import managers.ServerManager;
 import org.controlsfx.control.Notifications;
 import proto.ClientInitMessageOuterClass.ClientInitMessage;
@@ -57,7 +56,7 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
     }
 
-    public void setupScene(Stage stage, BorderPane root) {
+    public void setupScene(BorderPane root) {
         startButton.setOnAction(e -> {
             final int fromRange = Integer.valueOf(fromRangeField.getText());
             final int toRange = Integer.valueOf(toRangeField.getText());

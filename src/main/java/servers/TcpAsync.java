@@ -1,22 +1,22 @@
 package servers;
 
+import utils.ArrayAlgorithms;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.nio.channels.*;
+import java.nio.channels.AsynchronousServerSocketChannel;
+import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
 public class TcpAsync extends Server {
     private boolean shutdown = false;
-    private List<ServerWorker> workers = new ArrayList<>();
+    private final List<ServerWorker> workers = new ArrayList<>();
     private AsynchronousServerSocketChannel channel = AsynchronousServerSocketChannel.open().bind(null);
 
     public TcpAsync() throws IOException {
@@ -105,15 +105,7 @@ public class TcpAsync extends Server {
                             array[i] = source.getInt();
                         }
                         long startSort = System.nanoTime();
-                        for (int i = 0; i < arrayLength; ++i) {
-                            for (int j = 0; j < arrayLength; ++j) {
-                                if (array[i] > array[j]) {
-                                    int temp = array[i];
-                                    array[i] = array[j];
-                                    array[j] = temp;
-                                }
-                            }
-                        }
+                        ArrayAlgorithms.squareSort(array);
                         localTotalClientProcessingTime = System.nanoTime() - startSort;
 
                         source.clear();

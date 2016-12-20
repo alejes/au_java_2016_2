@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.collections.*?>
-<?import javafx.scene.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.collections.FXCollections?>
-
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="225.0"
             prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="ui.MainController">
@@ -17,86 +12,67 @@
             <ToggleGroup fx:id="archGroup"/>
         </fx:define>
         <VBox prefHeight="400.0" prefWidth="260.0" BorderPane.alignment="CENTER">
-            <children>
-                <Label text="Architecture:"/>
-                <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" selected="true"
-                             text="TCP:PermanentConnection+new Thread" toggleGroup="$archGroup" userData="0"/>
-                <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0"
-                             text="TCP:PermanentConnection+cache Pool" toggleGroup="$archGroup" userData="1"/>
-                <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0"
-                             text="TCP:PermanentConnection+non Blocking" toggleGroup="$archGroup" userData="2"/>
-                <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0"
-                             text="TCP:NewConnection+Single Thread" toggleGroup="$archGroup" userData="3"/>
-                <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" text="TCP:Async"
-                             toggleGroup="$archGroup" userData="4"/>
-                <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" text="UDP:New Thread"
-                             toggleGroup="$archGroup" userData="5"/>
-                <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" text="UDP:Fixed Pool"
-                             toggleGroup="$archGroup" userData="6"/>
-            </children>
+            <Label text="Architecture:"/>
+            <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" selected="true"
+                         text="TCP:PermanentConnection+new Thread" toggleGroup="$archGroup" userData="0"/>
+            <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0"
+                         text="TCP:PermanentConnection+cache Pool" toggleGroup="$archGroup" userData="1"/>
+            <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0"
+                         text="TCP:PermanentConnection+non Blocking" toggleGroup="$archGroup" userData="2"/>
+            <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0"
+                         text="TCP:NewConnection+Single Thread" toggleGroup="$archGroup" userData="3"/>
+            <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" text="TCP:Async"
+                         toggleGroup="$archGroup" userData="4"/>
+            <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" text="UDP:New Thread"
+                         toggleGroup="$archGroup" userData="5"/>
+            <RadioButton mnemonicParsing="false" prefHeight="17.0" prefWidth="269.0" text="UDP:Fixed Pool"
+                         toggleGroup="$archGroup" userData="6"/>
         </VBox>
     </left>
     <right>
         <VBox prefHeight="400.0" prefWidth="297.0" BorderPane.alignment="CENTER">
-            <children>
-                <HBox prefHeight="31.0" prefWidth="297.0">
-                    <children>
-                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="X(requests)="/>
-                        <TextField fx:id="parameterX" promptText="X value" text="5"/>
-                    </children>
-                </HBox>
-                <HBox prefHeight="31.0" prefWidth="297.0">
-                    <children>
-                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="N (arr elems)="/>
-                        <TextField fx:id="parameterN" promptText="N value" text="1000"/>
-                    </children>
-                </HBox>
-                <HBox prefHeight="31.0" prefWidth="297.0">
-                    <children>
-                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="M(clients count)="/>
-                        <TextField fx:id="parameterM" promptText="M value" text="5"/>
-                    </children>
-                </HBox>
-                <HBox prefHeight="31.0" prefWidth="297.0">
-                    <children>
-                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="∆(delay)="/>
-                        <TextField fx:id="parameterDelta" promptText="∆ value" text="5"/>
-                    </children>
-                </HBox>
-                <HBox prefHeight="31.0" prefWidth="297.0">
-                    <children>
-                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="Changed Value"/>
-                        <ChoiceBox fx:id="parameterChanged" prefWidth="150.0" value="N">
-                            <items>
-                                <FXCollections fx:factory="observableArrayList">
-                                    <String fx:value="N"/>
-                                    <String fx:value="M"/>
-                                    <String fx:value="Δ"/>
-                                </FXCollections>
-                            </items>
-                        </ChoiceBox>
-                    </children>
-                </HBox>
-                <HBox prefHeight="31.0" prefWidth="297.0">
-                    <children>
-                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="From="/>
-                        <TextField fx:id="fromRangeField" promptText="From value" text="200"/>
-                    </children>
-                </HBox>
-                <HBox prefHeight="31.0" prefWidth="297.0">
-                    <children>
-                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="To="/>
-                        <TextField fx:id="toRangeField" promptText="To value" text="500"/>
-                    </children>
-                </HBox>
-                <HBox prefHeight="31.0" prefWidth="297.0">
-                    <children>
-                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="Step="/>
-                        <TextField fx:id="stepRangeField" promptText="Step value" text="25"/>
-                    </children>
-                </HBox>
-                <Button fx:id="startButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" text="Start"/>
-            </children>
+            <HBox prefHeight="31.0" prefWidth="297.0">
+                <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="X(requests)="/>
+                <TextField fx:id="parameterX" promptText="X value" text="5"/>
+            </HBox>
+            <HBox prefHeight="31.0" prefWidth="297.0">
+                <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="N (arr elems)="/>
+                <TextField fx:id="parameterN" promptText="N value" text="1000"/>
+            </HBox>
+            <HBox prefHeight="31.0" prefWidth="297.0">
+                <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="M(clients count)="/>
+                <TextField fx:id="parameterM" promptText="M value" text="5"/>
+            </HBox>
+            <HBox prefHeight="31.0" prefWidth="297.0">
+                <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="∆(delay)="/>
+                <TextField fx:id="parameterDelta" promptText="∆ value" text="5"/>
+            </HBox>
+            <HBox prefHeight="31.0" prefWidth="297.0">
+                <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="Changed Value"/>
+                <ChoiceBox fx:id="parameterChanged" prefWidth="150.0" value="N">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="N"/>
+                            <String fx:value="M"/>
+                            <String fx:value="Δ"/>
+                        </FXCollections>
+                    </items>
+                </ChoiceBox>
+            </HBox>
+            <HBox prefHeight="31.0" prefWidth="297.0">
+                <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="From="/>
+                <TextField fx:id="fromRangeField" promptText="From value" text="200"/>
+            </HBox>
+            <HBox prefHeight="31.0" prefWidth="297.0">
+                <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="To="/>
+                <TextField fx:id="toRangeField" promptText="To value" text="500"/>
+            </HBox>
+            <HBox prefHeight="31.0" prefWidth="297.0">
+                <Label alignment="CENTER" prefHeight="25.0" prefWidth="95.0" text="Step="/>
+                <TextField fx:id="stepRangeField" promptText="Step value" text="25"/>
+            </HBox>
+            <Button fx:id="startButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false"
+                    text="Start"/>
         </VBox>
     </right>
 </BorderPane>

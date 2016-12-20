@@ -1,13 +1,16 @@
 package clients;
 
 import java.io.*;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
 public class UdpNewConnectionClient extends Client {
-    public UdpNewConnectionClient() throws IOException {
+    public UdpNewConnectionClient() {
         super();
     }
 
