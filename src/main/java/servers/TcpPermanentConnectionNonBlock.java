@@ -76,7 +76,6 @@ public class TcpPermanentConnectionNonBlock extends Server {
                             key.interestOps(key.interestOps() & (~SelectionKey.OP_READ));
                             worker.registerTask(executorService);
                         }
-
                     } else if (key.isWritable()) {
                         SocketChannel client = (SocketChannel) key.channel();
                         ServerWorker worker = (ServerWorker) key.attachment();

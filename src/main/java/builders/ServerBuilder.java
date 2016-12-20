@@ -22,10 +22,8 @@ public class ServerBuilder {
             case UDP_NEW_THREAD:
                 return new UdpNewThread();
             case UDP_FIXED_POOL:
-                break;
-            case UNRECOGNIZED:
-                break;
+                return new UdpFixedPool();
         }
-        throw new UnexpectedException("w");
+        throw new UnexpectedException("Unrecognized client");
     }
 }
