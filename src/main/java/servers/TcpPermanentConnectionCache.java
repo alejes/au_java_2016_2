@@ -17,10 +17,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class TcpPermanentConnectionCache extends Server {
+public class TcpPermanentConnectionCache extends TcpServer {
     private final ExecutorService executorService = Executors.newCachedThreadPool();
-    private ServerSocket serverSocket = new ServerSocket(0);
-    private boolean shutdown = false;
     private final List<ServerWorker> workers = new ArrayList<>();
 
     public TcpPermanentConnectionCache() throws IOException {
@@ -29,9 +27,7 @@ public class TcpPermanentConnectionCache extends Server {
 
     @Override
     protected void stopServer() throws InterruptedException, IOException {
-        shutdown = true;
-        serverSocket.close();
-        serverSocket = null;
+        super.stopServer();
         executorService.shutdown();
         executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
         for (ServerWorker sw : workers) {
@@ -39,6 +35,7 @@ public class TcpPermanentConnectionCache extends Server {
             totalQueryProcessingTime += sw.localTotalQueryProcessingTime;
             totalClientsQueries += sw.localTotalClientsQueries;
         }
+        workers.clear();
     }
 
     @Override

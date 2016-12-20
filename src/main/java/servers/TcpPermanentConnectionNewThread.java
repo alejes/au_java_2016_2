@@ -14,9 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class TcpPermanentConnectionNewThread extends Server {
-    private ServerSocket serverSocket = new ServerSocket(0);
-    private boolean shutdown = false;
+public class TcpPermanentConnectionNewThread extends TcpServer {
     private final List<Thread> threads = new ArrayList<>();
     private final List<ServerWorker> workers = new ArrayList<>();
 
@@ -31,9 +29,7 @@ public class TcpPermanentConnectionNewThread extends Server {
 
     @Override
     protected void stopServer() throws InterruptedException, IOException {
-        shutdown = true;
-        serverSocket.close();
-        serverSocket = null;
+        super.stopServer();
         for (Thread t : threads) {
             t.interrupt();
             t.join();
@@ -43,6 +39,7 @@ public class TcpPermanentConnectionNewThread extends Server {
             totalQueryProcessingTime += sw.localTotalQueryProcessingTime;
             totalClientsQueries += sw.localTotalClientsQueries;
         }
+        workers.clear();
     }
 
     @Override

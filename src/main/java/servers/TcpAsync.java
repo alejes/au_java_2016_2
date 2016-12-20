@@ -14,8 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class TcpAsync extends Server {
-    private boolean shutdown = false;
+public class TcpAsync extends TcpServer {
     private final List<ServerWorker> workers = new ArrayList<>();
     private AsynchronousServerSocketChannel channel = AsynchronousServerSocketChannel.open().bind(null);
 
@@ -30,9 +29,7 @@ public class TcpAsync extends Server {
 
     @Override
     protected void stopServer() throws InterruptedException, IOException {
-        shutdown = true;
-        channel.close();
-        channel = null;
+        super.stopServer();
         for (ServerWorker sw : workers) {
             totalClientProcessingTime += sw.localTotalClientProcessingTime;
             totalQueryProcessingTime += sw.localTotalQueryProcessingTime;

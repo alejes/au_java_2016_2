@@ -12,6 +12,7 @@ public abstract class Server implements Runnable {
     protected long totalQueryProcessingTime = 0;
     protected int totalClientsQueries = 0;
     protected long totalClientProcessingTime = 0;
+    protected boolean shutdown = false;
 
     protected Server() {
     }

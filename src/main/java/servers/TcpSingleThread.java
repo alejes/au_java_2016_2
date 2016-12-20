@@ -5,26 +5,16 @@ import utils.ArrayAlgorithms;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class TcpSingleThread extends Server {
-    private ServerSocket serverSocket = new ServerSocket(0);
-    private boolean shutdown = false;
+public class TcpSingleThread extends TcpServer {
 
     public TcpSingleThread() throws IOException {
         super();
-    }
-
-    @Override
-    protected void stopServer() throws InterruptedException, IOException {
-        shutdown = true;
-        serverSocket.close();
-        serverSocket = null;
     }
 
     @Override

@@ -16,10 +16,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class TcpPermanentConnectionNonBlock extends Server {
+public class TcpPermanentConnectionNonBlock extends TcpServer {
     private final ExecutorService executorService =
             Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-    private boolean shutdown = false;
     private final List<ServerWorker> workers = new ArrayList<>();
     private ServerSocketChannel channel;
 
@@ -38,9 +37,7 @@ public class TcpPermanentConnectionNonBlock extends Server {
 
     @Override
     protected void stopServer() throws InterruptedException, IOException {
-        shutdown = true;
-        channel.close();
-        channel = null;
+        super.stopServer();
         executorService.shutdown();
         executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
         for (ServerWorker sw : workers) {
@@ -48,6 +45,7 @@ public class TcpPermanentConnectionNonBlock extends Server {
             totalQueryProcessingTime += sw.localTotalQueryProcessingTime;
             totalClientsQueries += sw.localTotalClientsQueries;
         }
+        workers.clear();
     }
 
     @Override

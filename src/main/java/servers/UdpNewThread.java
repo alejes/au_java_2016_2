@@ -12,26 +12,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class UdpNewThread extends Server {
-    private DatagramSocket serverSocket = new DatagramSocket(0);
-    private boolean shutdown = false;
+public class UdpNewThread extends UdpServer {
+
     private final List<Thread> threads = new ArrayList<>();
     private final List<ServerWorker> workers = new ArrayList<>();
 
     public UdpNewThread() throws IOException {
         super();
-    }
-
-    @Override
-    public int getPort() {
-        return serverSocket.getLocalPort();
+        serverSocket = new DatagramSocket(0);
     }
 
     @Override
     protected void stopServer() throws InterruptedException, IOException {
-        shutdown = true;
-        serverSocket.close();
-        serverSocket = null;
+        super.stopServer();
         for (Thread t : threads) {
             t.interrupt();
             t.join();
@@ -41,6 +34,7 @@ public class UdpNewThread extends Server {
             totalQueryProcessingTime += sw.localTotalQueryProcessingTime;
         }
         totalClientsQueries = workers.size();
+        workers.clear();
     }
 
     @Override
@@ -66,49 +60,6 @@ public class UdpNewThread extends Server {
         } catch (IOException e) {
             Logger log = Logger.getLogger(Server.class.getName());
             log.log(Level.SEVERE, e.getMessage(), e);
-        }
-    }
-
-    private class ServerWorker implements Runnable {
-        private final DatagramPacket packet;
-        private final DatagramSocket serverSocket;
-        public long localTotalClientProcessingTime = 0;
-        public long localTotalQueryProcessingTime = 0;
-
-        private ServerWorker(DatagramSocket serverSocket, DatagramPacket packet) {
-            this.packet = packet;
-            this.serverSocket = serverSocket;
-        }
-
-        @Override
-        public void run() {
-            byte[] buffer = new byte[packet.getLength()];
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream(packet.getLength());
-            try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(packet.getData()));
-                 DataOutputStream dos = new DataOutputStream(outputStream)) {
-                int arrayLength = dis.readInt();
-                int[] array = new int[arrayLength];
-                long startAllTime = System.nanoTime();
-                for (int i = 0; i < arrayLength; ++i) {
-                    array[i] = dis.readInt();
-                }
-                long startSort = System.nanoTime();
-                ArrayAlgorithms.squareSort(array);
-                long timeSort = System.nanoTime() - startSort;
-                for (int val : array) {
-                    dos.writeInt(val);
-                }
-                dos.flush();
-                DatagramPacket result = new DatagramPacket(buffer, dos.size(), packet.getAddress(), packet.getPort());
-                serverSocket.send(result);
-                long timeThisQuery = System.nanoTime() - startAllTime;
-                localTotalClientProcessingTime += timeSort;
-                localTotalQueryProcessingTime += timeThisQuery;
-
-            } catch (IOException e) {
-                Logger log = Logger.getLogger(Server.class.getName());
-                log.log(Level.SEVERE, e.getMessage(), e);
-            }
         }
     }
 }
