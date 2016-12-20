@@ -21,6 +21,7 @@ public class UdpNewConnectionClient extends Client {
         start = System.nanoTime();
         for (int requestId = 0; requestId < initMessage.getX(); ) {
             try (DatagramSocket socket = new DatagramSocket()) {
+                socket.setSendBufferSize(1 << 16);
                 socket.setSoTimeout(50);
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream(buffer.length + Integer.BYTES);
                 try (DataOutputStream dos = new DataOutputStream(outputStream)) {

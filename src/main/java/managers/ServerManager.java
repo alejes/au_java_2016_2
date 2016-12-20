@@ -15,7 +15,7 @@ import java.net.Socket;
 import java.net.SocketException;
 
 public class ServerManager {
-    public static final String SERVER_MANAGER_HOST = "127.0.0.1";
+    public static final String SERVER_MANAGER_HOST = "172.21.210.38";
     public static final int SERVER_MANAGER_PORT = 50028;
     private final ServerSocket sc = new ServerSocket(SERVER_MANAGER_PORT);
     private final Thread serverThread;
@@ -49,6 +49,7 @@ public class ServerManager {
         public void run() {
             while (!Thread.interrupted()) {
                 try (Socket socket = sc.accept()) {
+                    System.out.println("new query starts");
                     try (DataInputStream dis = new DataInputStream(socket.getInputStream());
                          DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
                         ServerInitMessage serverInit = ServerInitMessage.parseDelimitedFrom(dis);

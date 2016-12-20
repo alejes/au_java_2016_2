@@ -6,14 +6,16 @@ import utils.ArrayAlgorithms;
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public abstract class UdpServer extends Server {
-    protected DatagramSocket serverSocket = new DatagramSocket(0);
+    protected DatagramSocket serverSocket = new DatagramSocket( new InetSocketAddress("0.0.0.0", 0));
 
     protected UdpServer() throws SocketException {
+        serverSocket.setSendBufferSize(1 << 16);
     }
 
     @Override

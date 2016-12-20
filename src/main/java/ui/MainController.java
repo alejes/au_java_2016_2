@@ -30,7 +30,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -88,17 +87,15 @@ public class MainController implements Initializable {
                 return;
             }
 
-            try (PrintWriter out = new PrintWriter(new Date().getTime() + ".log.txt")) {
-                out.println("Strategy: " + targetStrategy.name());
-                out.println("X = " + parameterX.getText());
-                out.println("N = " + N);
-                out.println("M = " + M);
-                out.println("∆ = " + Delta);
-                out.println(parameterChanged.getValue().toString() + " from " + fromRange + " to " + toRange + " by " + stepRange);
+            try (PrintWriter out = new PrintWriter(targetStrategy.name() + "_" + parameterChanged.getValue().toString() + ".log.txt")) {
+                out.println(X);
+                out.println(N);
+                out.println(M);
+                out.println(Delta);
+                out.println(fromRange + " " + toRange + " " + stepRange);
 
                 for (int changedValue = fromRange; changedValue <= toRange; changedValue += stepRange) {
                     parameter.add(changedValue);
-                    out.print("parameter = " + changedValue + " ");
                     switch (parameterChanged.getValue().toString()) {
                         case "M":
                             initializeServerAndClient(targetStrategy, N, changedValue, Delta, clientProcessingTime, queryProcessingTime, averageClientTime, out);
@@ -194,9 +191,9 @@ public class MainController implements Initializable {
                 queryProcessingTime.add(serverResponseStatMessage.getQueryProcessingTime());
                 averageClientTime.add(clientResponseStatMessage.getAverageClientTime());
 
-                out.println("; ClientProcessingTime = " + serverResponseStatMessage.getClientProcessingTime() +
-                        "; QueryProcessingTime= " + serverResponseStatMessage.getQueryProcessingTime() +
-                        "; AverageClientTime = " + clientResponseStatMessage.getAverageClientTime());
+                out.println(serverResponseStatMessage.getClientProcessingTime() +
+                        " " + serverResponseStatMessage.getQueryProcessingTime() +
+                        " " + clientResponseStatMessage.getAverageClientTime());
             }
         } catch (IOException exc) {
             Notifications.create()
