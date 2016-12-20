@@ -1,12 +1,16 @@
 package ui;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 import managers.ServerManager;
 import org.controlsfx.control.Notifications;
 import proto.ClientInitMessageOuterClass.ClientInitMessage;
@@ -17,12 +21,14 @@ import proto.ServerRequestStatMessageOuterClass.ServerRequestStatMessage;
 import proto.ServerResponseStatMessageOuterClass.ServerResponseStatMessage;
 import proto.TestStrategyOuterClass.TestStrategy;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
-import java.util.Date;
 import java.util.ResourceBundle;
 
 import static managers.ClientManager.CLIENT_MANAGER_HOST;
@@ -58,7 +64,7 @@ public class MainController implements Initializable {
 
     public void setupScene(BorderPane root) {
         startButton.setOnAction(e -> {
-            final int fromRange = Integer.valueOf(fromRangeField.getText());
+            /*final int fromRange = Integer.valueOf(fromRangeField.getText());
             final int toRange = Integer.valueOf(toRangeField.getText());
             final int stepRange = Integer.valueOf(stepRangeField.getText());
             final int N = Integer.valueOf(parameterN.getText());
@@ -105,6 +111,24 @@ public class MainController implements Initializable {
                 Notifications.create()
                         .title("Perfomance Architectire")
                         .text("Cannot write to file: " + e1.getMessage())
+                        .showError();
+            }*/
+            Parent graphic;
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("Graphics.fxml"));
+                graphic = loader.load();
+                Stage stage = new Stage();
+                stage.setTitle("Show Results");
+                stage.setScene(new Scene(graphic, 1000, 400));
+                GraphicController controller = loader.getController();
+                controller.setupScene(root);
+                stage.show();
+                // Hide this current window (if this is what you want)
+                //((Node) (e.getSource())).getScene().getWindow().hide();
+            } catch (IOException ex) {
+                Notifications.create()
+                        .title("Perfomance Architectire")
+                        .text("Cannot show graphic")
                         .showError();
             }
         });
