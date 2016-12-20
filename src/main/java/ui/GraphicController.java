@@ -21,7 +21,6 @@ public class GraphicController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
     }
 
     public void setupScene(BorderPane root,

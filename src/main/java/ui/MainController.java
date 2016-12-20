@@ -132,8 +132,6 @@ public class MainController implements Initializable {
                 GraphicController controller = loader.getController();
                 controller.setupScene(root, parameter, clientProcessingTime, queryProcessingTime, averageClientTime);
                 stage.show();
-                // Hide this current window (if this is what you want)
-                //((Node) (e.getSource())).getScene().getWindow().hide();
             } catch (IOException ex) {
                 Notifications.create()
                         .title("Perfomance Architectire")
