@@ -10,6 +10,7 @@ public abstract class Client implements Runnable {
     protected ClientInitMessage initMessage;
     protected double averageClientTime;
     protected int[] array;
+    protected int[] receivedArray;
 
     public double getAverageClientTime() {
         return averageClientTime;
@@ -18,5 +19,6 @@ public abstract class Client implements Runnable {
     public void initClientData(ClientInitMessage initMessage) {
         this.initMessage = initMessage;
         array = new Random().ints(initMessage.getN()).toArray();
+        receivedArray = new int[array.length];
     }
 }

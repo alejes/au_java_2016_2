@@ -31,7 +31,7 @@ public class TCPPermanentConnectionClient extends Client {
                     }
                     dos.flush();
                     for (int i = 0; i < array.length; ++i) {
-                        array[i] = dis.readInt();
+                        receivedArray[i] = dis.readInt();
                     }
                     if ((requestId < initMessage.getX() - 1) && (initMessage.getDelta() > 0)) {
                         Thread.sleep(initMessage.getDelta());

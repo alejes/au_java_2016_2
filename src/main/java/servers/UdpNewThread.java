@@ -48,7 +48,6 @@ public class UdpNewThread extends Server {
                                 new byte[serverSocket.getReceiveBufferSize()],
                                 serverSocket.getReceiveBufferSize());
                 serverSocket.receive(packet);
-                System.out.println("received new package");
                 ServerWorker sw = new ServerWorker(serverSocket, packet);
                 Thread t = new Thread(sw);
                 threads.add(t);
@@ -81,17 +80,16 @@ public class UdpNewThread extends Server {
         public void run() {
             byte[] buffer = new byte[packet.getLength()];
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream(packet.getLength());
-            try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(buffer));
+            try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(packet.getData()));
                  DataOutputStream dos = new DataOutputStream(outputStream)) {
                 int arrayLength = dis.readInt();
                 int[] array = new int[arrayLength];
-                System.out.println("start sorting" +
-                        "");
                 long startAllTime = System.nanoTime();
                 for (int i = 0; i < arrayLength; ++i) {
                     array[i] = dis.readInt();
                 }
                 long startSort = System.nanoTime();
+                System.out.println(arrayLength);
                 for (int i = 0; i < arrayLength; ++i) {
                     for (int j = 0; j < arrayLength; ++j) {
                         if (array[i] > array[j]) {
@@ -109,7 +107,6 @@ public class UdpNewThread extends Server {
                 DatagramPacket result = new DatagramPacket(buffer, dos.size(), packet.getAddress(), packet.getPort());
                 serverSocket.send(result);
                 long timeThisQuery = System.nanoTime() - startAllTime;
-                System.out.println("answer sended");
                 localTotalClientProcessingTime += timeSort;
                 localTotalQueryProcessingTime += timeThisQuery;
 

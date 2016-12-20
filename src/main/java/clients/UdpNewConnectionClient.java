@@ -16,12 +16,11 @@ public class UdpNewConnectionClient extends Client {
         byte[] buffer = new byte[Integer.BYTES * array.length];
         long start, end;
         start = System.nanoTime();
-        for (int requestId = 0; requestId < initMessage.getX(); ++requestId) {
+        for (int requestId = 0; requestId < initMessage.getX(); ) {
             try (DatagramSocket socket = new DatagramSocket()) {
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream(buffer.length);
-                try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(buffer));
-                     DataOutputStream dos = new DataOutputStream(outputStream)) {
-                    System.out.println("start client iteration "+ requestId);
+                socket.setSoTimeout(50);
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream(buffer.length + Integer.BYTES);
+                try (DataOutputStream dos = new DataOutputStream(outputStream)) {
                     dos.writeInt(array.length);
                     for (int val : array) {
                         dos.writeInt(val);
@@ -33,13 +32,20 @@ public class UdpNewConnectionClient extends Client {
                                     InetAddress.getByName(initMessage.getServer().getServerIp()),
                                     initMessage.getServer().getServerPort());
                     socket.send(packet);
-                    System.out.println("send request");
+
                     DatagramPacket result = new DatagramPacket(buffer, buffer.length);
-                    socket.receive(result);
-                    System.out.println("receive response");
-                    for (int i = 0; i < array.length; ++i) {
-                        array[i] = dis.readInt();
+                    try {
+                        socket.receive(result);
+                    } catch (SocketTimeoutException e) {
+                        continue;
                     }
+
+                    try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(packet.getData()))) {
+                        for (int i = 0; i < array.length; ++i) {
+                            receivedArray[i] = dis.readInt();
+                        }
+                    }
+                    ++requestId;
                     if ((requestId < initMessage.getX() - 1) && (initMessage.getDelta() > 0)) {
                         Thread.sleep(initMessage.getDelta());
                     }
