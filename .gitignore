@@ -27,9 +27,11 @@ proguard/
 *.ipr
 *.iws
 .idea/
+.vcs
 
 #Gradle
 .gradletasknamecache
 .gradle/
 build/
 bin/
+tests/workdir
