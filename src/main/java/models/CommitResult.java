@@ -1,8 +1,8 @@
 package models;
 
 public class CommitResult {
-    public int branchId;
-    public int commitId;
+    public final int branchId;
+    public final int commitId;
 
     public CommitResult(int branchId, int commitId) {
         this.branchId = branchId;

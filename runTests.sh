@@ -7,11 +7,11 @@ nc='\033[0m'
 
 ./gradlew jar
 WORKDIR=`echo 'tests/workdir'`
-mkdir -p $WORKDIR
+mkdir -p ${WORKDIR}
 
 echo -e "${orange}Log test${nc}"
 
-cd $WORKDIR
+cd ${WORKDIR}
 echo "file2" >> file2.txt
 echo "file1" >> file1.txt
 

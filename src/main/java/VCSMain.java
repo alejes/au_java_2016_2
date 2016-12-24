@@ -17,7 +17,7 @@ public class VCSMain {
 
                 case "checkout":
                     Cmd.checkArgumentsLength(args, 2, "checkout require at least 1 arguments - branch name. " +
-                            "You can use -b modificator for create");
+                            "You can use -b argument for create");
                     switch (args.length) {
                         case 2:
                             vcs.checkout(args[1], false);
@@ -32,7 +32,7 @@ public class VCSMain {
 
                 case "branch":
                     Cmd.checkArgumentsLength(args, 3, "branch require at least 2 arguments.\n" +
-                            "First -b and -d modificators for create and delete branch.\n" +
+                            "First -b and -d arguments for create and delete branch.\n" +
                             "Second is branch name.");
                     switch (args[1]) {
                         case "-b":

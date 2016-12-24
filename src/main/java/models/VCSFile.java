@@ -2,8 +2,8 @@ package models;
 
 
 public class VCSFile {
-    public VCSEntity entity;
-    public ModifyAction action;
+    public final VCSEntity entity;
+    public final ModifyAction action;
 
     public VCSFile(VCSEntity entity, ModifyAction action) {
         this.entity = entity;

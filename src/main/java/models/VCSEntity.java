@@ -1,8 +1,8 @@
 package models;
 
 public final class VCSEntity {
-    public int fileId;
-    public String path;
+    public final int fileId;
+    public final String path;
 
     public VCSEntity(int fileId, String path) {
         this.fileId = fileId;
@@ -14,16 +14,16 @@ public final class VCSEntity {
         if (o == null) {
             return false;
         } else if (o instanceof String) {
-            return this.path.equals(o);
+            return path.equals(o);
         } else if (!(o instanceof VCSEntity)) {
             return false;
         }
-        return this.path.equals(((VCSEntity) o).path);
+        return path.equals(((VCSEntity) o).path);
     }
 
     @Override
     public int hashCode() {
-        return this.path.hashCode();
+        return path.hashCode();
     }
 
     @Override

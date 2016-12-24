@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SQLLite implements DBDriver {
-    Connection conn;
+    private Connection conn;
 
     @Override
     public void connect() throws ClassNotFoundException {
@@ -236,7 +236,7 @@ public class SQLLite implements DBDriver {
             int commitId = result.getInt(1);
             String message = result.getString(3);
             String time = result.getString(4);
-            answer.append(commitId + ": " + time + "\n");
+            answer.append(commitId).append(": ").append(time).append("\n");
             answer.append(message);
             answer.append("\n=====\n");
         }
