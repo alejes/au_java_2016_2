@@ -16,10 +16,7 @@ public class TorrentFile {
     private String name;
 
     public TorrentFile(int fileId, String name, long size) {
-        this.fileId = fileId;
-        this.size = size;
-        this.name = name;
-        this.pieces = new ArrayList<>();
+        this(fileId, name, size, false);
     }
 
     public TorrentFile(int fileId, String name, long size, boolean loaded) {
@@ -27,10 +24,10 @@ public class TorrentFile {
         this.size = size;
         this.name = name;
         if (loaded) {
-            this.pieces = IntStream.rangeClosed(0, getTotalPieces())
+            pieces = IntStream.rangeClosed(0, getTotalPieces())
                     .mapToObj(Integer::new).collect(Collectors.toList());
         } else {
-            this.pieces = new ArrayList<>();
+            pieces = new ArrayList<>();
         }
     }
 
@@ -96,13 +93,7 @@ public class TorrentFile {
 
     @Override
     public String toString() {
-        String result = getFileId() + "\t" + getName() + "\t" + getSize();
-        if (isDownload()) {
-            result += "\t" + "[OK]";
-        } else {
-            result += "\t" + "[" + getCountPieces() + "/" + getTotalPieces() + "]";
-        }
-        return result;
+        return toString(true, true);
     }
 
     public String toString(boolean inLocalList) {
