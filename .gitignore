@@ -32,4 +32,6 @@ proguard/
 .gradletasknamecache
 .gradle/
 build/
-bin/
+
+torrent-settings.dat
+torrent-client-*.dat
