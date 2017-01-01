@@ -24,7 +24,7 @@ public class SourceCommand implements Command {
     @Override
     public void evaluateCommand(DataOutputStream dos) throws IOException {
         List<TorrentPeer> targetList = tss.getPeersFilesMap().entrySet().stream()
-                .filter((entry) -> entry.getValue().contains(this.fileId))
+                .filter((entry) -> entry.getValue().contains(fileId))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
 
