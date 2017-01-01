@@ -21,12 +21,12 @@ import static org.junit.Assert.*;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FtpTests {
     private static final int PORT_NUMBER_MOD = 30000;
-    private static final Random rnd = new Random();
+    private static final Random RND = new Random();
     private static final int MAX_CLIENT_COUNT = 100;
 
     @Test
     public void connect() throws Exception {
-        int serverPort = PORT_NUMBER_MOD + (rnd.nextInt() % PORT_NUMBER_MOD);
+        int serverPort = PORT_NUMBER_MOD + (RND.nextInt() % PORT_NUMBER_MOD);
         FtpServerImpl ftpServer = new FtpServerImpl(serverPort);
         FtpClientImpl ftpClient = new FtpClientImpl(serverPort);
         try {
@@ -43,7 +43,7 @@ public class FtpTests {
 
     @Test
     public void multiConnect() throws Exception {
-        int serverPort = PORT_NUMBER_MOD + (rnd.nextInt() % PORT_NUMBER_MOD);
+        int serverPort = PORT_NUMBER_MOD + (RND.nextInt() % PORT_NUMBER_MOD);
         FtpServerImpl ftpServer = new FtpServerImpl(serverPort);
         FtpClientImpl[] ftpClient = new FtpClientImpl[MAX_CLIENT_COUNT];
         try {
@@ -67,7 +67,7 @@ public class FtpTests {
 
     @Test
     public void executeList() throws Exception {
-        int serverPort = PORT_NUMBER_MOD + (rnd.nextInt() % PORT_NUMBER_MOD);
+        int serverPort = PORT_NUMBER_MOD + (RND.nextInt() % PORT_NUMBER_MOD);
         FtpServerImpl ftpServer = new FtpServerImpl(serverPort);
         FtpClientImpl ftpClient = new FtpClientImpl(serverPort);
         try {
@@ -88,7 +88,7 @@ public class FtpTests {
 
     @Test
     public void executeGet() throws Exception {
-        int serverPort = PORT_NUMBER_MOD + (rnd.nextInt() % PORT_NUMBER_MOD);
+        int serverPort = PORT_NUMBER_MOD + (RND.nextInt() % PORT_NUMBER_MOD);
         FtpServerImpl ftpServer = new FtpServerImpl(serverPort);
         FtpClientImpl ftpClient = new FtpClientImpl(serverPort);
         try {
@@ -128,7 +128,7 @@ public class FtpTests {
 
     @Test
     public void executeGetLazy() throws Exception {
-        int serverPort = PORT_NUMBER_MOD + (rnd.nextInt() % PORT_NUMBER_MOD);
+        int serverPort = PORT_NUMBER_MOD + (RND.nextInt() % PORT_NUMBER_MOD);
         FtpServerImpl ftpServer = new FtpServerImpl(serverPort);
         FtpClientImpl ftpClient = new FtpClientImpl(serverPort);
         try {

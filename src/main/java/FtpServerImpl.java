@@ -70,13 +70,13 @@ public class FtpServerImpl implements FtpServer {
                 }
                 System.out.println("The client disconnected");
             } catch (FTPException | IOException e) {
-                System.out.println("Exception: " + e.getMessage());
+                System.err.println("Exception: " + e.getMessage());
             }
         }
     }
 
     private class FtpServerManager implements Runnable {
-        private ServerSocket server;
+        private final ServerSocket server;
 
         public FtpServerManager(ServerSocket server) {
             this.server = server;
@@ -93,10 +93,10 @@ public class FtpServerImpl implements FtpServer {
                 }
             } catch (SocketException e) {
                 if (!shutdown) {
-                    System.out.println("SocketException: " + e.getMessage());
+                    System.err.println("SocketException: " + e.getMessage());
                 }
             } catch (IOException e) {
-                System.out.println("IOException: " + e.getMessage());
+                System.err.println("IOException: " + e.getMessage());
             }
         }
     }
